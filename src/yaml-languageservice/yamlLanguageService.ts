@@ -1,13 +1,60 @@
+
+import {
+  TextDocument, Position, CompletionItem, CompletionList, Hover, Range, SymbolInformation, Diagnostic,
+  TextEdit, FormattingOptions, MarkedString
+} from 'vscode-languageserver-types';
+
 import { JSONSchemaService } from './services/jsonSchemaService'
-import { TextDocument, Position, CompletionList } from 'vscode-languageserver-types';
 import { JSONSchema } from './jsonSchema';
 import { parse as parseYAML } from "./parser/yamlParser";
 import { YAMLDocumentSymbols } from './services/documentSymbols';
 import { YAMLCompletion } from "./services/yamlCompletion";
 import { YAMLHover } from "./services/yamlHover";
 import { YAMLValidation } from "./services/yamlValidation";
-import { LanguageSettings, YAMLDocument, Diagnostic } from '../vscode-yaml-languageservice/yamlLanguageService';
+import { format as formatYAML } from './services/yamlFormatter';
 
+export type JSONDocument = {}
+export type YAMLDocument = { documents: JSONDocument[] }
+
+export interface LanguageService {
+  configure(settings: LanguageSettings): void;
+  doValidation(document: TextDocument, yamlDocument: YAMLDocument): Thenable<Diagnostic[]>;
+  parseYAMLDocument(document: TextDocument): YAMLDocument;
+  resetSchema(uri: string): boolean;
+  doResolve(item: CompletionItem): Thenable<CompletionItem>;
+  doComplete(document: TextDocument, position: Position, doc: YAMLDocument): Thenable<CompletionList>;
+  findDocumentSymbols(document: TextDocument, doc: YAMLDocument): SymbolInformation[];
+  doHover(document: TextDocument, position: Position, doc: YAMLDocument): Thenable<Hover>;
+  format(document: TextDocument, options: FormattingOptions): TextEdit[];
+}
+
+export interface LanguageSettings {
+	/**
+	 * If set, the validator will return syntax errors.
+	 */
+  validate?: boolean;
+
+	/**
+	 * A list of known schemas and/or associations of schemas to file names.
+	 */
+  schemas?: SchemaConfiguration[];
+}
+
+export interface SchemaConfiguration {
+	/**
+	 * The URI of the schema, which is also the identifier of the schema.
+	 */
+  uri: string;
+	/**
+	 * A list of file names that are associated to the schema. The '*' wildcard can be used. For example '*.schema.json', 'package.json'
+	 */
+  fileMatch?: string[];
+	/**
+	 * The schema for the given URI.
+	 * If no schema is provided, the schema will be fetched with the schema request service (if available).
+	 */
+  schema?: JSONSchema;
+}
 export interface LanguageSettings {
   validate?: boolean; //Setting for whether we want to validate the schema
   schemas?: any[]; //List of schemas
@@ -120,6 +167,7 @@ export function getLanguageService(schemaRequestService, workspaceContext, contr
     doValidation: yamlValidation.doValidation.bind(yamlValidation),
     doHover: hover.doHover.bind(hover),
     findDocumentSymbols: yamlDocumentSymbols.findDocumentSymbols.bind(yamlDocumentSymbols),
-    resetSchema: (uri: string) => schemaService.onResourceChange(uri)
+    resetSchema: (uri: string) => schemaService.onResourceChange(uri),
+    format: formatYAML
   }
 }

@@ -1,4 +1,4 @@
-import { YAMLDocument } from "../../vscode-yaml-languageservice/yamlLanguageService";
+import { YAMLDocument } from "../yamlLanguageService";
 import { SingleYAMLDocument } from "../parser/yamlParser";
 
 export function removeDuplicates(arr, prop) {
