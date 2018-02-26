@@ -59,8 +59,24 @@ gulp.task('release', ['clean-release','compile'], function() {
 				'vs/language/json': __dirname + '/out'
 			},
 			packages: [{
+				name: 'vscode-yaml-languageservice',
+				location: __dirname + '/out/vscode-yaml-languageservice/',
+				main: 'yamlLanguageService'
+			}, {
+				name: 'yaml-language-server',
+				location: __dirname + '/out/yaml-language-server',
+				main: 'yamlLanguageService'
+			}, {
+				name: 'yaml-ast-parser',
+				location: __dirname + '/out/yaml-ast-parser',
+				main: 'index'
+			}, {
+				name: 'js-yaml',
+				location: __dirname + '/node_modules/js-yaml/dist',
+				main: 'js-yaml'
+			}, {
 				name: 'vscode-json-languageservice',
-				location: __dirname + '/node_modules/vscode-json-languageservice/lib',
+				location: __dirname + '/node_modules/vscode-json-languageservice',
 				main: 'jsonLanguageService'
 			}, {
 				name: 'vscode-languageserver-types',
@@ -82,6 +98,10 @@ gulp.task('release', ['clean-release','compile'], function() {
 				name: 'vscode-nls',
 				location: __dirname + '/out/fillers',
 				main: 'vscode-nls'
+			}, {
+				name: 'os',
+				location: __dirname + '/out/fillers',
+				main: 'os'
 			}]
 		})
 	}
