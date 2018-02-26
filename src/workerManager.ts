@@ -62,7 +62,7 @@ export class WorkerManager {
 			this._worker = monaco.editor.createWebWorker<YAMLWorker>({
 
 				// module that exports the create() method and returns a `YAMLWorker` instance
-				moduleId: 'hl/yaml/yamlWorker',
+				moduleId: 'vs/languages/yaml/yamlWorker',
 
 				label: this._defaults.languageId,
 

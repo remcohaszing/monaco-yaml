@@ -62,13 +62,15 @@ monaco.languages.yaml = createAPI();
 // --- Registration to monaco editor ---
 
 function withMode(callback: (module: typeof mode) => void): void {
-	require<typeof mode>(['hl/yaml/yamlMode'], callback);
+	require<typeof mode>(['vs/languages/yaml/yamlMode'], callback);
 }
 
-// monaco.languages.register({
-// 	id: 'yaml',
-// 	extensions: ['.yml'],
-// });
+monaco.languages.register({
+	id: 'yaml',
+	extensions: ['.yaml', '.yml'],
+	aliases: ['YAML', 'yaml', 'YML', 'yml'],
+	mimetypes: ['application/x-yaml']
+});
 monaco.languages.onLanguage('yaml', () => {
 	withMode(mode => mode.setupMode(yamlDefaults));
 });

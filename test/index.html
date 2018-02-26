@@ -15,7 +15,7 @@
 	var require = {
 		paths: {
 			'vs/basic-languages': '../node_modules/monaco-languages/release',
-			'vs/language/json': '../release/dev',
+			'vs/language/yaml': '../release/dev',
 			'vs': '../node_modules/monaco-editor-core/dev/vs'
 		}
 	};
@@ -27,7 +27,7 @@
 <script>
 	require([
 		'vs/basic-languages/src/monaco.contribution',
-		'vs/language/json/monaco.contribution'
+		'vs/language/yaml/monaco.contribution'
 	], function() {
 		var editor = monaco.editor.create(document.getElementById('container'), {
 			value: [
@@ -100,7 +100,7 @@
 				'	}',
 				'}',
 			].join('\n'),
-			language: 'json'
+			language: 'yaml'
 		});
 	});
 </script>

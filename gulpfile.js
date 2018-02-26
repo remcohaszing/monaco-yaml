@@ -52,11 +52,11 @@ gulp.task('release', ['clean-release', 'compile'], function () {
 
 		return rjs({
 			baseUrl: '/out/',
-			name: 'hl/yaml/' + moduleId,
+			name: 'vs/languages/yaml/' + moduleId,
 			out: moduleId + '.js',
 			exclude: exclude,
 			paths: {
-				'hl/yaml': __dirname + '/out'
+				'vs/languages/yaml': __dirname + '/out'
 			},
 			packages: [{
 				name: 'yaml-ast-parser',
@@ -100,7 +100,7 @@ gulp.task('release', ['clean-release', 'compile'], function () {
 
 	return merge(
 		merge(
-			bundleOne('monaco.contribution', ['hl/yaml/yamlMode']),
+			bundleOne('monaco.contribution', ['vs/languages/yaml/yamlMode']),
 			bundleOne('yamlMode'),
 			bundleOne('yamlWorker')
 		)
