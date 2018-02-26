@@ -13,7 +13,7 @@ for the API that the JSON plugin offers to configure the JSON language support.
 
 ## Installing
 
-This npm module is bundled and distributed in the [monaco-editor](https://www.npmjs.com/package/monaco-editor) npm module.
+TODO: Document exact distribution method
 
 ## Development
 
