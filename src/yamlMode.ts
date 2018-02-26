@@ -8,7 +8,6 @@ import { WorkerManager } from './workerManager';
 import { YAMLWorker } from './yamlWorker';
 import { LanguageServiceDefaultsImpl } from './monaco.contribution';
 import * as languageFeatures from './languageFeatures';
-// import { createTokenizationSupport } from './tokenization';
 
 import Promise = monaco.Promise;
 import Uri = monaco.Uri;
