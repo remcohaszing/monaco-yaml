@@ -4,8 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import {LanguageServiceDefaultsImpl} from './monaco.contribution';
-import {JSONWorker} from './jsonWorker';
+import { LanguageServiceDefaultsImpl } from './monaco.contribution';
+import { YAMLWorker } from './yamlWorker';
 
 import Promise = monaco.Promise;
 import IDisposable = monaco.IDisposable;
@@ -20,8 +20,8 @@ export class WorkerManager {
 	private _lastUsedTime: number;
 	private _configChangeListener: IDisposable;
 
-	private _worker: monaco.editor.MonacoWebWorker<JSONWorker>;
-	private _client: Promise<JSONWorker>;
+	private _worker: monaco.editor.MonacoWebWorker<YAMLWorker>;
+	private _client: Promise<YAMLWorker>;
 
 	constructor(defaults: LanguageServiceDefaultsImpl) {
 		this._defaults = defaults;
@@ -55,14 +55,14 @@ export class WorkerManager {
 		}
 	}
 
-	private _getClient(): Promise<JSONWorker> {
+	private _getClient(): Promise<YAMLWorker> {
 		this._lastUsedTime = Date.now();
 
 		if (!this._client) {
-			this._worker = monaco.editor.createWebWorker<JSONWorker>({
+			this._worker = monaco.editor.createWebWorker<YAMLWorker>({
 
-				// module that exports the create() method and returns a `JSONWorker` instance
-				moduleId: 'vs/language/json/jsonWorker',
+				// module that exports the create() method and returns a `YAMLWorker` instance
+				moduleId: 'hl/yaml/yamlWorker',
 
 				label: this._defaults.languageId,
 
@@ -79,8 +79,8 @@ export class WorkerManager {
 		return this._client;
 	}
 
-	getLanguageServiceWorker(...resources: Uri[]): Promise<JSONWorker> {
-		let _client: JSONWorker;
+	getLanguageServiceWorker(...resources: Uri[]): Promise<YAMLWorker> {
+		let _client: YAMLWorker;
 		return toShallowCancelPromise(
 			this._getClient().then((client) => {
 				_client = client

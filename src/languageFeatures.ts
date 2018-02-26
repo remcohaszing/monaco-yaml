@@ -4,8 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import {LanguageServiceDefaultsImpl} from './monaco.contribution';
-import {JSONWorker} from './jsonWorker';
+import { LanguageServiceDefaultsImpl } from './monaco.contribution';
+import { YAMLWorker } from './yamlWorker';
 
 import * as ls from 'vscode-languageserver-types';
 
@@ -19,7 +19,7 @@ import IDisposable = monaco.IDisposable;
 
 
 export interface WorkerAccessor {
-	(...more: Uri[]): Thenable<JSONWorker>
+	(...more: Uri[]): Thenable<YAMLWorker>
 }
 
 // --- diagnostics --- ---
@@ -234,7 +234,7 @@ function toCompletionItem(entry: ls.CompletionItem): DataCompletionItem {
 }
 
 function fromCompletionItem(entry: DataCompletionItem): ls.CompletionItem {
-	let item : ls.CompletionItem = {
+	let item: ls.CompletionItem = {
 		label: entry.label,
 		sortText: entry.sortText,
 		filterText: entry.filterText,
@@ -247,7 +247,7 @@ function fromCompletionItem(entry: DataCompletionItem): ls.CompletionItem {
 		item.insertText = entry.insertText.value;
 		item.insertTextFormat = ls.InsertTextFormat.Snippet
 	} else {
-		item.insertText = <string> entry.insertText;
+		item.insertText = <string>entry.insertText;
 	}
 	if (entry.range) {
 		item.textEdit = ls.TextEdit.replace(fromRange(entry.range), item.insertText);
@@ -276,7 +276,7 @@ export class CompletionAdapter implements monaco.languages.CompletionItemProvide
 				return;
 			}
 			let items: monaco.languages.CompletionItem[] = info.items.map(entry => {
-				let item : monaco.languages.CompletionItem = {
+				let item: monaco.languages.CompletionItem = {
 					label: entry.label,
 					insertText: entry.insertText,
 					sortText: entry.sortText,
@@ -290,7 +290,7 @@ export class CompletionAdapter implements monaco.languages.CompletionItemProvide
 					item.insertText = entry.textEdit.newText;
 				}
 				if (entry.insertTextFormat === ls.InsertTextFormat.Snippet) {
-					item.insertText = { value: <string> item.insertText };
+					item.insertText = { value: <string>item.insertText };
 				}
 				return item;
 			});
@@ -403,7 +403,7 @@ export class DocumentSymbolAdapter implements monaco.languages.DocumentSymbolPro
 function fromFormattingOptions(options: monaco.languages.FormattingOptions): ls.FormattingOptions {
 	return {
 		tabSize: options.tabSize,
-        insertSpaces: options.insertSpaces
+		insertSpaces: options.insertSpaces
 	};
 }
 

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import * as mode from './jsonMode';
+import * as mode from './yamlMode';
 
 import Emitter = monaco.Emitter;
 import IEvent = monaco.IEvent;
@@ -14,18 +14,18 @@ declare var require: <T>(moduleId: [string], callback: (module: T) => void) => v
 
 // --- JSON configuration and defaults ---------
 
-export class LanguageServiceDefaultsImpl implements monaco.languages.json.LanguageServiceDefaults {
+export class LanguageServiceDefaultsImpl implements monaco.languages.yaml.LanguageServiceDefaults {
 
-	private _onDidChange = new Emitter<monaco.languages.json.LanguageServiceDefaults>();
-	private _diagnosticsOptions: monaco.languages.json.DiagnosticsOptions;
+	private _onDidChange = new Emitter<monaco.languages.yaml.LanguageServiceDefaults>();
+	private _diagnosticsOptions: monaco.languages.yaml.DiagnosticsOptions;
 	private _languageId: string;
 
-	constructor(languageId: string, diagnosticsOptions: monaco.languages.json.DiagnosticsOptions) {
+	constructor(languageId: string, diagnosticsOptions: monaco.languages.yaml.DiagnosticsOptions) {
 		this._languageId = languageId;
 		this.setDiagnosticsOptions(diagnosticsOptions);
 	}
 
-	get onDidChange(): IEvent<monaco.languages.json.LanguageServiceDefaults> {
+	get onDidChange(): IEvent<monaco.languages.yaml.LanguageServiceDefaults> {
 		return this._onDidChange.event;
 	}
 
@@ -33,45 +33,42 @@ export class LanguageServiceDefaultsImpl implements monaco.languages.json.Langua
 		return this._languageId;
 	}
 
-	get diagnosticsOptions(): monaco.languages.json.DiagnosticsOptions {
+	get diagnosticsOptions(): monaco.languages.yaml.DiagnosticsOptions {
 		return this._diagnosticsOptions;
 	}
 
-	setDiagnosticsOptions(options: monaco.languages.json.DiagnosticsOptions): void {
+	setDiagnosticsOptions(options: monaco.languages.yaml.DiagnosticsOptions): void {
 		this._diagnosticsOptions = options || Object.create(null);
 		this._onDidChange.fire(this);
 	}
 }
 
-const diagnosticDefault: monaco.languages.json.DiagnosticsOptions = {
+const diagnosticDefault: monaco.languages.yaml.DiagnosticsOptions = {
 	validate: true,
-	allowComments: true,
 	schemas: []
 }
 
-const jsonDefaults = new LanguageServiceDefaultsImpl('json', diagnosticDefault);
+const yamlDefaults = new LanguageServiceDefaultsImpl('yaml', diagnosticDefault);
 
 
 // Export API
-function createAPI(): typeof monaco.languages.json {
+function createAPI(): typeof monaco.languages.yaml {
 	return {
-		jsonDefaults: jsonDefaults,
+		yamlDefaults: yamlDefaults,
 	}
 }
-monaco.languages.json = createAPI();
+monaco.languages.yaml = createAPI();
 
 // --- Registration to monaco editor ---
 
 function withMode(callback: (module: typeof mode) => void): void {
-	require<typeof mode>(['vs/language/json/jsonMode'], callback);
+	require<typeof mode>(['hl/yaml/yamlMode'], callback);
 }
 
-monaco.languages.register({
-	id: 'json',
-	extensions: ['.json', '.bowerrc', '.jshintrc', '.jscsrc', '.eslintrc', '.babelrc'],
-	aliases: ['JSON', 'json'],
-	mimetypes: ['application/json'],
-});
-monaco.languages.onLanguage('json', () => {
-	withMode(mode => mode.setupMode(jsonDefaults));
+// monaco.languages.register({
+// 	id: 'yaml',
+// 	extensions: ['.yml'],
+// });
+monaco.languages.onLanguage('yaml', () => {
+	withMode(mode => mode.setupMode(yamlDefaults));
 });

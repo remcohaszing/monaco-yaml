@@ -14,8 +14,8 @@ var uglify = require('gulp-uglify');
 var rimraf = require('rimraf');
 var es = require('event-stream');
 
-gulp.task('clean-release', function(cb) { rimraf('release', { maxBusyTries: 1 }, cb); });
-gulp.task('release', ['clean-release','compile'], function() {
+gulp.task('clean-release', function (cb) { rimraf('release', { maxBusyTries: 1 }, cb); });
+gulp.task('release', ['clean-release', 'compile'], function () {
 
 	var sha1 = getGitVersion(__dirname);
 	var semver = require('./package.json').version;
@@ -52,21 +52,13 @@ gulp.task('release', ['clean-release','compile'], function() {
 
 		return rjs({
 			baseUrl: '/out/',
-			name: 'vs/language/json/' + moduleId,
+			name: 'hl/yaml/' + moduleId,
 			out: moduleId + '.js',
 			exclude: exclude,
 			paths: {
-				'vs/language/json': __dirname + '/out'
+				'hl/yaml': __dirname + '/out'
 			},
 			packages: [{
-				name: 'vscode-yaml-languageservice',
-				location: __dirname + '/out/vscode-yaml-languageservice/',
-				main: 'yamlLanguageService'
-			}, {
-				name: 'yaml-language-server',
-				location: __dirname + '/out/yaml-language-server',
-				main: 'yamlLanguageService'
-			}, {
 				name: 'yaml-ast-parser',
 				location: __dirname + '/out/yaml-ast-parser',
 				main: 'index'
@@ -108,22 +100,22 @@ gulp.task('release', ['clean-release','compile'], function() {
 
 	return merge(
 		merge(
-			bundleOne('monaco.contribution', ['vs/language/json/jsonMode']),
-			bundleOne('jsonMode'),
-			bundleOne('jsonWorker')
+			bundleOne('monaco.contribution', ['hl/yaml/yamlMode']),
+			bundleOne('yamlMode'),
+			bundleOne('yamlWorker')
 		)
-		.pipe(es.through(function(data) {
-			data.contents = new Buffer(
-				BUNDLED_FILE_HEADER
-				+ data.contents.toString()
-			);
-			this.emit('data', data);
-		}))
-		.pipe(gulp.dest('./release/dev'))
-		.pipe(uglify({
-			preserveComments: 'some'
-		}))
-		.pipe(gulp.dest('./release/min')),
+			.pipe(es.through(function (data) {
+				data.contents = new Buffer(
+					BUNDLED_FILE_HEADER
+					+ data.contents.toString()
+				);
+				this.emit('data', data);
+			}))
+			.pipe(gulp.dest('./release/dev'))
+			.pipe(uglify({
+				preserveComments: 'some'
+			}))
+			.pipe(gulp.dest('./release/min')),
 		gulp.src('src/monaco.d.ts').pipe(gulp.dest('./release/min'))
 	);
 });
@@ -137,13 +129,13 @@ function compileTask() {
 	return merge(
 		gulp.src(tsSources).pipe(compilation())
 	)
-	.pipe(gulp.dest('out'));
+		.pipe(gulp.dest('out'));
 }
 
-gulp.task('clean-out', function(cb) { rimraf('out', { maxBusyTries: 1 }, cb); });
+gulp.task('clean-out', function (cb) { rimraf('out', { maxBusyTries: 1 }, cb); });
 gulp.task('compile', ['clean-out'], compileTask);
 gulp.task('compile-without-clean', compileTask);
-gulp.task('watch', ['compile'], function() {
+gulp.task('watch', ['compile'], function () {
 	gulp.watch(tsSources, ['compile-without-clean']);
 });
 

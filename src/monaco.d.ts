@@ -3,16 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-declare module monaco.languages.json {
+declare module monaco.languages.yaml {
     export interface DiagnosticsOptions {
         /**
          * If set, the validator will be enabled and perform syntax validation as well as schema based validation.
          */
         readonly validate?: boolean;
-        /**
-         * If set, comments are tolerated. If set to false, syntax errors will be emmited for comments.
-         */
-        readonly allowComments?: boolean;
         /**
          * A list of known schemas and/or associations of schemas to file names.
          */
@@ -38,5 +34,5 @@ declare module monaco.languages.json {
         setDiagnosticsOptions(options: DiagnosticsOptions): void;
     }
 
-    export var jsonDefaults: LanguageServiceDefaults;
+    export var yamlDefaults: LanguageServiceDefaults;
 }

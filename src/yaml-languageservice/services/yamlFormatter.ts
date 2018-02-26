@@ -1,6 +1,6 @@
 'use strict';
 
-import jsyaml = require('js-yaml')
+import * as jsyaml from 'js-yaml'
 import { EOL } from 'os';
 import { TextDocument, Range, Position, FormattingOptions, TextEdit } from 'vscode-languageserver-types';
 
