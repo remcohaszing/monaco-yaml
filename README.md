@@ -19,7 +19,7 @@ TODO: Document exact distribution method
 
 * `git clone https://github.com/kpdecker/monaco-yaml`
 * `cd monaco-yaml`
-* `npm install .`
+* `yarn`
 * `npm run watch`
 * open `$/monaco-yaml/test/index.html` in your favorite browser.
 
