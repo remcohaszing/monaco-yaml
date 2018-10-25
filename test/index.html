@@ -1,63 +1,110 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-	<link rel="stylesheet" data-name="vs/editor/editor.main" href="../node_modules/monaco-editor-core/dev/vs/editor/editor.main.css">
+	<meta http-equiv="X-UA-Compatible"
+	      content="IE=edge" />
+	<meta http-equiv="Content-Type"
+	      content="text/html;charset=utf-8" />
+	<link rel="stylesheet"
+	      data-name="vs/editor/editor.main"
+	      href="../node_modules/monaco-editor-core/dev/vs/editor/editor.main.css">
 </head>
+
 <body>
 
-<h2>Monaco Editor JSON test page</h2>
-<div id="container" style="width:800px;height:600px;border:1px solid grey"></div>
+	<h2>Monaco Editor YAML test page</h2>
+	<code id="path"></code>
+	<div id="container"
+	     style="width:800px;height:600px;border:1px solid grey"></div>
 
-<script>
-	// Loading basic-languages to get the json language definition
-	var require = {
-		paths: {
-			'vs/basic-languages': '../node_modules/monaco-languages/release',
-			'vs/languages/yaml': '../release/dev',
+	<script>
+		// Loading basic-languages to get the YAML language definition
+		var paths = {
+			'vs/basic-languages': '../node_modules/monaco-languages/release/dev',
+			'vs/language/yaml': '../release/dev',
 			'vs': '../node_modules/monaco-editor-core/dev/vs'
 		}
-	};
-</script>
-<script src="../node_modules/monaco-editor-core/dev/vs/loader.js"></script>
-<script src="../node_modules/monaco-editor-core/dev/vs/editor/editor.main.nls.js"></script>
-<script src="../node_modules/monaco-editor-core/dev/vs/editor/editor.main.js"></script>
+		if (document.location.protocol === 'http:') {
+			// Add support for running local http server
+			let testIndex = document.location.pathname.indexOf('/test/');
+			if (testIndex !== -1) {
+				let prefix = document.location.pathname.substr(0, testIndex);
+				paths['vs/language/yaml'] = prefix + '/release/dev';
+			}
+		}
+		var require = {
+			paths: paths
+		};
+	</script>
+	<script src="../node_modules/monaco-editor-core/dev/vs/loader.js"></script>
+	<script src="../node_modules/monaco-editor-core/dev/vs/editor/editor.main.nls.js"></script>
+	<script src="../node_modules/monaco-editor-core/dev/vs/editor/editor.main.js"></script>
 
-<script>
-	require([
-		'vs/basic-languages/src/monaco.contribution',
-		'vs/languages/yaml/monaco.contribution'
-	], function() {
-		monaco.languages.yaml.yamlDefaults.setDiagnosticsOptions({
-			validate: true,
-			schemas: [{
-				fileMatch: ['*'],
-				schema: {
-					title: 'Person',
-					type: 'object',
-					properties: {
-						name: { type: 'string' },
-						age: {
-							description: 'Age in years',
-							type: 'integer',
-							minimum: 0
-						}
+	<script>
+		require([
+			'vs/basic-languages/monaco.contribution',
+			'vs/language/yaml/monaco.contribution'
+		], function () {
+			const yaml = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: default
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      apps.deployment: nginx
+  template:
+    metadata:
+      labels:
+        apps.deployment: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine`;
+
+			var editor = monaco.editor.create(document.getElementById('container'), {
+				value: yaml,
+				language: 'yaml'
+			});
+
+			monaco.languages.yaml.yamlDefaults.setDiagnosticsOptions({
+				validate: true,
+				schemas: [
+					{
+						uri: 'https://raw.githubusercontent.com/garethr/kubernetes-json-schema/master/master/deployment.json',
+						fileMatch: ['*'],
 					},
-					required: ['name']
-				}
-			}]
-		});
+				],
+			});
 
-		var editor = monaco.editor.create(document.getElementById('container'), {
-			value: [
-				'name: Apple',
-				'age: 18.0'
-			].join('\n'),
-			language: 'yaml'
+			// See: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/contrib/quickOpen/quickOpen.ts
+			require(['vs/editor/contrib/quickOpen/quickOpen'], quickOpen => {
+
+				// Breadcrumbs emulation:
+				editor.onDidChangeCursorSelection(({ selection }) => {
+					quickOpen.getDocumentSymbols(editor.getModel()).then(symbols => {
+						symbols = symbols.filter(symbol => symbol.range.containsPosition(selection.getPosition()));
+						symbols = symbols.map(symbol => {
+							if (symbol.kind === 17) {
+								return `[]${symbol.name}`;
+							} else if (symbol.kind === 18 || symbol.kind === 1) {
+								return `{}${symbol.name}`;
+							} else {
+								return symbol.name;
+							}
+						});
+						document.querySelector('#path').innerHTML = symbols.join(' > ');
+					})
+				})
+			})
 		});
-	});
-</script>
+	</script>
 
 </body>
+
 </html>

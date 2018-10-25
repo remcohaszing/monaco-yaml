@@ -2,12 +2,11 @@
  *  Copyright (c) Red Hat, Inc. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { DiagnosticSeverity } from "vscode-languageserver/lib/main";
 
 export class ErrorHandler {
     private errorResultsList;
     private textDocument;
-    
+
     constructor(textDocument){
         this.errorResultsList = [];
         this.textDocument = textDocument;
@@ -22,7 +21,7 @@ export class ErrorHandler {
             },
             message: errorMessage
         });
-        
+
     }
 
     public getErrorResultsList(){

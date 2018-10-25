@@ -1,6 +1,6 @@
 'use strict';
 
-import YAMLException = require('./exception');
+import YAMLException from './exception';
 
 var TYPE_CONSTRUCTOR_OPTIONS = [
   'kind',

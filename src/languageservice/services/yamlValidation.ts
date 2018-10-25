@@ -1,15 +1,17 @@
 /*---------------------------------------------------------------------------------------------
-*  Copyright (c) Microsoft Corporation. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Red Hat, Inc. All rights reserved.
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+'use strict';
 
-import { JSONSchemaService } from './jsonSchemaService';
+import { JSONSchemaService, ResolvedSchema } from './jsonSchemaService';
 import { JSONDocument, ObjectASTNode, IProblem, ProblemSeverity } from '../parser/jsonParser';
 import { TextDocument, Diagnostic, DiagnosticSeverity } from 'vscode-languageserver-types';
-import { LanguageSettings, PromiseConstructor, Thenable } from '../yamlLanguageService';
+import { PromiseConstructor, Thenable, LanguageSettings} from '../yamlLanguageService';
 
 export class YAMLValidation {
-
+	
 	private jsonSchemaService: JSONSchemaService;
 	private promise: PromiseConstructor;
 	private comments: boolean;
@@ -21,35 +23,59 @@ export class YAMLValidation {
 		this.validationEnabled = true;
 	}
 
-	public configure(shouldValidate: LanguageSettings) {
-		if (shouldValidate) {
+	public configure(shouldValidate: LanguageSettings){
+		if(shouldValidate){
 			this.validationEnabled = shouldValidate.validate;
 		}
 	}
-
+	
 	public doValidation(textDocument, yamlDocument) {
 
-		if (!this.validationEnabled) {
+		if(!this.validationEnabled){
 			return this.promise.resolve([]);
 		}
 
 		return this.jsonSchemaService.getSchemaForResource(textDocument.uri).then(function (schema) {
+			var diagnostics = [];
+			var added = {};
+			let newSchema = schema;
 			if (schema) {
-
-				for (let currentYAMLDoc in yamlDocument.documents) {
+				let documentIndex = 0;
+				for(let currentYAMLDoc in yamlDocument.documents){
 					let currentDoc = yamlDocument.documents[currentYAMLDoc];
-					let diagnostics = currentDoc.getValidationProblems(schema.schema);
-					for (let diag in diagnostics) {
+					if (schema.schema && schema.schema.schemaSequence && schema.schema.schemaSequence[documentIndex]) {
+						newSchema = new ResolvedSchema(schema.schema.schemaSequence[documentIndex]);
+					}
+					let diagnostics = currentDoc.getValidationProblems(newSchema.schema);
+					for(let diag in diagnostics){
 						let curDiagnostic = diagnostics[diag];
 						currentDoc.errors.push({ location: { start: curDiagnostic.location.start, end: curDiagnostic.location.end }, message: curDiagnostic.message })
 					}
+					documentIndex++;
 				}
 
+			}
+			if(newSchema && newSchema.errors.length > 0){
+				
+				for(let curDiagnostic of newSchema.errors){
+					diagnostics.push({
+						severity: DiagnosticSeverity.Error,
+						range: {
+							start: {
+								line: 0,
+								character: 0
+							},
+							end: {
+								line: 0,
+								character: 1
+							}
+						},
+						message: curDiagnostic
+					});
+				}
 
 			}
-			var diagnostics = [];
-			var added = {};
-			for (let currentYAMLDoc in yamlDocument.documents) {
+			for(let currentYAMLDoc in yamlDocument.documents){
 				let currentDoc = yamlDocument.documents[currentYAMLDoc];
 				currentDoc.errors.concat(currentDoc.warnings).forEach(function (error, idx) {
 					// remove duplicated messages

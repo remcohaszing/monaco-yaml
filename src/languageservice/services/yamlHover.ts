@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Red Hat, Inc. All rights reserved.
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
 
-import Parser = require('../parser/jsonParser');
-import SchemaService = require('./jsonSchemaService');
+import * as Parser from '../parser/jsonParser';
+import * as SchemaService from './jsonSchemaService';
 import {JSONWorkerContribution} from '../jsonContributions';
 import {PromiseConstructor, Thenable} from 'vscode-json-languageservice';
 
@@ -25,13 +26,18 @@ export class YAMLHover {
 		this.promise = promiseConstructor || Promise;
 	}
 
-	public doHover(document: TextDocument, position: Position, doc: Parser.JSONDocument): Thenable<Hover> {
+	public doHover(document: TextDocument, position: Position, doc): Thenable<Hover> {
+
+		if(!document){
+			this.promise.resolve(void 0);
+		}
 
 		let offset = document.offsetAt(position);
 		let currentDoc = matchOffsetToDocument(offset, doc);
 		if(currentDoc === null){
-			return null;
+			return this.promise.resolve(void 0);
 		}
+		const currentDocIndex = doc.documents.indexOf(currentDoc);
 		let node = currentDoc.getNodeFromOffset(offset);
 		if (!node || (node.type === 'object' || node.type === 'array') && offset > node.start + 1 && offset < node.end - 1) {
 			return this.promise.resolve(void 0);
@@ -46,7 +52,7 @@ export class YAMLHover {
 				node = propertyNode.value;
 				if (!node) {
 					return this.promise.resolve(void 0);
-				}	
+				}
 			}
 		}
 
@@ -71,8 +77,11 @@ export class YAMLHover {
 
 		return this.schemaService.getSchemaForResource(document.uri).then((schema) => {
 			if (schema) {
-
-				let matchingSchemas = currentDoc.getMatchingSchemas(schema.schema, node.start);
+				let newSchema = schema;
+				if (schema.schema && schema.schema.schemaSequence && schema.schema.schemaSequence[currentDocIndex]) {
+					newSchema = new SchemaService.ResolvedSchema(schema.schema.schemaSequence[currentDocIndex]);
+				}
+				let matchingSchemas = currentDoc.getMatchingSchemas(newSchema.schema, node.start);
 
 				let title: string = null;
 				let markdownDescription: string = null;

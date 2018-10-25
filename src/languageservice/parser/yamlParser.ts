@@ -1,6 +1,10 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Red Hat, Inc. All rights reserved.
+ *  Copyright (c) Adam Voss. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { JSONSchema } from 'vscode-json-languageservice/lib/jsonSchema';
 import { ASTNode, ErrorCode, BooleanASTNode, NullASTNode, ArrayASTNode, NumberASTNode, ObjectASTNode, PropertyASTNode, StringASTNode, IApplicableSchema, JSONDocument } from './jsonParser';
 
 import * as nls from 'vscode-nls';
@@ -8,8 +12,10 @@ const localize = nls.loadMessageBundle();
 
 import * as Yaml from '../../yaml-ast-parser/index'
 import { Kind } from '../../yaml-ast-parser/index'
+import { Schema, Type } from 'js-yaml';
 
 import { getLineStartPositions, getPosition } from '../utils/documentPositionCalculator'
+import YAMLException from '../../yaml-ast-parser/exception';
 
 export class SingleYAMLDocument extends JSONDocument {
 	private lines;
@@ -153,7 +159,7 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 
 			switch (type) {
 				case Yaml.ScalarType.null: {
-					return new NullASTNode(parent, name, instance.startPosition, instance.endPosition);
+					return new StringASTNode(parent, name, false, instance.startPosition, instance.endPosition);
 				}
 				case Yaml.ScalarType.bool: {
 					return new BooleanASTNode(parent, name, Yaml.parseYamlBoolean(value), node.startPosition, node.endPosition)
@@ -193,11 +199,11 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 	}
 }
 
-function convertError(e: Yaml.YAMLException) {
+function convertError(e: YAMLException) {
 	return { message: `${e.reason}`, location: { start: e.mark.position, end: e.mark.position + e.mark.column, code: ErrorCode.Undefined } }
 }
 
-function createJSONDocument(yamlDoc: Yaml.YAMLNode, startPositions: number[]) {
+function createJSONDocument(yamlDoc: Yaml.YAMLNode, startPositions: number[], text: string) {
 	let _doc = new SingleYAMLDocument(startPositions);
 	_doc.root = recursivelyBuildAst(null, yamlDoc)
 
@@ -208,8 +214,18 @@ function createJSONDocument(yamlDoc: Yaml.YAMLNode, startPositions: number[]) {
 
 	const duplicateKeyReason = 'duplicate key'
 
+	//Patch ontop of yaml-ast-parser to disable duplicate key message on merge key
+	let isDuplicateAndNotMergeKey = function (error: YAMLException, yamlText: string) {
+		let errorConverted = convertError(error);
+		let errorStart = errorConverted.location.start;
+		let errorEnd = errorConverted.location.end;
+		if (error.reason === duplicateKeyReason && yamlText.substring(errorStart, errorEnd).startsWith("<<")) {
+			return false;
+		}
+		return true;
+	};
 	const errors = yamlDoc.errors.filter(e => e.reason !== duplicateKeyReason && !e.isWarning).map(e => convertError(e))
-	const warnings = yamlDoc.errors.filter(e => e.reason === duplicateKeyReason || e.isWarning).map(e => convertError(e))
+	const warnings = yamlDoc.errors.filter(e => (e.reason === duplicateKeyReason && isDuplicateAndNotMergeKey(e, text)) || e.isWarning).map(e => convertError(e))
 
 	errors.forEach(e => _doc.errors.push(e));
 	warnings.forEach(e => _doc.warnings.push(e));
@@ -230,13 +246,29 @@ export class YAMLDocument {
 
 }
 
-export function parse(text: string): YAMLDocument {
+export function parse(text: string, customTags = []): YAMLDocument {
 
 	const startPositions = getLineStartPositions(text)
 	// This is documented to return a YAMLNode even though the
 	// typing only returns a YAMLDocument
 	const yamlDocs = []
-	Yaml.loadAll(text, doc => yamlDocs.push(doc), {})
 
-	return new YAMLDocument(yamlDocs.map(doc => createJSONDocument(doc, startPositions)));
+	let schemaWithAdditionalTags = Schema.create(customTags.map((tag) => {
+		const typeInfo = tag.split(' ');
+		return new Type(typeInfo[0], { kind: typeInfo[1] || 'scalar' });
+	}));
+
+	//We need compiledTypeMap to be available from schemaWithAdditionalTags before we add the new custom properties
+	customTags.map((tag) => {
+		const typeInfo = tag.split(' ');
+		schemaWithAdditionalTags.compiledTypeMap[typeInfo[0]] = new Type(typeInfo[0], { kind: typeInfo[1] || 'scalar' });
+	});
+
+	let additionalOptions: Yaml.LoadOptions = {
+		schema: schemaWithAdditionalTags
+	}
+
+	Yaml.loadAll(text, doc => yamlDocs.push(doc), additionalOptions);
+
+	return new YAMLDocument(yamlDocs.map(doc => createJSONDocument(doc, startPositions, text)));
 }

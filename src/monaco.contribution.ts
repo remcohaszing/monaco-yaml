@@ -8,11 +8,10 @@ import * as mode from './yamlMode';
 
 import Emitter = monaco.Emitter;
 import IEvent = monaco.IEvent;
-import IDisposable = monaco.IDisposable;
 
 declare var require: <T>(moduleId: [string], callback: (module: T) => void) => void;
 
-// --- JSON configuration and defaults ---------
+// --- YAML configuration and defaults ---------
 
 export class LanguageServiceDefaultsImpl implements monaco.languages.yaml.LanguageServiceDefaults {
 
@@ -62,7 +61,7 @@ monaco.languages.yaml = createAPI();
 // --- Registration to monaco editor ---
 
 function withMode(callback: (module: typeof mode) => void): void {
-	require<typeof mode>(['vs/languages/yaml/yamlMode'], callback);
+	require<typeof mode>(['vs/language/yaml/yamlMode'], callback);
 }
 
 monaco.languages.register({

@@ -1,19 +1,41 @@
 /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Red Hat, Inc. All rights reserved.
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import Json = require('jsonc-parser');
+import * as Json from 'jsonc-parser';
 import {JSONSchema, JSONSchemaMap} from '../jsonSchema';
 import URI from 'vscode-uri';
-import Strings = require('../utils/strings');
-import Parser = require('../parser/jsonParser');
+import * as Strings from '../utils/strings';
 import {SchemaRequestService, WorkspaceContextService, PromiseConstructor, Thenable} from '../yamlLanguageService';
 
 
 import * as nls from 'vscode-nls';
 const localize = nls.loadMessageBundle();
+
+/**
+ * getParseErrorMessage has been removed from jsonc-parser since 1.0.0
+ *
+ * see https://github.com/Microsoft/node-jsonc-parser/blob/42ec16f9c91582d4267a0c48199cdac283c90fc9/CHANGELOG.md
+ * 1.0.0
+ *  remove nls dependency (remove getParseErrorMessage)
+ */
+function getParseErrorMessage(errorCode: Json.ParseErrorCode): string {
+	switch (errorCode) {
+		case Json.ParseErrorCode.InvalidSymbol: return localize('error.invalidSymbol', 'Invalid symbol');
+		case Json.ParseErrorCode.InvalidNumberFormat: return localize('error.invalidNumberFormat', 'Invalid number format');
+		case Json.ParseErrorCode.PropertyNameExpected: return localize('error.propertyNameExpected', 'Property name expected');
+		case Json.ParseErrorCode.ValueExpected: return localize('error.valueExpected', 'Value expected');
+		case Json.ParseErrorCode.ColonExpected: return localize('error.colonExpected', 'Colon expected');
+		case Json.ParseErrorCode.CommaExpected: return localize('error.commaExpected', 'Comma expected');
+		case Json.ParseErrorCode.CloseBraceExpected: return localize('error.closeBraceExpected', 'Closing brace expected');
+		case Json.ParseErrorCode.CloseBracketExpected: return localize('error.closeBracketExpected', 'Closing bracket expected');
+		case Json.ParseErrorCode.EndOfFileExpected: return localize('error.endOfFileExpected', 'End of file expected');
+		default: return '';
+	}
+}
 
 export interface IJSONSchemaService {
 
@@ -82,7 +104,7 @@ export class FilePatternAssociation {
 	constructor(pattern: string) {
 		this.combinedSchemaId = 'schemaservice://combinedSchema/' + encodeURIComponent(pattern);
 		try {
-			this.patternRegExp = new RegExp(Strings.convertSimple2RegExpPattern(pattern) + '$');
+			this.patternRegExp = Strings.convertSimple2RegExp(pattern);
 		} catch (e) {
 			// invalid pattern
 			this.patternRegExp = null;
@@ -368,7 +390,7 @@ export class JSONSchemaService implements IJSONSchemaService {
 				let schemaContent: JSONSchema = {};
 				let jsonErrors = [];
 				schemaContent = Json.parse(content, jsonErrors);
-				let errors = jsonErrors.length ? [localize('json.schema.invalidFormat', 'Unable to parse content from \'{0}\': {1}.', toDisplayString(url), Json.getParseErrorMessage(jsonErrors[0]))] : [];
+				let errors = jsonErrors.length ? [localize('json.schema.invalidFormat', 'Unable to parse content from \'{0}\': {1}.', toDisplayString(url), getParseErrorMessage(jsonErrors[0]))] : [];
 				return new UnresolvedSchema(schemaContent, errors);
 			},
 			(error: any) => {
@@ -479,7 +501,7 @@ export class JSONSchemaService implements IJSONSchemaService {
 				}
 				collectEntries(next.items, next.additionalProperties, next.not);
 				collectMapEntries(next.definitions, next.properties, next.patternProperties, <JSONSchemaMap>next.dependencies);
-				collectArrayEntries(next.anyOf, next.allOf, next.oneOf, <JSONSchema[]>next.items);
+				collectArrayEntries(next.anyOf, next.allOf, next.oneOf, <JSONSchema[]>next.items, next.schemaSequence);
 			}
 			return this.promise.all(openPromises);
 		};
@@ -496,7 +518,7 @@ export class JSONSchemaService implements IJSONSchemaService {
 					return entry.getCombinedSchema(this).getResolvedSchema();
 				}
 			}
-			return null;
+			return this.promise.resolve(null);
 		};
 		if (this.customSchemaProvider) {
 			return this.customSchemaProvider(resource).then(schemaUri => {

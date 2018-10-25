@@ -12,6 +12,7 @@ import * as ls from 'vscode-languageserver-types';
 import Uri = monaco.Uri;
 import Position = monaco.Position;
 import Range = monaco.Range;
+import IRange = monaco.IRange;
 import Thenable = monaco.Thenable;
 import Promise = monaco.Promise;
 import CancellationToken = monaco.CancellationToken;
@@ -24,19 +25,19 @@ export interface WorkerAccessor {
 
 // --- diagnostics --- ---
 
-export class DiagnostcsAdapter {
+export class DiagnosticsAdapter {
 
 	private _disposables: IDisposable[] = [];
 	private _listener: { [uri: string]: IDisposable } = Object.create(null);
 
-	constructor(private _languageId: string, private _worker: WorkerAccessor) {
+	constructor(private _languageId: string, private _worker: WorkerAccessor, defaults: LanguageServiceDefaultsImpl) {
 		const onModelAdd = (model: monaco.editor.IModel): void => {
 			let modeId = model.getModeId();
 			if (modeId !== this._languageId) {
 				return;
 			}
 
-			let handle: number;
+			let handle: NodeJS.Timer;
 			this._listener[model.uri.toString()] = model.onDidChangeContent(() => {
 				clearTimeout(handle);
 				handle = setTimeout(() => this._doValidate(model.uri, modeId), 500);
@@ -66,8 +67,18 @@ export class DiagnostcsAdapter {
 			this._resetSchema(event.model.uri);
 		}));
 
+		this._disposables.push(defaults.onDidChange(_ => {
+			monaco.editor.getModels().forEach(model => {
+				if (model.getModeId() === this._languageId) {
+					onModelRemoved(model);
+					onModelAdd(model);
+				}
+			});
+		}));
+
 		this._disposables.push({
 			dispose: () => {
+				monaco.editor.getModels().forEach(onModelRemoved);
 				for (let key in this._listener) {
 					this._listener[key].dispose();
 				}
@@ -104,14 +115,14 @@ export class DiagnostcsAdapter {
 }
 
 
-function toSeverity(lsSeverity: number): monaco.Severity {
+function toSeverity(lsSeverity: number): monaco.MarkerSeverity {
 	switch (lsSeverity) {
-		case ls.DiagnosticSeverity.Error: return monaco.Severity.Error;
-		case ls.DiagnosticSeverity.Warning: return monaco.Severity.Warning;
-		case ls.DiagnosticSeverity.Information:
-		case ls.DiagnosticSeverity.Hint:
+		case ls.DiagnosticSeverity.Error: return monaco.MarkerSeverity.Error;
+		case ls.DiagnosticSeverity.Warning: return monaco.MarkerSeverity.Warning;
+		case ls.DiagnosticSeverity.Information: return monaco.MarkerSeverity.Info;
+		case ls.DiagnosticSeverity.Hint: return monaco.MarkerSeverity.Hint;
 		default:
-			return monaco.Severity.Info;
+			return monaco.MarkerSeverity.Info;
 	}
 }
 
@@ -139,13 +150,12 @@ function fromPosition(position: Position): ls.Position {
 	return { character: position.column - 1, line: position.lineNumber - 1 };
 }
 
-function fromRange(range: Range): ls.Range {
+function fromRange(range: IRange): ls.Range {
 	if (!range) {
 		return void 0;
 	}
-	return { start: fromPosition(range.getStartPosition()), end: fromPosition(range.getEndPosition()) };
+	return { start: { line: range.startLineNumber - 1, character: range.startColumn - 1 }, end: { line: range.endLineNumber - 1, character: range.endColumn - 1 } };
 }
-
 function toRange(range: ls.Range): Range {
 	if (!range) {
 		return void 0;
@@ -233,12 +243,19 @@ function toCompletionItem(entry: ls.CompletionItem): DataCompletionItem {
 	};
 }
 
+function fromMarkdownString(entry: string | monaco.IMarkdownString): ls.MarkupContent {
+	return {
+		kind: (typeof entry === 'string' ? ls.MarkupKind.PlainText : ls.MarkupKind.Markdown),
+		value: (typeof entry === 'string' ? entry : entry.value)
+	}
+}
+
 function fromCompletionItem(entry: DataCompletionItem): ls.CompletionItem {
 	let item: ls.CompletionItem = {
 		label: entry.label,
 		sortText: entry.sortText,
 		filterText: entry.filterText,
-		documentation: entry.documentation,
+		documentation: fromMarkdownString(entry.documentation),
 		detail: entry.detail,
 		kind: fromCompletionItemKind(entry.kind),
 		data: entry.data
@@ -303,14 +320,38 @@ export class CompletionAdapter implements monaco.languages.CompletionItemProvide
 	}
 }
 
-function toMarkedStringArray(contents: ls.MarkedString | ls.MarkedString[]): monaco.MarkedString[] {
+function isMarkupContent(thing: any): thing is ls.MarkupContent {
+	return thing && typeof thing === 'object' && typeof (<ls.MarkupContent>thing).kind === 'string';
+}
+
+function toMarkdownString(entry: ls.MarkupContent | ls.MarkedString): monaco.IMarkdownString {
+	if (typeof entry === 'string') {
+		return {
+			value: entry
+		};
+	}
+	if (isMarkupContent(entry)) {
+		if (entry.kind === 'plaintext') {
+			return {
+				value: entry.value.replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&')
+			};
+		}
+		return {
+			value: entry.value
+		};
+	}
+
+	return { value: '```' + entry.language + '\n' + entry.value + '\n```\n' };
+}
+
+function toMarkedStringArray(contents: ls.MarkupContent | ls.MarkedString | ls.MarkedString[]): monaco.IMarkdownString[] {
 	if (!contents) {
 		return void 0;
 	}
 	if (Array.isArray(contents)) {
-		return (<ls.MarkedString[]>contents);
+		return contents.map(toMarkdownString);
 	}
-	return [<ls.MarkedString>contents];
+	return [toMarkdownString(contents)];
 }
 
 
@@ -382,7 +423,7 @@ export class DocumentSymbolAdapter implements monaco.languages.DocumentSymbolPro
 	constructor(private _worker: WorkerAccessor) {
 	}
 
-	public provideDocumentSymbols(model: monaco.editor.IReadOnlyModel, token: CancellationToken): Thenable<monaco.languages.SymbolInformation[]> {
+	public provideDocumentSymbols(model: monaco.editor.IReadOnlyModel, token: CancellationToken): Thenable<monaco.languages.DocumentSymbol[]> {
 		const resource = model.uri;
 
 		return wireCancellationToken(token, this._worker(resource).then(worker => worker.findDocumentSymbols(resource.toString())).then(items => {
@@ -391,9 +432,11 @@ export class DocumentSymbolAdapter implements monaco.languages.DocumentSymbolPro
 			}
 			return items.map(item => ({
 				name: item.name,
+				detail: '',
 				containerName: item.containerName,
 				kind: toSymbolKind(item.kind),
-				location: toLocation(item.location)
+				range: toRange(item.location.range),
+				selectionRange: toRange(item.location.range)
 			}));
 		}));
 	}

@@ -16,7 +16,7 @@ const STOP_WHEN_IDLE_FOR = 2 * 60 * 1000; // 2min
 export class WorkerManager {
 
 	private _defaults: LanguageServiceDefaultsImpl;
-	private _idleCheckInterval: number;
+	private _idleCheckInterval: NodeJS.Timer;
 	private _lastUsedTime: number;
 	private _configChangeListener: IDisposable;
 
@@ -62,7 +62,7 @@ export class WorkerManager {
 			this._worker = monaco.editor.createWebWorker<YAMLWorker>({
 
 				// module that exports the create() method and returns a `YAMLWorker` instance
-				moduleId: 'vs/languages/yaml/yamlWorker',
+				moduleId: 'vs/language/yaml/yamlWorker',
 
 				label: this._defaults.languageId,
 
