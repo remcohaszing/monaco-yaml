@@ -1,11 +1,11 @@
 /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Red Hat, Inc. All rights reserved.
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import Parser = require('../parser/jsonParser');
-import Strings = require('../utils/strings');
+import * as Parser from '../parser/jsonParser';
 
 import { SymbolInformation, SymbolKind, TextDocument, Range, Location } from 'vscode-languageserver-types';
 import { Thenable } from "../yamlLanguageService";
@@ -18,7 +18,7 @@ export class YAMLDocumentSymbols {
 		if(!doc || doc["documents"].length === 0){
 			return null;
 		}
-	
+
 		let collectOutlineEntries = (result: SymbolInformation[], node: Parser.ASTNode, containerName: string): SymbolInformation[] => {
 			if (node.type === 'array') {
 				(<Parser.ArrayASTNode>node).items.forEach((node: Parser.ASTNode) => {
@@ -26,7 +26,7 @@ export class YAMLDocumentSymbols {
 				});
 			} else if (node.type === 'object') {
 				let objectNode = <Parser.ObjectASTNode>node;
-	
+
 				objectNode.properties.forEach((property: Parser.PropertyASTNode) => {
 					let location = Location.create(document.uri, Range.create(document.positionAt(property.start), document.positionAt(property.end)));
 					let valueNode = property.value;
@@ -48,7 +48,7 @@ export class YAMLDocumentSymbols {
 				results = results.concat(result);
 			}
 		}
-		
+
 		return results;
 	}
 

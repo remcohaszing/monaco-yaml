@@ -10,10 +10,55 @@ import Promise = monaco.Promise;
 import Thenable = monaco.Thenable;
 import IWorkerContext = monaco.worker.IWorkerContext;
 
-import * as yamlService from './yaml-languageservice/yamlLanguageService';
 import * as ls from 'vscode-languageserver-types';
-import { getLineOffsets } from './yaml-languageservice/utils/arrUtils';
-import { parse as parseYAML } from "./yaml-languageservice/parser/yamlParser";
+import * as yamlService from './languageservice/yamlLanguageService';
+import { SchemaRequestService } from './languageservice/yamlLanguageService';
+
+class PromiseAdapter<T> implements yamlService.Thenable<T> {
+	private wrapped: monaco.Promise<T>;
+
+	constructor(executor: (resolve: (value?: T | yamlService.Thenable<T>) => void, reject: (reason?: any) => void) => void) {
+		this.wrapped = new monaco.Promise<T>(executor);
+	}
+	public then<TResult>(onfulfilled?: (value: T) => TResult | yamlService.Thenable<TResult>, onrejected?: (reason: any) => void): yamlService.Thenable<TResult> {
+		let thenable : yamlService.Thenable<T> = this.wrapped;
+		return thenable.then(onfulfilled, onrejected);
+	}
+	public getWrapped(): monaco.Thenable<T> {
+		return this.wrapped;
+	}
+	public cancel(): void {
+		this.wrapped.cancel();
+	}
+	public static resolve<T>(v: T | Thenable<T>): yamlService.Thenable<T> {
+		return <monaco.Thenable<T>> monaco.Promise.as(v);
+	}
+	public static reject<T>(v: T): yamlService.Thenable<T> {
+		return monaco.Promise.wrapError(<any>v);
+	}
+	public static all<T>(values: yamlService.Thenable<T>[]): yamlService.Thenable<T[]> {
+		return monaco.Promise.join(values);
+	}
+}
+
+// Currently we only support loading schemas via xhr:
+const ajax = (url: string) =>
+  new Promise((resolve, reject) => {
+		const request = new XMLHttpRequest();
+    request.onreadystatechange = () => {
+      if (request.readyState === XMLHttpRequest.DONE) {
+        const response = request.responseText;
+        if (request.status < 400) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      }
+    };
+    request.onerror = reject;
+		request.open('GET', url);
+    request.send();
+	});
 
 export class YAMLWorker {
 
@@ -26,45 +71,45 @@ export class YAMLWorker {
 		this._ctx = ctx;
 		this._languageSettings = createData.languageSettings;
 		this._languageId = createData.languageId;
-		this._languageService = yamlService.getLanguageService();
+		this._languageService = yamlService.getLanguageService(ajax, null, [], null, PromiseAdapter);
 		this._languageService.configure(this._languageSettings);
 	}
 
 	doValidation(uri: string): Thenable<ls.Diagnostic[]> {
 		let document = this._getTextDocument(uri);
 		if (document) {
-			let jsonDocument = this._languageService.parseYAMLDocument(document);
-			return this._languageService.doValidation(document, jsonDocument);
+			let yamlDocument = this._languageService.parseYAMLDocument(document);
+			return this._languageService.doValidation(document, yamlDocument);
 		}
 		return Promise.as([]);
 	}
+
 	doComplete(uri: string, position: ls.Position): Thenable<ls.CompletionList> {
 		let document = this._getTextDocument(uri);
 		let completionFix = completionHelper(document, position);
-		let newText = completionFix.newText;
-		let jsonDocument = parseYAML(newText);
-		return this._languageService.doComplete(document, position, jsonDocument);
+		let yamlDocument = this._languageService.parseYAMLDocument(document);
+		return this._languageService.doComplete(document, position, yamlDocument);
 	}
 	doResolve(item: ls.CompletionItem): Thenable<ls.CompletionItem> {
 		return this._languageService.doResolve(item);
 	}
 	doHover(uri: string, position: ls.Position): Thenable<ls.Hover> {
 		let document = this._getTextDocument(uri);
-		let jsonDocument = this._languageService.parseYAMLDocument(document);
-		return this._languageService.doHover(document, position, jsonDocument);
+		let yamlDocument = this._languageService.parseYAMLDocument(document)
+		return this._languageService.doHover(document, position, yamlDocument);
 	}
 	format(uri: string, range: ls.Range, options: ls.FormattingOptions): Thenable<ls.TextEdit[]> {
 		let document = this._getTextDocument(uri);
-		let textEdits = this._languageService.format(document, options);
+		let textEdits = this._languageService.doFormat(document, options, []);
 		return Promise.as(textEdits);
 	}
 	resetSchema(uri: string): Thenable<boolean> {
 		return Promise.as(this._languageService.resetSchema(uri));
 	}
-	findDocumentSymbols(uri: string): Promise<ls.SymbolInformation[]> {
+	findDocumentSymbols(uri: string): Thenable<ls.SymbolInformation[]> {
 		let document = this._getTextDocument(uri);
-		let jsonDocument = this._languageService.parseYAMLDocument(document);
-		let symbols = this._languageService.findDocumentSymbols(document, jsonDocument);
+		let yamlDocument = this._languageService.parseYAMLDocument(document);
+		let symbols = this._languageService.findDocumentSymbols(document, yamlDocument);
 		return Promise.as(symbols);
 	}
 	private _getTextDocument(uri: string): ls.TextDocument {
@@ -81,12 +126,35 @@ export class YAMLWorker {
 export interface ICreateData {
 	languageId: string;
 	languageSettings: yamlService.LanguageSettings;
+	schemaRequestService?: SchemaRequestService;
 }
 
 export function create(ctx: IWorkerContext, createData: ICreateData): YAMLWorker {
 	return new YAMLWorker(ctx, createData);
 }
 
+export function getLineOffsets(textDocString: String): number[] {
+
+	let lineOffsets: number[] = [];
+	let text = textDocString;
+	let isLineStart = true;
+	for (let i = 0; i < text.length; i++) {
+		if (isLineStart) {
+			lineOffsets.push(i);
+			isLineStart = false;
+		}
+		let ch = text.charAt(i);
+		isLineStart = (ch === '\r' || ch === '\n');
+		if (ch === '\r' && i + 1 < text.length && text.charAt(i + 1) === '\n') {
+			i++;
+		}
+	}
+	if (isLineStart && text.length > 0) {
+		lineOffsets.push(text.length);
+	}
+
+	return lineOffsets;
+}
 
 // https://github.com/redhat-developer/yaml-language-server/blob/5e069c0e9d7004d57f1fa6e93df670d4895883d1/src/server.ts#L453
 function completionHelper(document: ls.TextDocument, textDocumentPosition: ls.Position) {

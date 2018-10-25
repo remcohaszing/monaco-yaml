@@ -1,10 +1,11 @@
 /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Red Hat, Inc. All rights reserved.
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import Json = require('jsonc-parser');
+import * as Json from 'jsonc-parser';
 import { JSONSchema } from '../jsonSchema';
 import * as objects from '../utils/objects';
 
@@ -118,7 +119,7 @@ export class ASTNode {
 					collector.push(item);
 				}
 			}
-			return node;	
+			return node;
 		};
 		let foundNode = findNode(this);
 		return collector.length;
@@ -157,7 +158,7 @@ export class ASTNode {
 		if (!matchingSchemas.include(this)) {
 			return;
 		}
-		
+
 		if (Array.isArray(schema.type)) {
 			if ((<string[]>schema.type).indexOf(this.type) === -1) {
 				validationResult.problems.push({
@@ -539,7 +540,7 @@ export class StringASTNode extends ASTNode {
 				});
 			}
 		}
-		
+
 	}
 }
 
@@ -649,7 +650,7 @@ export class ObjectASTNode extends ASTNode {
 		let seenKeys: { [key: string]: ASTNode } = Object.create(null);
 		let unprocessedProperties: string[] = [];
 		this.properties.forEach((node) => {
-			
+
 			let key = node.key.value;
 
 			//Replace the merge key with the actual values of what the node value points to in seen keys
@@ -682,7 +683,7 @@ export class ObjectASTNode extends ASTNode {
 				seenKeys[key] = node.value;
 				unprocessedProperties.push(key);
 			}
-			
+
 		});
 
 		if (Array.isArray(schema.required)) {
@@ -770,7 +771,7 @@ export class ObjectASTNode extends ASTNode {
 					}
 				});
 			}
-		} 
+		}
 
 		if (schema.maxProperties) {
 			if (this.properties.length > schema.maxProperties) {
