@@ -5,6 +5,7 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
+
 import * as jsyaml from 'js-yaml';
 import * as Yaml from '../../yaml-ast-parser/index'
 import { EOL } from '../../fillers/os';

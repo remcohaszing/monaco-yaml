@@ -44,7 +44,8 @@ export class LanguageServiceDefaultsImpl implements monaco.languages.yaml.Langua
 
 const diagnosticDefault: monaco.languages.yaml.DiagnosticsOptions = {
 	validate: true,
-	schemas: []
+	schemas: [],
+	enableSchemaRequest: false,
 }
 
 const yamlDefaults = new LanguageServiceDefaultsImpl('yaml', diagnosticDefault);

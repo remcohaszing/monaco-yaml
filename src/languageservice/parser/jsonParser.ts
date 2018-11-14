@@ -835,7 +835,7 @@ export interface ISchemaCollector {
 	schemas: IApplicableSchema[];
 	add(schema: IApplicableSchema): void;
 	merge(other: ISchemaCollector): void;
-	include(node: ASTNode): void;
+	include(node: ASTNode): boolean;
 	newSub(): ISchemaCollector;
 }
 

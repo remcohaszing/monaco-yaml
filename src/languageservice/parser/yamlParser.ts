@@ -15,7 +15,7 @@ import { Kind } from '../../yaml-ast-parser/index'
 import { Schema, Type } from 'js-yaml';
 
 import { getLineStartPositions, getPosition } from '../utils/documentPositionCalculator'
-import YAMLException from '../../yaml-ast-parser/exception';
+import { parseYamlBoolean } from './scalar-type';
 
 export class SingleYAMLDocument extends JSONDocument {
 	private lines;
@@ -153,8 +153,8 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 
 			//This is a patch for redirecting values with these strings to be boolean nodes because its not supported in the parser.
 			let possibleBooleanValues = ['y', 'Y', 'yes', 'Yes', 'YES', 'n', 'N', 'no', 'No', 'NO', 'on', 'On', 'ON', 'off', 'Off', 'OFF'];
-			if (possibleBooleanValues.indexOf(value.toString()) !== -1) {
-				return new BooleanASTNode(parent, name, value, node.startPosition, node.endPosition)
+			if (instance.plainScalar && possibleBooleanValues.indexOf(value.toString()) !== -1) {
+				return new BooleanASTNode(parent, name, parseYamlBoolean(value), node.startPosition, node.endPosition)
 			}
 
 			switch (type) {
@@ -199,7 +199,7 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 	}
 }
 
-function convertError(e: YAMLException) {
+function convertError(e: Yaml.Error) {
 	return { message: `${e.reason}`, location: { start: e.mark.position, end: e.mark.position + e.mark.column, code: ErrorCode.Undefined } }
 }
 
@@ -215,7 +215,7 @@ function createJSONDocument(yamlDoc: Yaml.YAMLNode, startPositions: number[], te
 	const duplicateKeyReason = 'duplicate key'
 
 	//Patch ontop of yaml-ast-parser to disable duplicate key message on merge key
-	let isDuplicateAndNotMergeKey = function (error: YAMLException, yamlText: string) {
+	let isDuplicateAndNotMergeKey = function (error: Yaml.Error, yamlText: string) {
 		let errorConverted = convertError(error);
 		let errorStart = errorConverted.location.start;
 		let errorEnd = errorConverted.location.end;

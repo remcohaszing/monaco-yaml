@@ -12,7 +12,11 @@ import IWorkerContext = monaco.worker.IWorkerContext;
 
 import * as ls from 'vscode-languageserver-types';
 import * as yamlService from './languageservice/yamlLanguageService';
-import { SchemaRequestService } from './languageservice/yamlLanguageService';
+
+let defaultSchemaRequestService;
+if (typeof fetch !== 'undefined'){
+	defaultSchemaRequestService = function (url) { return fetch(url).then(response => response.text())};
+}
 
 class PromiseAdapter<T> implements yamlService.Thenable<T> {
 	private wrapped: monaco.Promise<T>;
@@ -21,17 +25,14 @@ class PromiseAdapter<T> implements yamlService.Thenable<T> {
 		this.wrapped = new monaco.Promise<T>(executor);
 	}
 	public then<TResult>(onfulfilled?: (value: T) => TResult | yamlService.Thenable<TResult>, onrejected?: (reason: any) => void): yamlService.Thenable<TResult> {
-		let thenable : yamlService.Thenable<T> = this.wrapped;
+		let thenable: yamlService.Thenable<T> = this.wrapped;
 		return thenable.then(onfulfilled, onrejected);
 	}
 	public getWrapped(): monaco.Thenable<T> {
 		return this.wrapped;
 	}
-	public cancel(): void {
-		this.wrapped.cancel();
-	}
 	public static resolve<T>(v: T | Thenable<T>): yamlService.Thenable<T> {
-		return <monaco.Thenable<T>> monaco.Promise.as(v);
+		return <monaco.Thenable<T>>monaco.Promise.as(v);
 	}
 	public static reject<T>(v: T): yamlService.Thenable<T> {
 		return monaco.Promise.wrapError(<any>v);
@@ -40,25 +41,6 @@ class PromiseAdapter<T> implements yamlService.Thenable<T> {
 		return monaco.Promise.join(values);
 	}
 }
-
-// Currently we only support loading schemas via xhr:
-const ajax = (url: string) =>
-  new Promise((resolve, reject) => {
-		const request = new XMLHttpRequest();
-    request.onreadystatechange = () => {
-      if (request.readyState === XMLHttpRequest.DONE) {
-        const response = request.responseText;
-        if (request.status < 400) {
-          resolve(response);
-        } else {
-          reject(response);
-        }
-      }
-    };
-    request.onerror = reject;
-		request.open('GET', url);
-    request.send();
-	});
 
 export class YAMLWorker {
 
@@ -71,8 +53,10 @@ export class YAMLWorker {
 		this._ctx = ctx;
 		this._languageSettings = createData.languageSettings;
 		this._languageId = createData.languageId;
-		this._languageService = yamlService.getLanguageService(ajax, null, [], null, PromiseAdapter);
-		this._languageService.configure(this._languageSettings);
+		this._languageService = yamlService.getLanguageService(createData.enableSchemaRequest && defaultSchemaRequestService,
+			null, [], PromiseAdapter,
+		);
+		this._languageService.configure({ ...this._languageSettings, hover: true, isKubernetes: true });
 	}
 
 	doValidation(uri: string): Thenable<ls.Diagnostic[]> {
@@ -83,10 +67,8 @@ export class YAMLWorker {
 		}
 		return Promise.as([]);
 	}
-
 	doComplete(uri: string, position: ls.Position): Thenable<ls.CompletionList> {
 		let document = this._getTextDocument(uri);
-		let completionFix = completionHelper(document, position);
 		let yamlDocument = this._languageService.parseYAMLDocument(document);
 		return this._languageService.doComplete(document, position, yamlDocument);
 	}
@@ -95,7 +77,7 @@ export class YAMLWorker {
 	}
 	doHover(uri: string, position: ls.Position): Thenable<ls.Hover> {
 		let document = this._getTextDocument(uri);
-		let yamlDocument = this._languageService.parseYAMLDocument(document)
+		let yamlDocument = this._languageService.parseYAMLDocument(document);
 		return this._languageService.doHover(document, position, yamlDocument);
 	}
 	format(uri: string, range: ls.Range, options: ls.FormattingOptions): Thenable<ls.TextEdit[]> {
@@ -126,89 +108,9 @@ export class YAMLWorker {
 export interface ICreateData {
 	languageId: string;
 	languageSettings: yamlService.LanguageSettings;
-	schemaRequestService?: SchemaRequestService;
+  enableSchemaRequest: boolean;
 }
 
 export function create(ctx: IWorkerContext, createData: ICreateData): YAMLWorker {
 	return new YAMLWorker(ctx, createData);
-}
-
-export function getLineOffsets(textDocString: String): number[] {
-
-	let lineOffsets: number[] = [];
-	let text = textDocString;
-	let isLineStart = true;
-	for (let i = 0; i < text.length; i++) {
-		if (isLineStart) {
-			lineOffsets.push(i);
-			isLineStart = false;
-		}
-		let ch = text.charAt(i);
-		isLineStart = (ch === '\r' || ch === '\n');
-		if (ch === '\r' && i + 1 < text.length && text.charAt(i + 1) === '\n') {
-			i++;
-		}
-	}
-	if (isLineStart && text.length > 0) {
-		lineOffsets.push(text.length);
-	}
-
-	return lineOffsets;
-}
-
-// https://github.com/redhat-developer/yaml-language-server/blob/5e069c0e9d7004d57f1fa6e93df670d4895883d1/src/server.ts#L453
-function completionHelper(document: ls.TextDocument, textDocumentPosition: ls.Position) {
-
-	//Get the string we are looking at via a substring
-	let linePos = textDocumentPosition.line;
-	let position = textDocumentPosition;
-	let lineOffset = getLineOffsets(document.getText());
-	let start = lineOffset[linePos]; //Start of where the autocompletion is happening
-	let end = 0; //End of where the autocompletion is happening
-	if (lineOffset[linePos + 1]) {
-		end = lineOffset[linePos + 1];
-	} else {
-		end = document.getText().length;
-	}
-	let textLine = document.getText().substring(start, end);
-
-	//Check if the string we are looking at is a node
-	if (textLine.indexOf(":") === -1) {
-		//We need to add the ":" to load the nodes
-		let newText = "";
-
-		//This is for the empty line case
-		let trimmedText = textLine.trim();
-		if (trimmedText.length === 0 || (trimmedText.length === 1 && trimmedText[0] === '-')) {
-			//Add a temp node that is in the document but we don't use at all.
-			if (lineOffset[linePos + 1]) {
-				newText = document.getText().substring(0, start + (textLine.length - 1)) + "holder:\r\n" + document.getText().substr(end + 2);
-			} else {
-				newText = document.getText().substring(0, start + (textLine.length)) + "holder:\r\n" + document.getText().substr(end + 2);
-			}
-			//For when missing semi colon case
-		} else {
-			//Add a semicolon to the end of the current line so we can validate the node
-			if (lineOffset[linePos + 1]) {
-				newText = document.getText().substring(0, start + (textLine.length - 1)) + ":\r\n" + document.getText().substr(end + 2);
-			} else {
-				newText = document.getText().substring(0, start + (textLine.length)) + ":\r\n" + document.getText().substr(end + 2);
-			}
-		}
-
-		return {
-			"newText": newText,
-			"newPosition": textDocumentPosition
-		}
-
-	} else {
-
-		//All the nodes are loaded
-		position.character = position.character - 1;
-		return {
-			"newText": document.getText(),
-			"newPosition": position
-		}
-	}
-
 }

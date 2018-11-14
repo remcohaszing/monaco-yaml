@@ -3,24 +3,22 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { JSONSchemaService } from "./services/jsonSchemaService";
-import {
-  TextDocument,
-  Position,
-  CompletionList,
-  FormattingOptions,
-  Diagnostic
-} from "vscode-languageserver-types";
-import { JSONSchema } from "./jsonSchema";
-import { YAMLDocumentSymbols } from "./services/documentSymbols";
-import { YAMLCompletion } from "./services/yamlCompletion";
-import { JSONDocument } from "vscode-json-languageservice";
-import { YAMLHover } from "./services/yamlHover";
-import { YAMLValidation } from "./services/yamlValidation";
-import { format } from "./services/yamlFormatter";
+
+import { JSONSchemaService, CustomSchemaProvider } from './services/jsonSchemaService'
+import { TextDocument, Position, CompletionList, Diagnostic, FormattingOptions } from 'vscode-languageserver-types';
+import { JSONSchema } from './jsonSchema';
+import { YAMLDocumentSymbols } from './services/documentSymbols';
+import { YAMLCompletion } from './services/yamlCompletion';
+import { YAMLHover } from './services/yamlHover';
+import { YAMLValidation } from './services/yamlValidation';
+import { format } from './services/yamlFormatter';
+import { JSONDocument } from 'vscode-json-languageservice';
 import { parse as parseYAML } from "./parser/yamlParser";
+
 export interface LanguageSettings {
   validate?: boolean; //Setting for whether we want to validate the schema
+  hover?: boolean; //Setting for whether we want to have hover results
+  completion?: boolean; //Setting for whether we want to have completion results
   isKubernetes?: boolean; //If true then its validating against kubernetes
   schemas?: any[]; //List of schemas,
   customTags?: Array<String>; //Array of Custom Tags
@@ -35,12 +33,7 @@ export interface PromiseConstructor {
      * a resolve callback used resolve the promise with a value or the result of another promise,
      * and a reject callback used to reject the promise with a provided reason or error.
      */
-    new <T>(
-      executor: (
-        resolve: (value?: T | Thenable<T>) => void,
-        reject: (reason?: any) => void
-      ) => void
-    ): Thenable<T>;
+    new <T>(executor: (resolve: (value?: T | Thenable<T>) => void, reject: (reason?: any) => void) => void): Thenable<T>;
 
     /**
      * Creates a Promise that is resolved with an array of results when all of the provided Promises
@@ -72,14 +65,8 @@ export interface Thenable<R> {
     * @param onrejected The callback to execute when the Promise is rejected.
     * @returns A Promise for the completion of which ever callback is executed.
     */
-   then<TResult>(
-    onfulfilled?: (value: R) => TResult | Thenable<TResult>,
-    onrejected?: (reason: any) => TResult | Thenable<TResult>
-  ): Thenable<TResult>;
-  then<TResult>(
-    onfulfilled?: (value: R) => TResult | Thenable<TResult>,
-    onrejected?: (reason: any) => void
-  ): Thenable<TResult>;
+    then<TResult>(onfulfilled?: (value: R) => TResult | Thenable<TResult>, onrejected?: (reason: any) => TResult | Thenable<TResult>): Thenable<TResult>;
+    then<TResult>(onfulfilled?: (value: R) => TResult | Thenable<TResult>, onrejected?: (reason: any) => void): Thenable<TResult>;
 }
 
 export interface WorkspaceContextService {
@@ -110,7 +97,8 @@ export interface SchemaConfiguration {
 }
 
 export interface LanguageService {
-  configure(settings): void;
+  configure(settings: LanguageSettings): void;
+  registerCustomSchemaProvider(schemaProvider: CustomSchemaProvider): void; // Register a custom schema provider
 	doComplete(document: TextDocument, position: Position, doc): Thenable<CompletionList>;
   doValidation(document: TextDocument, yamlDocument): Thenable<Diagnostic[]>;
   doHover(document: TextDocument, position: Position, doc);
@@ -121,10 +109,10 @@ export interface LanguageService {
   parseYAMLDocument(document: TextDocument): YAMLDocument;
 }
 
-export function getLanguageService(schemaRequestService, workspaceContext, contributions, customSchemaProvider, promiseConstructor?): LanguageService {
+export function getLanguageService(schemaRequestService, workspaceContext, contributions, promiseConstructor?): LanguageService {
   let promise = promiseConstructor || Promise;
 
-  let schemaService = new JSONSchemaService(schemaRequestService, workspaceContext, customSchemaProvider);
+  let schemaService = new JSONSchemaService(schemaRequestService, workspaceContext);
 
   let completer = new YAMLCompletion(schemaService, contributions, promise);
   let hover = new YAMLHover(schemaService, contributions, promise);
@@ -140,8 +128,12 @@ export function getLanguageService(schemaRequestService, workspaceContext, contr
           });
         }
         yamlValidation.configure(settings);
-        let customTagsSetting = settings && settings["customTags"] ? settings["customTags"] : [];
-        completer.configure(customTagsSetting);
+        hover.configure(settings);
+        let customTagsSetting = settings && settings['customTags'] ? settings['customTags'] : [];
+        completer.configure(settings, customTagsSetting);
+      },
+      registerCustomSchemaProvider: (schemaProvider: CustomSchemaProvider) => {
+        schemaService.registerCustomSchemaProvider(schemaProvider);
       },
       doComplete: completer.doComplete.bind(completer),
       doResolve: completer.doResolve.bind(completer),
@@ -150,6 +142,6 @@ export function getLanguageService(schemaRequestService, workspaceContext, contr
       findDocumentSymbols: yamlDocumentSymbols.findDocumentSymbols.bind(yamlDocumentSymbols),
       resetSchema: (uri: string) => schemaService.onResourceChange(uri),
       doFormat: format,
-      parseYAMLDocument: (document: TextDocument) => parseYAML(document.getText())
+      parseYAMLDocument: (document: TextDocument) => parseYAML(document.getText()),
   }
 }

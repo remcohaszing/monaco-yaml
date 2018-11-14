@@ -7,7 +7,7 @@ YAML language plugin for the Monaco Editor. It provides the following features w
 * Formatting
 * Document Symbols
 * Syntax highlighting
-* Automatically load remote schema files
+* Automatically load remote schema files (by enabling DiagnosticsOptions.enableSchemaRequest)
 
 Schemas can also be provided by configuration. See [here](https://github.com/Microsoft/monaco-json/blob/master/src/monaco.d.ts)
 for the API that the JSON plugin offers to configure the JSON language support.

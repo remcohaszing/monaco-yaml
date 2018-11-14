@@ -86,13 +86,15 @@ minimatch@^3.0.4:
   dependencies:
     brace-expansion "^1.1.7"
 
-monaco-editor-core@0.14.6:
-  version "0.14.6"
-  resolved "https://registry.yarnpkg.com/monaco-editor-core/-/monaco-editor-core-0.14.6.tgz#25fae6a2e7c7da6eb2a3bba653a283627dc624e4"
+monaco-editor-core@0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/monaco-editor-core/-/monaco-editor-core-0.15.0.tgz#1ad5f130ed8efae9d9ed85d8a58a55067e14d983"
+  integrity sha512-s1zuo+p6Gl6IC4WJP6HBkr4pWULm+HdFfacB8vOFPQLLi2oJseO20UuSkxYuZTUJQIjvhNrQfLNAmPKLZaf7tg==
 
-monaco-languages@1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/monaco-languages/-/monaco-languages-1.5.1.tgz#e0b754a3db9de2133859d88abbf3b2b376439b58"
+monaco-languages@1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/monaco-languages/-/monaco-languages-1.6.0.tgz#54ec5510b31f3132939014f171ade235e84ef0bc"
+  integrity sha512-LBEWj8tngYwsq4kasQr+dIhnO4xUIEN36ns+cRepWAQiXZnzcrZ84gFHXm8f4mR4tssxvHVU5Vw7xMUYro6h3g==
 
 monaco-plugin-helpers@^1.0.2:
   version "1.0.2"
@@ -132,9 +134,10 @@ typescript@^2.7.2:
   version "2.9.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
 
-typescript@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.0.3.tgz#4853b3e275ecdaa27f78fda46dc273a7eb7fc1c8"
+typescript@^3.1.6:
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.6.tgz#b6543a83cfc8c2befb3f4c8fba6896f5b0c9be68"
+  integrity sha512-tDMYfVtvpb96msS1lDX9MEdHrW4yOuZ4Kdc4Him9oU796XldPYF/t2+uKoX0BBa0hXXwDlqYQbXY5Rzjzc5hBA==
 
 uglify-es@^3.3.9:
   version "3.3.9"

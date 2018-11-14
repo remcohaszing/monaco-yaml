@@ -73,6 +73,7 @@ spec:
 			});
 
 			monaco.languages.yaml.yamlDefaults.setDiagnosticsOptions({
+				enableSchemaRequest: true,
 				validate: true,
 				schemas: [
 					{
@@ -81,27 +82,6 @@ spec:
 					},
 				],
 			});
-
-			// See: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/contrib/quickOpen/quickOpen.ts
-			require(['vs/editor/contrib/quickOpen/quickOpen'], quickOpen => {
-
-				// Breadcrumbs emulation:
-				editor.onDidChangeCursorSelection(({ selection }) => {
-					quickOpen.getDocumentSymbols(editor.getModel()).then(symbols => {
-						symbols = symbols.filter(symbol => symbol.range.containsPosition(selection.getPosition()));
-						symbols = symbols.map(symbol => {
-							if (symbol.kind === 17) {
-								return `[]${symbol.name}`;
-							} else if (symbol.kind === 18 || symbol.kind === 1) {
-								return `{}${symbol.name}`;
-							} else {
-								return symbol.name;
-							}
-						});
-						document.querySelector('#path').innerHTML = symbols.join(' > ');
-					})
-				})
-			})
 		});
 	</script>
 

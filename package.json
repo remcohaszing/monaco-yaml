@@ -1,11 +1,13 @@
 {
   "name": "monaco-yaml",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
-    "compile": "rimraf ./out && tsc -p ./src/tsconfig.json && tsc -p ./src/tsconfig.esm.json",
+    "compile": "rimraf ./out && yarn compile:umd && yarn compile:esm",
+    "compile:umd": "tsc -p ./src/tsconfig.json",
+    "compile:esm": "tsc -p ./src/tsconfig.esm.json",
     "watch": "tsc -p ./src --watch",
-    "prepublish": "rimraf ./release && yarn run compile && node ./scripts/release.js && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts"
+    "prepublish": "rimraf ./out && rimraf ./release && yarn compile:umd && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts"
   },
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
@@ -26,12 +28,12 @@
     "@types/node": "^10.9.3",
     "js-yaml": "^3.12.0",
     "jsonc-parser": "^2.0.2",
-    "monaco-editor-core": "0.14.6",
-    "monaco-languages": "1.5.1",
+    "monaco-editor-core": "0.15.0",
+    "monaco-languages": "1.6.0",
     "monaco-plugin-helpers": "^1.0.2",
     "requirejs": "^2.3.5",
     "rimraf": "^2.6.2",
-    "typescript": "^3.0.3",
+    "typescript": "^3.1.6",
     "uglify-es": "^3.3.9",
     "vscode-json-languageservice": "^3.1.6",
     "vscode-languageserver-types": "3.12.0"
