@@ -11,7 +11,7 @@ import * as Json from 'jsonc-parser';
 import * as SchemaService from './jsonSchemaService';
 import { JSONSchema } from '../jsonSchema';
 import { JSONWorkerContribution, CompletionsCollector } from '../jsonContributions';
-import { PromiseConstructor, Thenable } from 'vscode-json-languageservice';
+import { Thenable } from 'vscode-json-languageservice';
 
 import { CompletionItem, CompletionItemKind, CompletionList, TextDocument, Position, Range, TextEdit, InsertTextFormat } from 'vscode-languageserver-types';
 
@@ -25,14 +25,12 @@ export class YAMLCompletion {
 
 	private schemaService: SchemaService.IJSONSchemaService;
 	private contributions: JSONWorkerContribution[];
-	private promise: PromiseConstructor;
 	private customTags: Array<String>;
 	private completion: boolean;
 
-	constructor(schemaService: SchemaService.IJSONSchemaService, contributions: JSONWorkerContribution[] = [], promiseConstructor?: PromiseConstructor) {
+	constructor(schemaService: SchemaService.IJSONSchemaService, contributions: JSONWorkerContribution[] = []) {
 		this.schemaService = schemaService;
 		this.contributions = contributions;
-		this.promise = promiseConstructor || Promise;
 		this.customTags = [];
 		this.completion = true;
 	}
@@ -53,7 +51,7 @@ export class YAMLCompletion {
 				}
 			}
 		}
-		return this.promise.resolve(item);
+		return Promise.resolve(item);
 	}
 
 	public doComplete(document: TextDocument, position: Position, doc): Thenable<CompletionList> {
@@ -142,7 +140,6 @@ export class YAMLCompletion {
 			let collectionPromises: Thenable<any>[] = [];
 
 			let addValue = true;
-			let currentKey = '';
 
 			let currentProperty: Parser.PropertyASTNode = null;
 			if (node) {
@@ -152,7 +149,6 @@ export class YAMLCompletion {
 					if (stringNode.isKey) {
 						addValue = !(node.parent && ((<Parser.PropertyASTNode>node.parent).value));
 						currentProperty = node.parent ? <Parser.PropertyASTNode>node.parent : null;
-						currentKey = document.getText().substring(node.start + 1, node.end - 1);
 						if (node.parent) {
 							node = node.parent.parent;
 						}
@@ -209,7 +205,7 @@ export class YAMLCompletion {
 				this.getCustomTagValueCompletions(collector);
 			}
 
-			return this.promise.all(collectionPromises).then(() => {
+			return Promise.all(collectionPromises).then(() => {
 				return result;
 			});
 		});

@@ -6,20 +6,16 @@
 'use strict';
 
 import { JSONSchemaService, ResolvedSchema } from './jsonSchemaService';
-import { JSONDocument, ObjectASTNode, IProblem, ProblemSeverity } from '../parser/jsonParser';
-import { TextDocument, Diagnostic, DiagnosticSeverity } from 'vscode-languageserver-types';
-import { PromiseConstructor, Thenable, LanguageSettings} from '../yamlLanguageService';
+import { DiagnosticSeverity } from 'vscode-languageserver-types';
+import { LanguageSettings} from '../yamlLanguageService';
 
 export class YAMLValidation {
-	
+
 	private jsonSchemaService: JSONSchemaService;
-	private promise: PromiseConstructor;
-	private comments: boolean;
 	private validationEnabled: boolean;
 
-	public constructor(jsonSchemaService, promiseConstructor) {
+	public constructor(jsonSchemaService) {
 		this.jsonSchemaService = jsonSchemaService;
-		this.promise = promiseConstructor;
 		this.validationEnabled = true;
 	}
 
@@ -28,11 +24,11 @@ export class YAMLValidation {
 			this.validationEnabled = shouldValidate.validate;
 		}
 	}
-	
+
 	public doValidation(textDocument, yamlDocument) {
 
 		if(!this.validationEnabled){
-			return this.promise.resolve([]);
+			return Promise.resolve([]);
 		}
 
 		return this.jsonSchemaService.getSchemaForResource(textDocument.uri).then(function (schema) {
@@ -56,7 +52,7 @@ export class YAMLValidation {
 
 			}
 			if(newSchema && newSchema.errors.length > 0){
-				
+
 				for(let curDiagnostic of newSchema.errors){
 					diagnostics.push({
 						severity: DiagnosticSeverity.Error,

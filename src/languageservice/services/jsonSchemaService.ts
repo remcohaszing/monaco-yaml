@@ -9,7 +9,7 @@ import * as Json from 'jsonc-parser';
 import {JSONSchema, JSONSchemaMap} from '../jsonSchema';
 import URI from 'vscode-uri';
 import * as Strings from '../utils/strings';
-import {SchemaRequestService, WorkspaceContextService, PromiseConstructor, Thenable} from '../yamlLanguageService';
+import {SchemaRequestService, WorkspaceContextService, Thenable} from '../yamlLanguageService';
 
 
 import * as nls from 'vscode-nls';
@@ -142,7 +142,7 @@ class SchemaHandle implements ISchemaHandle {
 		this.service = service;
 		this.url = url;
 		if (unresolvedSchemaContent) {
-			this.unresolvedSchema = this.service.promise.resolve(new UnresolvedSchema(unresolvedSchemaContent));
+			this.unresolvedSchema = Promise.resolve(new UnresolvedSchema(unresolvedSchemaContent));
 		}
 	}
 
@@ -242,13 +242,11 @@ export class JSONSchemaService implements IJSONSchemaService {
 	private contextService: WorkspaceContextService;
 	private callOnDispose: Function[];
 	private requestService: SchemaRequestService;
-	private promiseConstructor: PromiseConstructor;
 	private customSchemaProvider: CustomSchemaProvider | undefined;
 
-	constructor(requestService: SchemaRequestService, contextService?: WorkspaceContextService, promiseConstructor?: PromiseConstructor) {
+	constructor(requestService: SchemaRequestService, contextService?: WorkspaceContextService) {
 		this.contextService = contextService;
 		this.requestService = requestService;
-		this.promiseConstructor = promiseConstructor || Promise;
 		this.callOnDispose = [];
 		this.customSchemaProvider = undefined;
 		this.contributionSchemas = {};
@@ -268,10 +266,6 @@ export class JSONSchemaService implements IJSONSchemaService {
 			let scheme = URI.parse(id).scheme;
 			return scheme !== 'schemaservice' && (!filter || filter(scheme));
 		});
-	}
-
-	public get promise() {
-		return this.promiseConstructor;
 	}
 
 	public dispose(): void {
@@ -376,13 +370,13 @@ export class JSONSchemaService implements IJSONSchemaService {
 		if (schemaHandle) {
 			return schemaHandle.getResolvedSchema();
 		}
-		return this.promise.resolve(null);
+		return Promise.resolve(null);
 	}
 
 	public loadSchema(url: string): Thenable<UnresolvedSchema> {
 		if (!this.requestService) {
 			let errorMessage = localize('json.schema.norequestservice', 'Unable to load schema from \'{0}\'. No schema request service available', toDisplayString(url));
-			return this.promise.resolve(new UnresolvedSchema(<JSONSchema>{}, [errorMessage]));
+			return Promise.resolve(new UnresolvedSchema(<JSONSchema>{}, [errorMessage]));
 		}
 		return this.requestService(url).then(
 			content => {
@@ -507,7 +501,7 @@ export class JSONSchemaService implements IJSONSchemaService {
 				collectMapEntries(next.definitions, next.properties, next.patternProperties, <JSONSchemaMap>next.dependencies);
 				collectArrayEntries(next.anyOf, next.allOf, next.oneOf, <JSONSchema[]>next.items, next.schemaSequence);
 			}
-			return this.promise.all(openPromises);
+			return Promise.all(openPromises);
 		};
 
 		return resolveRefs(schema, schema, schemaURL).then(_ => new ResolvedSchema(schema, resolveErrors));
@@ -522,7 +516,7 @@ export class JSONSchemaService implements IJSONSchemaService {
 					return entry.getCombinedSchema(this).getResolvedSchema();
 				}
 			}
-			return this.promise.resolve(null);
+			return Promise.resolve(null);
 		};
 		if (this.customSchemaProvider) {
 			return this.customSchemaProvider(resource).then(schemaUri => {

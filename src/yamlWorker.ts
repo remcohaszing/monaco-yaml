@@ -53,9 +53,8 @@ export class YAMLWorker {
 		this._ctx = ctx;
 		this._languageSettings = createData.languageSettings;
 		this._languageId = createData.languageId;
-		this._languageService = yamlService.getLanguageService(createData.enableSchemaRequest && defaultSchemaRequestService,
-			null, [], PromiseAdapter,
-		);
+		this._languageService = yamlService.getLanguageService(
+			createData.schemaRequestService || defaultSchemaRequestService, null, []);
 		this._languageService.configure({ ...this._languageSettings, hover: true, isKubernetes: true });
 	}
 
@@ -108,7 +107,7 @@ export class YAMLWorker {
 export interface ICreateData {
 	languageId: string;
 	languageSettings: yamlService.LanguageSettings;
-  enableSchemaRequest: boolean;
+  schemaRequestService: (url: string) => Promise<string>;
 }
 
 export function create(ctx: IWorkerContext, createData: ICreateData): YAMLWorker {

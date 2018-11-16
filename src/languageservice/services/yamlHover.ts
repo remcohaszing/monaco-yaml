@@ -9,7 +9,7 @@
 import * as Parser from '../parser/jsonParser';
 import * as SchemaService from './jsonSchemaService';
 import {JSONWorkerContribution} from '../jsonContributions';
-import {PromiseConstructor, Thenable} from 'vscode-json-languageservice';
+import {Thenable} from 'vscode-json-languageservice';
 
 import {Hover, TextDocument, Position, Range, MarkedString} from 'vscode-languageserver-types';
 import { matchOffsetToDocument } from '../utils/arrUtils';
@@ -19,13 +19,11 @@ export class YAMLHover {
 
 	private schemaService: SchemaService.IJSONSchemaService;
 	private contributions: JSONWorkerContribution[];
-	private promise: PromiseConstructor;
 	private shouldHover: boolean;
 
-	constructor(schemaService: SchemaService.IJSONSchemaService, contributions: JSONWorkerContribution[] = [], promiseConstructor: PromiseConstructor) {
+	constructor(schemaService: SchemaService.IJSONSchemaService, contributions: JSONWorkerContribution[] = []) {
 		this.schemaService = schemaService;
 		this.contributions = contributions;
-		this.promise = promiseConstructor || Promise;
 		this.shouldHover = true;
 	}
 
@@ -38,18 +36,18 @@ export class YAMLHover {
 	public doHover(document: TextDocument, position: Position, doc): Thenable<Hover> {
 
 		if(!this.shouldHover || !document){
-			return this.promise.resolve(void 0);
+			return Promise.resolve(void 0);
 		}
 
 		let offset = document.offsetAt(position);
 		let currentDoc = matchOffsetToDocument(offset, doc);
 		if(currentDoc === null){
-			return this.promise.resolve(void 0);
+			return Promise.resolve(void 0);
 		}
 		const currentDocIndex = doc.documents.indexOf(currentDoc);
 		let node = currentDoc.getNodeFromOffset(offset);
 		if (!node || (node.type === 'object' || node.type === 'array') && offset > node.start + 1 && offset < node.end - 1) {
-			return this.promise.resolve(void 0);
+			return Promise.resolve(void 0);
 		}
 		let hoverRangeNode = node;
 
@@ -60,7 +58,7 @@ export class YAMLHover {
 				let propertyNode = <Parser.PropertyASTNode>node.parent;
 				node = propertyNode.value;
 				if (!node) {
-					return this.promise.resolve(void 0);
+					return Promise.resolve(void 0);
 				}
 			}
 		}

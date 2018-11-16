@@ -12,7 +12,7 @@ import { YAMLCompletion } from './services/yamlCompletion';
 import { YAMLHover } from './services/yamlHover';
 import { YAMLValidation } from './services/yamlValidation';
 import { format } from './services/yamlFormatter';
-import { JSONDocument } from 'vscode-json-languageservice';
+import { JSONDocument, JSONWorkerContribution } from 'vscode-json-languageservice';
 import { parse as parseYAML } from "./parser/yamlParser";
 
 export interface LanguageSettings {
@@ -25,38 +25,6 @@ export interface LanguageSettings {
 }
 
 export type YAMLDocument = { documents: JSONDocument[] };
-
-export interface PromiseConstructor {
-    /**
-     * Creates a new Promise.
-     * @param executor A callback used to initialize the promise. This callback is passed two arguments:
-     * a resolve callback used resolve the promise with a value or the result of another promise,
-     * and a reject callback used to reject the promise with a provided reason or error.
-     */
-    new <T>(executor: (resolve: (value?: T | Thenable<T>) => void, reject: (reason?: any) => void) => void): Thenable<T>;
-
-    /**
-     * Creates a Promise that is resolved with an array of results when all of the provided Promises
-     * resolve, or rejected when any Promise is rejected.
-     * @param values An array of Promises.
-     * @returns A new Promise.
-     */
-    all<T>(values: Array<T | Thenable<T>>): Thenable<T[]>;
-    /**
-     * Creates a new rejected promise for the provided reason.
-     * @param reason The reason the promise was rejected.
-     * @returns A new rejected Promise.
-     */
-    reject<T>(reason: any): Thenable<T>;
-
-    /**
-      * Creates a new resolved promise for the provided value.
-      * @param value A promise.
-      * @returns A promise whose internal state matches the provided promise.
-      */
-    resolve<T>(value: T | Thenable<T>): Thenable<T>;
-
-}
 
 export interface Thenable<R> {
     /**
@@ -109,15 +77,13 @@ export interface LanguageService {
   parseYAMLDocument(document: TextDocument): YAMLDocument;
 }
 
-export function getLanguageService(schemaRequestService, workspaceContext, contributions, promiseConstructor?): LanguageService {
-  let promise = promiseConstructor || Promise;
-
+export function getLanguageService(schemaRequestService: SchemaRequestService, workspaceContext: WorkspaceContextService, contributions: JSONWorkerContribution[]): LanguageService {
   let schemaService = new JSONSchemaService(schemaRequestService, workspaceContext);
 
-  let completer = new YAMLCompletion(schemaService, contributions, promise);
-  let hover = new YAMLHover(schemaService, contributions, promise);
+  let completer = new YAMLCompletion(schemaService, contributions);
+  let hover = new YAMLHover(schemaService, contributions);
   let yamlDocumentSymbols = new YAMLDocumentSymbols();
-  let yamlValidation = new YAMLValidation(schemaService, promise);
+  let yamlValidation = new YAMLValidation(schemaService);
 
   return {
       configure: (settings) => {
