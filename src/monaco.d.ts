@@ -29,10 +29,9 @@ declare module monaco.languages.yaml {
     }[];
 
     /**
-     *  If not set, the schema service would load schema content on-demand with 'fetch' if available,
-     *  otherwise, it will try to load with the custom schema request.
+     *  If set, the schema service would load schema content on-demand with 'fetch' if available
      */
-    readonly schemaRequestService?: (url: string) => Promise<string>;
+    readonly enableSchemaRequest?: boolean;
   }
 
   export interface LanguageServiceDefaults {

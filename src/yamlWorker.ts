@@ -18,30 +18,6 @@ if (typeof fetch !== 'undefined'){
 	defaultSchemaRequestService = function (url) { return fetch(url).then(response => response.text())};
 }
 
-class PromiseAdapter<T> implements yamlService.Thenable<T> {
-	private wrapped: monaco.Promise<T>;
-
-	constructor(executor: (resolve: (value?: T | yamlService.Thenable<T>) => void, reject: (reason?: any) => void) => void) {
-		this.wrapped = new monaco.Promise<T>(executor);
-	}
-	public then<TResult>(onfulfilled?: (value: T) => TResult | yamlService.Thenable<TResult>, onrejected?: (reason: any) => void): yamlService.Thenable<TResult> {
-		let thenable: yamlService.Thenable<T> = this.wrapped;
-		return thenable.then(onfulfilled, onrejected);
-	}
-	public getWrapped(): monaco.Thenable<T> {
-		return this.wrapped;
-	}
-	public static resolve<T>(v: T | Thenable<T>): yamlService.Thenable<T> {
-		return <monaco.Thenable<T>>monaco.Promise.as(v);
-	}
-	public static reject<T>(v: T): yamlService.Thenable<T> {
-		return monaco.Promise.wrapError(<any>v);
-	}
-	public static all<T>(values: yamlService.Thenable<T>[]): yamlService.Thenable<T[]> {
-		return monaco.Promise.join(values);
-	}
-}
-
 export class YAMLWorker {
 
 	private _ctx: IWorkerContext;
@@ -54,7 +30,7 @@ export class YAMLWorker {
 		this._languageSettings = createData.languageSettings;
 		this._languageId = createData.languageId;
 		this._languageService = yamlService.getLanguageService(
-			createData.schemaRequestService || defaultSchemaRequestService, null, []);
+			createData.enableSchemaRequest && defaultSchemaRequestService, null, []);
 		this._languageService.configure({ ...this._languageSettings, hover: true, isKubernetes: true });
 	}
 
@@ -107,7 +83,7 @@ export class YAMLWorker {
 export interface ICreateData {
 	languageId: string;
 	languageSettings: yamlService.LanguageSettings;
-  schemaRequestService: (url: string) => Promise<string>;
+  enableSchemaRequest: boolean;
 }
 
 export function create(ctx: IWorkerContext, createData: ICreateData): YAMLWorker {
