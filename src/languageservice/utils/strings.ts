@@ -38,6 +38,10 @@ export function convertSimple2RegExp(pattern: string): RegExp {
 		:  convertGlobalPattern2RegExp(pattern)
 }
 
+export function convertSimple2RegExpPattern(pattern: string): string {
+	return pattern.replace(/[\-\\\{\}\+\?\|\^\$\.\,\[\]\(\)\#\s]/g, '\\$&').replace(/[\*]/g, '.*');
+}
+
 function convertGlobalPattern2RegExp(pattern: string): RegExp {
 	return new RegExp(pattern.replace(/[\-\\\{\}\+\?\|\^\$\.\,\[\]\(\)\#\s]/g, '\\$&').replace(/[\*]/g, '.*') + '$');
 }

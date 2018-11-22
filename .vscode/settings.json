@@ -5,5 +5,7 @@
 		"**/node_modules": true,
 		"**/release": true,
 		"**/out": true
-	}
+  },
+  "javascript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "single"
 }

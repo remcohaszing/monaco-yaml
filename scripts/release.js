@@ -22,7 +22,6 @@ helpers.packageESM({
     "jsonc-parser/lib/esm": "jsonc-parser",
     "vscode-languageserver-types/lib/esm": "vscode-languageserver-types",
     "vscode-uri/lib/esm": "vscode-uri",
-    "vscode-json-languageservice/lib/esm": "vscode-json-languageservice",
     // "js-yaml/dist": "js-yaml"
   }
 });

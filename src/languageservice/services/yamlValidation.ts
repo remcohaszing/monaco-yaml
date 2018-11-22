@@ -6,31 +6,27 @@
 'use strict';
 
 import { JSONSchemaService, ResolvedSchema } from './jsonSchemaService';
-import { DiagnosticSeverity } from 'vscode-languageserver-types';
-import { LanguageSettings} from '../yamlLanguageService';
+import { DiagnosticSeverity, TextDocument } from 'vscode-languageserver-types';
+import { LanguageSettings } from '../yamlLanguageService';
+import { YAMLDocument } from '../yamlLanguageTypes';
 
 export class YAMLValidation {
 
-	private jsonSchemaService: JSONSchemaService;
-	private validationEnabled: boolean;
+  private validationEnabled: boolean;
+	public constructor(private jsonSchemaService: JSONSchemaService) {
+    this.validationEnabled = true;
+  }
 
-	public constructor(jsonSchemaService) {
-		this.jsonSchemaService = jsonSchemaService;
-		this.validationEnabled = true;
-	}
-
-	public configure(shouldValidate: LanguageSettings){
-		if(shouldValidate){
-			this.validationEnabled = shouldValidate.validate;
+	public configure(raw: LanguageSettings) {
+		if (raw) {
+			this.validationEnabled = raw.validate;
 		}
 	}
 
-	public doValidation(textDocument, yamlDocument) {
-
-		if(!this.validationEnabled){
+	public doValidation(textDocument: TextDocument, yamlDocument: YAMLDocument) {
+    if (!this.validationEnabled) {
 			return Promise.resolve([]);
 		}
-
 		return this.jsonSchemaService.getSchemaForResource(textDocument.uri).then(function (schema) {
 			var diagnostics = [];
 			var added = {};
@@ -42,10 +38,10 @@ export class YAMLValidation {
 					if (schema.schema && schema.schema.schemaSequence && schema.schema.schemaSequence[documentIndex]) {
 						newSchema = new ResolvedSchema(schema.schema.schemaSequence[documentIndex]);
 					}
-					let diagnostics = currentDoc.getValidationProblems(newSchema.schema);
+					let diagnostics = currentDoc.validate(textDocument, newSchema.schema);
 					for(let diag in diagnostics){
 						let curDiagnostic = diagnostics[diag];
-						currentDoc.errors.push({ location: { start: curDiagnostic.location.start, end: curDiagnostic.location.end }, message: curDiagnostic.message })
+						currentDoc.errors.push({ location: { start: curDiagnostic.range.start, end: curDiagnostic.range.end }, message: curDiagnostic.message })
 					}
 					documentIndex++;
 				}
