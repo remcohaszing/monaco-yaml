@@ -46,10 +46,7 @@ function bundleOne(moduleId, exclude) {
 			name: 'jsonc-parser',
 			location: path.join(REPO_ROOT, 'node_modules/jsonc-parser/lib/umd'),
 			main: 'main'
-		}, {
-      name: 'vscode-json-languageservice/lib',
-      location: path.join(REPO_ROOT, 'node_modules/vscode-json-languageservice/lib/umd')
-    },
+		},
 
 	  {
 			name: 'vscode-languageserver-types',

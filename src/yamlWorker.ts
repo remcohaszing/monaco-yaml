@@ -63,11 +63,23 @@ export class YAMLWorker {
 	resetSchema(uri: string): Thenable<boolean> {
 		return Promise.as(this._languageService.resetSchema(uri));
 	}
-	findDocumentSymbols(uri: string): Thenable<ls.SymbolInformation[]> {
+	findDocumentSymbols(uri: string): Thenable<ls.DocumentSymbol[]> {
 		let document = this._getTextDocument(uri);
 		let yamlDocument = this._languageService.parseYAMLDocument(document);
 		let symbols = this._languageService.findDocumentSymbols(document, yamlDocument);
 		return Promise.as(symbols);
+  }
+  findDocumentColors(uri: string): Thenable<ls.ColorInformation[]> {
+		let document = this._getTextDocument(uri);
+		let stylesheet = this._languageService.parseYAMLDocument(document);
+		let colorSymbols = this._languageService.findDocumentColors(document, stylesheet);
+		return Promise.as(colorSymbols);
+	}
+	getColorPresentations(uri: string, color: ls.Color, range: ls.Range): Thenable<ls.ColorPresentation[]> {
+		let document = this._getTextDocument(uri);
+		let stylesheet = this._languageService.parseYAMLDocument(document);
+		let colorPresentations = this._languageService.getColorPresentations(document, stylesheet, color, range);
+		return Promise.as(colorPresentations);
 	}
 	private _getTextDocument(uri: string): ls.TextDocument {
 		let models = this._ctx.getMirrorModels();

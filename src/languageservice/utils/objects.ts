@@ -56,3 +56,19 @@ export function equals(one: any, other: any): boolean {
     }
     return true;
 }
+
+export function isNumber(val: any): val is number {
+	return typeof val === 'number';
+}
+
+export function isDefined(val: any): val is object {
+	return typeof val !== 'undefined';
+}
+
+export function isBoolean(val: any): val is boolean {
+	return typeof val === 'boolean';
+}
+
+export function isString(val: any): val is string {
+	return typeof val === 'string';
+}

@@ -8,62 +8,44 @@
 
 import * as Parser from '../parser/jsonParser';
 import * as SchemaService from './jsonSchemaService';
-import {JSONWorkerContribution} from '../jsonContributions';
-import {Thenable} from 'vscode-json-languageservice';
+import { JSONWorkerContribution } from '../jsonContributions';
+import { Thenable } from 'vscode-json-languageservice';
 
-import {Hover, TextDocument, Position, Range, MarkedString} from 'vscode-languageserver-types';
+import { Hover, TextDocument, Position, Range, MarkedString } from 'vscode-languageserver-types';
+import { YAMLDocument } from '../yamlLanguageTypes';
 import { matchOffsetToDocument } from '../utils/arrUtils';
-import { LanguageSettings } from '../yamlLanguageService';
 
 export class YAMLHover {
 
-	private schemaService: SchemaService.IJSONSchemaService;
-	private contributions: JSONWorkerContribution[];
-	private shouldHover: boolean;
+  constructor(private schemaService: SchemaService.IJSONSchemaService, private contributions: JSONWorkerContribution[] = []) {
+  }
 
-	constructor(schemaService: SchemaService.IJSONSchemaService, contributions: JSONWorkerContribution[] = []) {
-		this.schemaService = schemaService;
-		this.contributions = contributions;
-		this.shouldHover = true;
-	}
+	public doHover(document: TextDocument, position: Position, doc: YAMLDocument): Thenable<Hover> {
 
-	public configure(languageSettings: LanguageSettings){
-		if(languageSettings){
-			this.shouldHover = languageSettings.hover;
-		}
-	}
-
-	public doHover(document: TextDocument, position: Position, doc): Thenable<Hover> {
-
-		if(!this.shouldHover || !document){
-			return Promise.resolve(void 0);
-		}
-
-		let offset = document.offsetAt(position);
+    let offset = document.offsetAt(position);
 		let currentDoc = matchOffsetToDocument(offset, doc);
 		if(currentDoc === null){
 			return Promise.resolve(void 0);
 		}
 		const currentDocIndex = doc.documents.indexOf(currentDoc);
 		let node = currentDoc.getNodeFromOffset(offset);
-		if (!node || (node.type === 'object' || node.type === 'array') && offset > node.start + 1 && offset < node.end - 1) {
-			return Promise.resolve(void 0);
+		if (!node || (node.type === 'object' || node.type === 'array') && offset > node.offset + 1 && offset < node.offset + node.length - 1) {
+			return Promise.resolve(null);
 		}
 		let hoverRangeNode = node;
 
 		// use the property description when hovering over an object key
 		if (node.type === 'string') {
-			let stringNode = <Parser.StringASTNode>node;
-			if (stringNode.isKey) {
-				let propertyNode = <Parser.PropertyASTNode>node.parent;
-				node = propertyNode.value;
+			let parent = node.parent;
+			if (parent && parent.type === 'property' && parent.keyNode === node) {
+				node = parent.valueNode;
 				if (!node) {
-					return Promise.resolve(void 0);
+					return Promise.resolve(null);
 				}
 			}
 		}
 
-		let hoverRange = Range.create(document.positionAt(hoverRangeNode.start), document.positionAt(hoverRangeNode.end));
+		let hoverRange = Range.create(document.positionAt(hoverRangeNode.offset), document.positionAt(hoverRangeNode.offset + hoverRangeNode.length));
 
 		var createHover = (contents: MarkedString[]) => {
 			let result: Hover = {
@@ -73,7 +55,7 @@ export class YAMLHover {
 			return result;
 		};
 
-		let location = node.getPath();
+		let location = Parser.getNodePath(node);
 		for (let i = this.contributions.length - 1; i >= 0; i--) {
 			let contribution = this.contributions[i];
 			let promise = contribution.getInfoContribution(document.uri, location);
@@ -82,25 +64,21 @@ export class YAMLHover {
 			}
 		}
 
-		return this.schemaService.getSchemaForResource(document.uri).then((schema) => {
+		return this.schemaService.getSchemaForResource(document.uri, currentDoc).then((schema) => {
 			if (schema) {
-				let newSchema = schema;
-				if (schema.schema && schema.schema.schemaSequence && schema.schema.schemaSequence[currentDocIndex]) {
-					newSchema = new SchemaService.ResolvedSchema(schema.schema.schemaSequence[currentDocIndex]);
-				}
-				let matchingSchemas = currentDoc.getMatchingSchemas(newSchema.schema, node.start);
+				let matchingSchemas = currentDoc.getMatchingSchemas(schema.schema, node.offset);
 
 				let title: string = null;
 				let markdownDescription: string = null;
 				let markdownEnumValueDescription = null, enumValue = null;
-				matchingSchemas.every((s) => {
+				matchingSchemas.forEach((s) => {
 					if (s.node === node && !s.inverted && s.schema) {
 						title = title || s.schema.title;
-						markdownDescription = markdownDescription || s.schema["markdownDescription"] || toMarkdown(s.schema.description);
-						if (s.schema.enum)  {
-							let idx = s.schema.enum.indexOf(node.getValue());
-							if (s.schema["markdownEnumDescriptions"]) {
-								markdownEnumValueDescription = s.schema["markdownEnumDescriptions"][idx];
+						markdownDescription = markdownDescription || s.schema.markdownDescription || toMarkdown(s.schema.description);
+						if (s.schema.enum) {
+							let idx = s.schema.enum.indexOf(Parser.getNodeValue(node));
+							if (s.schema.markdownEnumDescriptions) {
+								markdownEnumValueDescription = s.schema.markdownEnumDescriptions[idx];
 							} else if (s.schema.enumDescriptions) {
 								markdownEnumValueDescription = toMarkdown(s.schema.enumDescriptions[idx]);
 							}
@@ -132,15 +110,15 @@ export class YAMLHover {
 				}
 				return createHover([result]);
 			}
-			return void 0;
+			return null;
 		});
 	}
 }
 
 function toMarkdown(plain: string) {
-	if (plain) {
-		let res = plain.replace(/([^\n\r])(\r?\n)([^\n\r])/gm, '$1\n\n$3'); // single new lines to \n\n (Markdown paragraph)
-		return res.replace(/[\\`*_{}[\]()#+\-.!]/g, "\\$&"); // escape markdown syntax tokens: http://daringfireball.net/projects/markdown/syntax#backslash
-	}
-	return void 0;
+  if (plain) {
+    let res = plain.replace(/([^\n\r])(\r?\n)([^\n\r])/gm, '$1\n\n$3'); // single new lines to \n\n (Markdown paragraph)
+    return res.replace(/[\\`*_{}[\]()#+\-.!]/g, "\\$&"); // escape markdown syntax tokens: http://daringfireball.net/projects/markdown/syntax#backslash
+  }
+  return void 0;
 }
