@@ -9,13 +9,14 @@ import * as nls from 'vscode-nls';
 const localize = nls.loadMessageBundle();
 
 import * as Yaml from '../../yaml-ast-parser/index'
-import { Schema, Type } from 'js-yaml';
 
 import { getLineStartPositions } from '../utils/documentPositionCalculator'
 import { parseYamlBoolean } from './scalar-type';
 import { ObjectASTNodeImpl, StringASTNodeImpl, PropertyASTNodeImpl, NullASTNodeImpl, ArrayASTNodeImpl, BooleanASTNodeImpl, NumberASTNodeImpl } from './jsonParser';
 import { ASTNode, PropertyASTNode, ErrorCode } from '../jsonLanguageTypes';
 import { SingleYAMLDocument, YAMLDocument } from '../yamlLanguageTypes';
+import { Schema } from '../../yaml-ast-parser/schema';
+import { Type } from '../../yaml-ast-parser/type';
 
 function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 
@@ -47,7 +48,8 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
       const keyNode = new StringASTNodeImpl(result, key.startPosition, key.endPosition - key.startPosition);
       keyNode.value = key.value;
 
-      const valueNode = (instance.value) ? recursivelyBuildAst(result, instance.value) : new NullASTNodeImpl(parent, instance.startPosition)
+      // TODO: calculate the correct NULL range.
+      const valueNode = (instance.value) ? recursivelyBuildAst(result, instance.value) : new NullASTNodeImpl(parent, instance.endPosition);
 
       result.keyNode = keyNode;
       result.valueNode = valueNode;

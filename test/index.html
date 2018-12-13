@@ -47,41 +47,42 @@
       'vs/basic-languages/monaco.contribution',
       'vs/language/yaml/monaco.contribution'
     ], function () {
-      const yaml = `apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  namespace: default
-  labels:
-    app: nginx
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      apps.deployment: nginx
-  template:
-    metadata:
-      labels:
-        apps.deployment: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:alpine`;
-
-      var editor = monaco.editor.create(document.getElementById('container'), {
-        value: yaml,
-        language: 'yaml'
+      const yaml = `p1: `;
+      const modelUri = monaco.Uri.parse("a://b/foo.json");
+      const editor = monaco.editor.create(document.getElementById('container'), {
+        language: 'yaml',
+        showFoldingControls: 'always',
+        model: monaco.editor.createModel(yaml, "yaml", modelUri),
       });
 
       monaco.languages.yaml.yamlDefaults.setDiagnosticsOptions({
         enableSchemaRequest: true,
         validate: true,
-        schemas: [
-          {
-            uri: 'https://raw.githubusercontent.com/garethr/kubernetes-json-schema/master/master/deployment.json',
-            fileMatch: ['*'],
-          },
-        ],
+        schemas: [{
+          uri: "http://myserver/foo-schema.json", // id of the first schema
+          fileMatch: [modelUri.toString()], // associate with our model
+          schema: {
+            type: "object",
+            properties: {
+              p1: {
+                enum: ["v1", "v2"]
+              },
+              p2: {
+                $ref: "http://myserver/bar-schema.json" // reference the second schema
+              }
+            }
+          }
+        }, {
+          uri: "http://myserver/bar-schema.json", // id of the first schema
+          schema: {
+            type: "object",
+            properties: {
+              q1: {
+                enum: ["x1", "x2"]
+              }
+            }
+          }
+        }]
       });
 
       require(["vs/editor/contrib/quickOpen/quickOpen"], async quickOpen => {
@@ -117,7 +118,8 @@ spec:
           const position = selection.getPosition();
           const symbol = await _getSymbolForPosition(model, position);
 
-          if (symbol) {
+          console.log(`${symbol.name}: ${symbol.range}`);
+          if (symbol && symbol.range) {
             const decoration = {
               range: symbol.range,
               options: {
@@ -130,8 +132,6 @@ spec:
               oldDecorations,
               decoration ? [decoration] : [],
             )
-
-            console.log(`${symbol.name}: ${symbol.range}`);
           }
 
         });

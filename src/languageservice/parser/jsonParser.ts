@@ -40,7 +40,7 @@ export abstract class ASTNodeImpl {
 
   constructor(parent: ASTNode, offset: number, length?: number) {
     this.offset = offset;
-    this.length = length;
+    this.length = length || 0;
     this.parent = parent;
   }
 
@@ -290,6 +290,30 @@ export function contains(node: ASTNode, offset: number, includeRightBound = fals
   return offset >= node.offset && offset < (node.offset + node.length) || includeRightBound && offset === (node.offset + node.length);
 }
 
+// export function contains(node: ASTNode, offset: number, includeRightBound = false): boolean {
+//   let flag = offset >= node.offset && offset <= (node.offset + node.length);
+//   if (!flag && includeRightBound) {
+//     if (node.parent && node.parent.children && )
+//     const nextSibling = node.parent
+//   }
+//   return flag;
+// }
+
+// export function findNodeAtOffset(node: ASTNode, offset: number, includeRightBound = false): ASTNode | undefined {
+//   if (contains(node, offset, includeRightBound)) {
+//     const children = node.children;
+//     if (Array.isArray(children)) {
+//       for (var i = 0; i < children.length && children[i].offset <= offset; i++) {
+//         const item = findNodeAtOffset(children[i], offset, includeRightBound);
+//         if (item) {
+//           return item;
+//         }
+//       }
+//     }
+//     return node;
+//   }
+// }
+
 export class JSONDocument {
 
   constructor(public root: ASTNode, public readonly syntaxErrors: Diagnostic[] = [], public readonly comments: Range[] = []) {
@@ -298,6 +322,7 @@ export class JSONDocument {
   public getNodeFromOffset(offset: number, includeRightBound = false): ASTNode | undefined {
     if (this.root) {
       return <ASTNode>Json.findNodeAtOffset(this.root, offset, includeRightBound);
+      //return findNodeAtOffset(this.root, offset, includeRightBound);
     }
     return void 0;
   }
