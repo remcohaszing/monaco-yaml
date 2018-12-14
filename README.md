@@ -23,7 +23,7 @@ Load with ESM is added, but not yet tested.
 * `git clone https://github.com/pengx17/monaco-yaml`
 * `cd monaco-yaml`
 * `yarn`
-* open `$/monaco-yaml/test/index.html` in your favorite browser.
+* open `$/monaco-yaml/demo/index.html` in your favorite browser.
 
 A running example:
 ![demo-image](test-demo.png)

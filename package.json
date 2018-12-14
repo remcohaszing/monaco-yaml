@@ -1,13 +1,15 @@
 {
   "name": "monaco-yaml",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
     "compile": "rimraf ./out && yarn compile:umd && yarn compile:esm",
     "compile:umd": "tsc -p ./src/tsconfig.json",
     "compile:esm": "tsc -p ./src/tsconfig.esm.json",
     "watch": "tsc -p ./src --watch",
-    "prepublish": "rimraf ./out && rimraf ./release && yarn compile:umd && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts"
+    "prepublish": "rimraf ./out && rimraf ./release && yarn compile:umd && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts",
+    "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
+    "test": "jest"
   },
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
@@ -23,19 +25,61 @@
     "url": "https://github.com/pengx17/monaco-yaml/issues"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.4",
-    "@types/mocha": "^5.2.5",
+    "@types/jest": "^23.3.10",
     "@types/node": "^10.9.3",
+    "husky": "^1.2.1",
+    "jest": "^23.6.0",
     "js-yaml": "^3.12.0",
     "jsonc-parser": "^2.0.2",
+    "lint-staged": "^8.1.0",
     "monaco-editor-core": "0.15.5",
     "monaco-languages": "1.6.0",
     "monaco-plugin-helpers": "^1.0.2",
+    "prettier": "^1.15.3",
     "requirejs": "^2.3.5",
     "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.5",
     "typescript": "^3.1.6",
     "uglify-es": "^3.3.9",
     "vscode-languageserver-types": "3.12.0",
     "yaml-language-server": "^0.1.0"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "semi": true
+  },
+  "lint-staged": {
+    "linters": {
+      "*.{json,scss,html}": [
+        "prettier --write",
+        "git add"
+      ]
+    },
+    "ignore": [
+      "src/backend/vendor/**/*"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "./test/tsconfig.json"
+      }
+    },
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "testMatch": [
+      "**/test/*.test.+(ts|js)"
+    ]
   }
 }

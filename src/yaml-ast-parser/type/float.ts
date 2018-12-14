@@ -1,20 +1,20 @@
-
 import * as common from '../common';
 import { Type } from '../type';
 
-var YAML_FLOAT_PATTERN = new RegExp(
+const YAML_FLOAT_PATTERN = new RegExp(
   '^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?' +
-  '|\\.[0-9_]+(?:[eE][-+][0-9]+)?' +
-  '|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*' +
-  '|[-+]?\\.(?:inf|Inf|INF)' +
-  '|\\.(?:nan|NaN|NAN))$');
+    '|\\.[0-9_]+(?:[eE][-+][0-9]+)?' +
+    '|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*' +
+    '|[-+]?\\.(?:inf|Inf|INF)' +
+    '|\\.(?:nan|NaN|NAN))$'
+);
 
 function resolveYamlFloat(data) {
   if (null === data) {
     return false;
   }
 
-  var value, sign, base, digits;
+  let value, sign, base, digits;
 
   if (!YAML_FLOAT_PATTERN.test(data)) {
     return false;
@@ -23,7 +23,7 @@ function resolveYamlFloat(data) {
 }
 
 function constructYamlFloat(data) {
-  var value, sign, base, digits;
+  let value, sign, base, digits;
 
   value = data.replace(/_/g, '').toLowerCase();
   sign = '-' === value[0] ? -1 : 1;
@@ -34,28 +34,25 @@ function constructYamlFloat(data) {
   }
 
   if ('.inf' === value) {
-    return (1 === sign) ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-
+    return 1 === sign ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
   } else if ('.nan' === value) {
     return NaN;
-
   } else if (0 <= value.indexOf(':')) {
-    value.split(':').forEach(function (v) {
-      digits.unshift((<any>parseFloat)(v, 10));
+    value.split(':').forEach(function(v) {
+      digits.unshift((parseFloat as any)(v, 10));
     });
 
     value = 0.0;
     base = 1;
 
-    digits.forEach(function (d) {
+    digits.forEach(function(d) {
       value += d * base;
       base *= 60;
     });
 
     return sign * value;
-
   }
-  return sign * (<any>parseFloat)(value, 10);
+  return sign * (parseFloat as any)(value, 10);
 }
 
 function representYamlFloat(object, style) {
@@ -93,8 +90,10 @@ function representYamlFloat(object, style) {
 }
 
 function isFloat(object) {
-  return ('[object Number]' === Object.prototype.toString.call(object)) &&
-    (0 !== object % 1 || common.isNegativeZero(object));
+  return (
+    '[object Number]' === Object.prototype.toString.call(object) &&
+    (0 !== object % 1 || common.isNegativeZero(object))
+  );
 }
 
 export default new Type('tag:yaml.org,2002:float', {
@@ -103,5 +102,5 @@ export default new Type('tag:yaml.org,2002:float', {
   construct: constructYamlFloat,
   predicate: isFloat,
   represent: representYamlFloat,
-  defaultStyle: 'lowercase'
+  defaultStyle: 'lowercase',
 });

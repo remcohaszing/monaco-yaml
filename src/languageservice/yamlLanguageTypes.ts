@@ -1,5 +1,5 @@
-import { JSONDocument } from './parser/jsonParser';
 import { ASTNode } from './jsonLanguageTypes';
+import { JSONDocument } from './parser/jsonParser';
 
 export class SingleYAMLDocument extends JSONDocument {
   public lines;
@@ -14,7 +14,7 @@ export class SingleYAMLDocument extends JSONDocument {
   }
 
   public getSchemas(schema, doc, node) {
-    let matchingSchemas = [];
+    const matchingSchemas = [];
     doc.validate(schema, matchingSchemas, node.start);
     return matchingSchemas;
   }
@@ -24,12 +24,16 @@ export class SingleYAMLDocument extends JSONDocument {
   }
 
   public getNodeFromOffsetEndInclusive(offset: number): ASTNode {
-    let collector: ASTNode[] = [];
-    let findNode = (node: ASTNode): ASTNode => {
+    const collector: ASTNode[] = [];
+    const findNode = (node: ASTNode): ASTNode => {
       if (offset >= node.offset && offset <= node.offset + node.length) {
-        let children = node.children;
-        for (let i = 0; i < children.length && children[i].offset <= offset; i++) {
-          let item = findNode(children[i]);
+        const children = node.children;
+        for (
+          let i = 0;
+          i < children.length && children[i].offset <= offset;
+          i++
+        ) {
+          const item = findNode(children[i]);
           if (item) {
             collector.push(item);
           }
@@ -38,12 +42,13 @@ export class SingleYAMLDocument extends JSONDocument {
       }
       return null;
     };
-    let foundNode = findNode(this.root);
+    const foundNode = findNode(this.root);
     let currMinDist = Number.MAX_VALUE;
     let currMinNode = null;
-    for (let possibleNode in collector) {
-      let currNode = collector[possibleNode];
-      let minDist = (currNode.offset + currNode.length - offset) + (offset - currNode.offset);
+    for (const possibleNode in collector) {
+      const currNode = collector[possibleNode];
+      const minDist =
+        currNode.offset + currNode.length - offset + (offset - currNode.offset);
       if (minDist < currMinDist) {
         currMinNode = currNode;
         currMinDist = minDist;
@@ -54,7 +59,7 @@ export class SingleYAMLDocument extends JSONDocument {
 }
 
 export class YAMLDocument {
-  public documents: SingleYAMLDocument[]
+  public documents: SingleYAMLDocument[];
   public errors;
   public warnings;
 

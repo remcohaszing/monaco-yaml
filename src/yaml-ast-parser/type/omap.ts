@@ -1,15 +1,19 @@
-
 import { Type } from '../type';
 
-var _hasOwnProperty = Object.prototype.hasOwnProperty;
-var _toString = Object.prototype.toString;
+const _hasOwnProperty = Object.prototype.hasOwnProperty;
+const _toString = Object.prototype.toString;
 
 function resolveYamlOmap(data) {
   if (null === data) {
     return true;
   }
 
-  var objectKeys = [], index, length, pair, pairKey, pairHasKey,
+  let objectKeys = [],
+    index,
+    length,
+    pair,
+    pairKey,
+    pairHasKey,
     object = data;
 
   for (index = 0, length = object.length; index < length; index += 1) {
@@ -51,5 +55,5 @@ function constructYamlOmap(data) {
 export default new Type('tag:yaml.org,2002:omap', {
   kind: 'sequence',
   resolve: resolveYamlOmap,
-  construct: constructYamlOmap
+  construct: constructYamlOmap,
 });

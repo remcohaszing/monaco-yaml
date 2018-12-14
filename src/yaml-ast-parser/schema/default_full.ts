@@ -1,4 +1,3 @@
-
 // JS-YAML's default schema for `load` function.
 // It is not described in the YAML specification.
 //
@@ -11,18 +10,12 @@ import { Schema } from '../schema';
 
 import DefaultSafe from './default_safe';
 
-import UndefinedType from '../type/js/undefined';
 import RegexpType from '../type/js/regexp';
+import UndefinedType from '../type/js/undefined';
 
-var schema = new Schema({
-  include: [
-    DefaultSafe
-  ],
-  explicit: [
-    UndefinedType,
-    RegexpType
-
-  ]
-})
+const schema = new Schema({
+  include: [DefaultSafe],
+  explicit: [UndefinedType, RegexpType],
+});
 Schema.DEFAULT = schema;
 export default schema;

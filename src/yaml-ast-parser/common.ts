@@ -1,14 +1,10 @@
-
-
 export function isNothing(subject) {
-  return (typeof subject === 'undefined') || (null === subject);
+  return typeof subject === 'undefined' || null === subject;
 }
-
 
 export function isObject(subject) {
-  return (typeof subject === 'object') && (null !== subject);
+  return typeof subject === 'object' && null !== subject;
 }
-
 
 export function toArray(sequence) {
   if (Array.isArray(sequence)) {
@@ -19,9 +15,8 @@ export function toArray(sequence) {
   return [sequence];
 }
 
-
 export function extend(target, source) {
-  var index, length, key, sourceKeys;
+  let index, length, key, sourceKeys;
 
   if (source) {
     sourceKeys = Object.keys(source);
@@ -35,9 +30,9 @@ export function extend(target, source) {
   return target;
 }
 
-
 export function repeat(string, count) {
-  var result = '', cycle;
+  let result = '',
+    cycle;
 
   for (cycle = 0; cycle < count; cycle += 1) {
     result += string;
@@ -46,7 +41,6 @@ export function repeat(string, count) {
   return result;
 }
 
-
 export function isNegativeZero(number) {
-  return (0 === number) && (Number.NEGATIVE_INFINITY === 1 / number);
+  return 0 === number && Number.NEGATIVE_INFINITY === 1 / number;
 }

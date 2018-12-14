@@ -1,20 +1,20 @@
-
-
 import * as common from '../common';
 import { Type } from '../type';
 
 function isHexCode(c) {
-  return ((0x30/* 0 */ <= c) && (c <= 0x39/* 9 */)) ||
-    ((0x41/* A */ <= c) && (c <= 0x46/* F */)) ||
-    ((0x61/* a */ <= c) && (c <= 0x66/* f */));
+  return (
+    (0x30 /* 0 */ <= c && c <= 0x39) /* 9 */ ||
+    (0x41 /* A */ <= c && c <= 0x46) /* F */ ||
+    (0x61 /* a */ <= c && c <= 0x66) /* f */
+  );
 }
 
 function isOctCode(c) {
-  return ((0x30/* 0 */ <= c) && (c <= 0x37/* 7 */));
+  return 0x30 /* 0 */ <= c && c <= 0x37 /* 7 */;
 }
 
 function isDecCode(c) {
-  return ((0x30/* 0 */ <= c) && (c <= 0x39/* 9 */));
+  return 0x30 /* 0 */ <= c && c <= 0x39 /* 9 */;
 }
 
 function resolveYamlInteger(data) {
@@ -22,12 +22,14 @@ function resolveYamlInteger(data) {
     return false;
   }
 
-  var max = data.length,
+  let max = data.length,
     index = 0,
     hasDigits = false,
     ch;
 
-  if (!max) { return false; }
+  if (!max) {
+    return false;
+  }
 
   ch = data[index];
 
@@ -38,7 +40,9 @@ function resolveYamlInteger(data) {
 
   if (ch === '0') {
     // 0
-    if (index + 1 === max) { return true; }
+    if (index + 1 === max) {
+      return true;
+    }
     ch = data[++index];
 
     // base 2, base 8, base 16
@@ -49,7 +53,9 @@ function resolveYamlInteger(data) {
 
       for (; index < max; index++) {
         ch = data[index];
-        if (ch === '_') { continue; }
+        if (ch === '_') {
+          continue;
+        }
         if (ch !== '0' && ch !== '1') {
           return false;
         }
@@ -58,14 +64,15 @@ function resolveYamlInteger(data) {
       return hasDigits;
     }
 
-
     if (ch === 'x') {
       // base 16
       index++;
 
       for (; index < max; index++) {
         ch = data[index];
-        if (ch === '_') { continue; }
+        if (ch === '_') {
+          continue;
+        }
         if (!isHexCode(data.charCodeAt(index))) {
           return false;
         }
@@ -77,7 +84,9 @@ function resolveYamlInteger(data) {
     // base 8
     for (; index < max; index++) {
       ch = data[index];
-      if (ch === '_') { continue; }
+      if (ch === '_') {
+        continue;
+      }
       if (!isOctCode(data.charCodeAt(index))) {
         return false;
       }
@@ -90,25 +99,37 @@ function resolveYamlInteger(data) {
 
   for (; index < max; index++) {
     ch = data[index];
-    if (ch === '_') { continue; }
-    if (ch === ':') { break; }
+    if (ch === '_') {
+      continue;
+    }
+    if (ch === ':') {
+      break;
+    }
     if (!isDecCode(data.charCodeAt(index))) {
       return false;
     }
     hasDigits = true;
   }
 
-  if (!hasDigits) { return false; }
+  if (!hasDigits) {
+    return false;
+  }
 
   // if !base60 - done;
-  if (ch !== ':') { return true; }
+  if (ch !== ':') {
+    return true;
+  }
 
   // base60 almost not used, no needs to optimize
   return /^(:[0-5]?[0-9])+$/.test(data.slice(index));
 }
 
 function constructYamlInteger(data) {
-  var value = data, sign = 1, ch, base, digits = [];
+  let value = data,
+    sign = 1,
+    ch,
+    base,
+    digits = [];
 
   if (value.indexOf('_') !== -1) {
     value = value.replace(/_/g, '');
@@ -117,7 +138,9 @@ function constructYamlInteger(data) {
   ch = value[0];
 
   if (ch === '-' || ch === '+') {
-    if (ch === '-') { sign = -1; }
+    if (ch === '-') {
+      sign = -1;
+    }
     value = value.slice(1);
     ch = value[0];
   }
@@ -134,32 +157,32 @@ function constructYamlInteger(data) {
       return sign * parseInt(value, 16);
     }
     return sign * parseInt(value, 8);
-
   }
 
   if (value.indexOf(':') !== -1) {
-    value.split(':').forEach(function (v) {
+    value.split(':').forEach(function(v) {
       digits.unshift(parseInt(v, 10));
     });
 
     value = 0;
     base = 1;
 
-    digits.forEach(function (d) {
-      value += (d * base);
+    digits.forEach(function(d) {
+      value += d * base;
       base *= 60;
     });
 
     return sign * value;
-
   }
 
   return sign * parseInt(value, 10);
 }
 
 function isInteger(object) {
-  return ('[object Number]' === Object.prototype.toString.call(object)) &&
-    (0 === object % 1 && !common.isNegativeZero(object));
+  return (
+    '[object Number]' === Object.prototype.toString.call(object) &&
+    (0 === object % 1 && !common.isNegativeZero(object))
+  );
 }
 
 export default new Type('tag:yaml.org,2002:int', {
@@ -168,16 +191,24 @@ export default new Type('tag:yaml.org,2002:int', {
   construct: constructYamlInteger,
   predicate: isInteger,
   represent: {
-    binary: function (object) { return '0b' + object.toString(2); },
-    octal: function (object) { return '0' + object.toString(8); },
-    decimal: function (object) { return object.toString(10); },
-    hexadecimal: function (object) { return '0x' + object.toString(16).toUpperCase(); }
+    binary(object) {
+      return '0b' + object.toString(2);
+    },
+    octal(object) {
+      return '0' + object.toString(8);
+    },
+    decimal(object) {
+      return object.toString(10);
+    },
+    hexadecimal(object) {
+      return '0x' + object.toString(16).toUpperCase();
+    },
   },
   defaultStyle: 'decimal',
   styleAliases: {
     binary: [2, 'bin'],
     octal: [8, 'oct'],
     decimal: [10, 'dec'],
-    hexadecimal: [16, 'hex']
-  }
+    hexadecimal: [16, 'hex'],
+  },
 });
