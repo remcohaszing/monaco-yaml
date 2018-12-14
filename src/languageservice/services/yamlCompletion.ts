@@ -58,11 +58,13 @@ export class YAMLCompletion {
 
     let currentDoc = matchOffsetToDocument(offset, doc);
 
-    if(currentDoc === null){
-			return Promise.resolve(result);
-		}
+    const currentDocIndex = doc.documents.indexOf(currentDoc);
 
-    let node = currentDoc.getNodeFromOffset(offset, true);
+    if (currentDoc === null) {
+      return Promise.resolve(result);
+    }
+
+    let node = currentDoc.getNodeFromOffsetEndInclusive(offset);
     if (this.isInComment(document, node ? node.offset : 0, offset)) {
       return Promise.resolve(result);
     }
@@ -131,12 +133,13 @@ export class YAMLCompletion {
         }
       }
 
+      // Support multiple doc per YAML
+      if (schema && schema.schema && schema.schema.schemaSequence && schema.schema.schemaSequence[currentDocIndex]) {
+        schema = new SchemaService.ResolvedSchema(schema.schema.schemaSequence[currentDocIndex]);
+      }
+
       // proposals for properties
       if (node && node.type === 'object') {
-        // don't suggest keys when the cursor is just before the opening curly brace
-        if (node.offset === offset) {
-          return result;
-        }
         // don't suggest properties that are already present
         let properties = node.properties;
         properties.forEach(p => {
@@ -361,7 +364,6 @@ export class YAMLCompletion {
       }
     }
   }
-
 
   private getValueCompletions(schema: SchemaService.ResolvedSchema, doc: Parser.JSONDocument, node: ASTNode, offset: number, document: TextDocument, collector: CompletionsCollector, types: { [type: string]: boolean }): void {
     let offsetForSeparator = offset;
@@ -679,11 +681,11 @@ export class YAMLCompletion {
   }
 
   private getInsertTextForValue(value: any, separatorAfter: string): string {
-    var text = JSON.stringify(value, null, '\t');
+    const text = value;
     if (text === '{}') {
-      return '{$1}' + separatorAfter;
+      return '{\n\t$1\n}' + separatorAfter;
     } else if (text === '[]') {
-      return '[$1]' + separatorAfter;
+      return '[\n\t$1\n]' + separatorAfter;
     }
     return this.getInsertTextForPlainText(text + separatorAfter);
   }
@@ -767,7 +769,7 @@ export class YAMLCompletion {
     if (!addValue) {
       return propertyText;
     }
-    let resultText = propertyText + ': ';
+    let resultText = propertyText + ':';
 
     let value;
     let nValueProposals = 0;
@@ -804,23 +806,23 @@ export class YAMLCompletion {
         }
         switch (type) {
           case 'boolean':
-            value = '$1';
+            value = ' $1';
             break;
           case 'string':
-            value = '"$1"';
+            value = ' $1';
             break;
           case 'object':
-            value = '{$1}';
+            value = '\n\t';
             break;
           case 'array':
-            value = '[$1]';
+            value = '\n\t- ';
             break;
           case 'number':
           case 'integer':
-            value = '${1:0}';
+            value = ' ${1:0}';
             break;
           case 'null':
-            value = '${1:null}';
+            value = ' ${1:null}';
             break;
           default:
             return propertyText;
@@ -834,8 +836,8 @@ export class YAMLCompletion {
   }
 
   private getCurrentWord(document: TextDocument, offset: number) {
-    var i = offset - 1;
-    var text = document.getText();
+    let i = offset - 1;
+    const text = document.getText();
     while (i >= 0 && ' \t\n\r\v":{[,]}'.indexOf(text.charAt(i)) === -1) {
       i--;
     }
@@ -853,7 +855,7 @@ export class YAMLCompletion {
       case Json.SyntaxKind.EOF:
         return '';
       default:
-        return ',';
+        return '';
     }
   }
 

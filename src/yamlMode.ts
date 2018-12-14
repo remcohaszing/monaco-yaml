@@ -26,15 +26,16 @@ export function setupMode(defaults: LanguageServiceDefaultsImpl): void {
 
 	let languageId = defaults.languageId;
 
-  // TODO:
-	// disposables.push(monaco.languages.registerCompletionItemProvider(languageId, new languageFeatures.CompletionAdapter(worker)));
+	disposables.push(monaco.languages.registerCompletionItemProvider(languageId, new languageFeatures.CompletionAdapter(worker)));
 	disposables.push(monaco.languages.registerHoverProvider(languageId, new languageFeatures.HoverAdapter(worker)));
   disposables.push(monaco.languages.registerDocumentSymbolProvider(languageId, new languageFeatures.DocumentSymbolAdapter(worker)));
-  disposables.push(monaco.languages.registerColorProvider(languageId, new languageFeatures.DocumentColorAdapter(worker)));
 	disposables.push(monaco.languages.registerDocumentFormattingEditProvider(languageId, new languageFeatures.DocumentFormattingEditProvider(worker)));
 	disposables.push(monaco.languages.registerDocumentRangeFormattingEditProvider(languageId, new languageFeatures.DocumentRangeFormattingEditProvider(worker)));
 	disposables.push(new languageFeatures.DiagnosticsAdapter(languageId, worker, defaults));
-	disposables.push(monaco.languages.setLanguageConfiguration(languageId, richEditConfiguration));
+  disposables.push(monaco.languages.setLanguageConfiguration(languageId, richEditConfiguration));
+
+  // Color adapter should be necessary most of the time:
+  // disposables.push(monaco.languages.registerColorProvider(languageId, new languageFeatures.DocumentColorAdapter(worker)));
 }
 
 

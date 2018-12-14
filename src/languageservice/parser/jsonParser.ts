@@ -40,7 +40,7 @@ export abstract class ASTNodeImpl {
 
   constructor(parent: ASTNode, offset: number, length?: number) {
     this.offset = offset;
-    this.length = length;
+    this.length = length || 0;
     this.parent = parent;
   }
 
@@ -290,6 +290,30 @@ export function contains(node: ASTNode, offset: number, includeRightBound = fals
   return offset >= node.offset && offset < (node.offset + node.length) || includeRightBound && offset === (node.offset + node.length);
 }
 
+// export function contains(node: ASTNode, offset: number, includeRightBound = false): boolean {
+//   let flag = offset >= node.offset && offset <= (node.offset + node.length);
+//   if (!flag && includeRightBound) {
+//     if (node.parent && node.parent.children && )
+//     const nextSibling = node.parent
+//   }
+//   return flag;
+// }
+
+// export function findNodeAtOffset(node: ASTNode, offset: number, includeRightBound = false): ASTNode | undefined {
+//   if (contains(node, offset, includeRightBound)) {
+//     const children = node.children;
+//     if (Array.isArray(children)) {
+//       for (var i = 0; i < children.length && children[i].offset <= offset; i++) {
+//         const item = findNodeAtOffset(children[i], offset, includeRightBound);
+//         if (item) {
+//           return item;
+//         }
+//       }
+//     }
+//     return node;
+//   }
+// }
+
 export class JSONDocument {
 
   constructor(public root: ASTNode, public readonly syntaxErrors: Diagnostic[] = [], public readonly comments: Range[] = []) {
@@ -298,6 +322,7 @@ export class JSONDocument {
   public getNodeFromOffset(offset: number, includeRightBound = false): ASTNode | undefined {
     if (this.root) {
       return <ASTNode>Json.findNodeAtOffset(this.root, offset, includeRightBound);
+      //return findNodeAtOffset(this.root, offset, includeRightBound);
     }
     return void 0;
   }
@@ -986,308 +1011,4 @@ function validate(node: ASTNode, schema: JSONSchema, validationResult: Validatio
       }
     }
   }
-}
-
-
-export function parse(textDocument: TextDocument, config?: JSONDocumentConfig): JSONDocument {
-
-  let problems: Diagnostic[] = [];
-  let lastProblemOffset = -1;
-  let text = textDocument.getText();
-  let scanner = Json.createScanner(text, false);
-
-  let commentRanges: Range[] = config && config.collectComments ? [] : void 0;
-
-  function _scanNext(): Json.SyntaxKind {
-    while (true) {
-      let token = scanner.scan();
-      _checkScanError();
-      switch (token) {
-        case Json.SyntaxKind.LineCommentTrivia:
-        case Json.SyntaxKind.BlockCommentTrivia:
-          if (Array.isArray(commentRanges)) {
-            commentRanges.push(Range.create(textDocument.positionAt(scanner.getTokenOffset()), textDocument.positionAt(scanner.getTokenOffset() + scanner.getTokenLength())));
-          }
-          break;
-        case Json.SyntaxKind.Trivia:
-        case Json.SyntaxKind.LineBreakTrivia:
-          break;
-        default:
-          return token;
-      }
-    }
-  }
-
-  function _accept(token: Json.SyntaxKind): boolean {
-    if (scanner.getToken() === token) {
-      _scanNext();
-      return true;
-    }
-    return false;
-  }
-
-  function _errorAtRange<T extends ASTNode>(message: string, code: ErrorCode, startOffset: number, endOffset: number, severity: DiagnosticSeverity = DiagnosticSeverity.Error): void {
-
-    if (problems.length === 0 || startOffset !== lastProblemOffset) {
-      let range = Range.create(textDocument.positionAt(startOffset), textDocument.positionAt(endOffset));
-      problems.push(Diagnostic.create(range, message, severity, code, textDocument.languageId));
-      lastProblemOffset = startOffset;
-    }
-  }
-
-  function _error<T extends ASTNodeImpl>(message: string, code: ErrorCode, node: T = null, skipUntilAfter: Json.SyntaxKind[] = [], skipUntil: Json.SyntaxKind[] = []): T {
-    let start = scanner.getTokenOffset();
-    let end = scanner.getTokenOffset() + scanner.getTokenLength();
-    if (start === end && start > 0) {
-      start--;
-      while (start > 0 && /\s/.test(text.charAt(start))) {
-        start--;
-      }
-      end = start + 1;
-    }
-    _errorAtRange(message, code, start, end);
-
-    if (node) {
-      _finalize(node, false);
-    }
-    if (skipUntilAfter.length + skipUntil.length > 0) {
-      let token = scanner.getToken();
-      while (token !== Json.SyntaxKind.EOF) {
-        if (skipUntilAfter.indexOf(token) !== -1) {
-          _scanNext();
-          break;
-        } else if (skipUntil.indexOf(token) !== -1) {
-          break;
-        }
-        token = _scanNext();
-      }
-    }
-    return node;
-  }
-
-  function _checkScanError(): boolean {
-    switch (scanner.getTokenError()) {
-      case Json.ScanError.InvalidUnicode:
-        _error(localize('InvalidUnicode', 'Invalid unicode sequence in string.'), ErrorCode.InvalidUnicode);
-        return true;
-      case Json.ScanError.InvalidEscapeCharacter:
-        _error(localize('InvalidEscapeCharacter', 'Invalid escape character in string.'), ErrorCode.InvalidEscapeCharacter);
-        return true;
-      case Json.ScanError.UnexpectedEndOfNumber:
-        _error(localize('UnexpectedEndOfNumber', 'Unexpected end of number.'), ErrorCode.UnexpectedEndOfNumber);
-        return true;
-      case Json.ScanError.UnexpectedEndOfComment:
-        _error(localize('UnexpectedEndOfComment', 'Unexpected end of comment.'), ErrorCode.UnexpectedEndOfComment);
-        return true;
-      case Json.ScanError.UnexpectedEndOfString:
-        _error(localize('UnexpectedEndOfString', 'Unexpected end of string.'), ErrorCode.UnexpectedEndOfString);
-        return true;
-      case Json.ScanError.InvalidCharacter:
-        _error(localize('InvalidCharacter', 'Invalid characters in string. Control characters must be escaped.'), ErrorCode.InvalidCharacter);
-        return true;
-    }
-    return false;
-  }
-
-  function _finalize<T extends ASTNodeImpl>(node: T, scanNext: boolean): T {
-    node.length = scanner.getTokenOffset() + scanner.getTokenLength() - node.offset;
-
-    if (scanNext) {
-      _scanNext();
-    }
-
-    return node;
-  }
-
-  function _parseArray(parent: ASTNode): ArrayASTNode {
-    if (scanner.getToken() !== Json.SyntaxKind.OpenBracketToken) {
-      return null;
-    }
-    let node = new ArrayASTNodeImpl(parent, scanner.getTokenOffset());
-    _scanNext(); // consume OpenBracketToken
-
-    let count = 0;
-    let needsComma = false;
-    while (scanner.getToken() !== Json.SyntaxKind.CloseBracketToken && scanner.getToken() !== Json.SyntaxKind.EOF) {
-      if (scanner.getToken() === Json.SyntaxKind.CommaToken) {
-        if (!needsComma) {
-          _error(localize('ValueExpected', 'Value expected'), ErrorCode.ValueExpected);
-        }
-        let commaOffset = scanner.getTokenOffset();
-        _scanNext(); // consume comma
-        if (scanner.getToken() === Json.SyntaxKind.CloseBracketToken) {
-          if (needsComma) {
-            _errorAtRange(localize('TrailingComma', 'Trailing comma'), ErrorCode.TrailingComma, commaOffset, commaOffset + 1);
-          }
-          continue;
-        }
-      } else if (needsComma) {
-        _error(localize('ExpectedComma', 'Expected comma'), ErrorCode.CommaExpected);
-      }
-      let item = _parseValue(node, count++);
-      if (!item) {
-        _error(localize('PropertyExpected', 'Value expected'), ErrorCode.ValueExpected, null, [], [Json.SyntaxKind.CloseBracketToken, Json.SyntaxKind.CommaToken]);
-      } else {
-        node.items.push(item);
-      }
-      needsComma = true;
-    }
-
-    if (scanner.getToken() !== Json.SyntaxKind.CloseBracketToken) {
-      return _error(localize('ExpectedCloseBracket', 'Expected comma or closing bracket'), ErrorCode.CommaOrCloseBacketExpected, node);
-    }
-
-    return _finalize(node, true);
-  }
-
-  function _parseProperty(parent: ObjectASTNode, keysSeen: { [key: string]: (PropertyASTNode | boolean) }): PropertyASTNode {
-
-    let node = new PropertyASTNodeImpl(parent, scanner.getTokenOffset());
-    let key = _parseString(node);
-    if (!key) {
-      if (scanner.getToken() === Json.SyntaxKind.Unknown) {
-        // give a more helpful error message
-        _error(localize('DoubleQuotesExpected', 'Property keys must be doublequoted'), ErrorCode.Undefined);
-        let keyNode = new StringASTNodeImpl(node, scanner.getTokenOffset(), scanner.getTokenLength());
-        keyNode.value = scanner.getTokenValue();
-        key = keyNode;
-        _scanNext(); // consume Unknown
-      } else {
-        return null;
-      }
-    }
-    node.keyNode = key;
-
-    let seen = keysSeen[key.value];
-    if (seen) {
-      _errorAtRange(localize('DuplicateKeyWarning', "Duplicate object key"), ErrorCode.DuplicateKey, node.keyNode.offset, node.keyNode.offset + node.keyNode.length, DiagnosticSeverity.Warning);
-      if (typeof seen === 'object') {
-        _errorAtRange(localize('DuplicateKeyWarning', "Duplicate object key"), ErrorCode.DuplicateKey, seen.keyNode.offset, seen.keyNode.offset + seen.keyNode.length, DiagnosticSeverity.Warning);
-      }
-      keysSeen[key.value] = true; // if the same key is duplicate again, avoid duplicate error reporting
-    } else {
-      keysSeen[key.value] = node;
-    }
-
-    if (scanner.getToken() === Json.SyntaxKind.ColonToken) {
-      node.colonOffset = scanner.getTokenOffset();
-      _scanNext(); // consume ColonToken
-    } else {
-      _error(localize('ColonExpected', 'Colon expected'), ErrorCode.ColonExpected);
-      if (scanner.getToken() === Json.SyntaxKind.StringLiteral && textDocument.positionAt(key.offset + key.length).line < textDocument.positionAt(scanner.getTokenOffset()).line) {
-        node.length = key.length;
-        return node;
-      }
-    }
-    let value = _parseValue(node, key.value);
-    if (!value) {
-      return _error(localize('ValueExpected', 'Value expected'), ErrorCode.ValueExpected, node, [], [Json.SyntaxKind.CloseBraceToken, Json.SyntaxKind.CommaToken]);
-    }
-    node.valueNode = value;
-    node.length = value.offset + value.length - node.offset;
-    return node;
-  }
-
-  function _parseObject(parent: ASTNode): ObjectASTNode {
-    if (scanner.getToken() !== Json.SyntaxKind.OpenBraceToken) {
-      return null;
-    }
-    let node = new ObjectASTNodeImpl(parent, scanner.getTokenOffset());
-    let keysSeen: any = Object.create(null);
-    _scanNext(); // consume OpenBraceToken
-    let needsComma = false;
-
-    while (scanner.getToken() !== Json.SyntaxKind.CloseBraceToken && scanner.getToken() !== Json.SyntaxKind.EOF) {
-      if (scanner.getToken() === Json.SyntaxKind.CommaToken) {
-        if (!needsComma) {
-          _error(localize('PropertyExpected', 'Property expected'), ErrorCode.PropertyExpected);
-        }
-        let commaOffset = scanner.getTokenOffset();
-        _scanNext(); // consume comma
-        if (scanner.getToken() === Json.SyntaxKind.CloseBraceToken) {
-          if (needsComma) {
-            _errorAtRange(localize('TrailingComma', 'Trailing comma'), ErrorCode.TrailingComma, commaOffset, commaOffset + 1);
-          }
-          continue;
-        }
-      } else if (needsComma) {
-        _error(localize('ExpectedComma', 'Expected comma'), ErrorCode.CommaExpected);
-      }
-      let property = _parseProperty(node, keysSeen);
-      if (!property) {
-        _error(localize('PropertyExpected', 'Property expected'), ErrorCode.PropertyExpected, null, [], [Json.SyntaxKind.CloseBraceToken, Json.SyntaxKind.CommaToken]);
-      } else {
-        node.properties.push(property);
-      }
-      needsComma = true;
-    }
-
-    if (scanner.getToken() !== Json.SyntaxKind.CloseBraceToken) {
-      return _error(localize('ExpectedCloseBrace', 'Expected comma or closing brace'), ErrorCode.CommaOrCloseBraceExpected, node);
-    }
-    return _finalize(node, true);
-  }
-
-  function _parseString(parent: ASTNode): StringASTNode {
-    if (scanner.getToken() !== Json.SyntaxKind.StringLiteral) {
-      return null;
-    }
-
-    let node = new StringASTNodeImpl(parent, scanner.getTokenOffset());
-    node.value = scanner.getTokenValue();
-
-    return _finalize(node, true);
-  }
-
-  function _parseNumber(parent: ASTNode): NumberASTNode {
-    if (scanner.getToken() !== Json.SyntaxKind.NumericLiteral) {
-      return null;
-    }
-
-    let node = new NumberASTNodeImpl(parent, scanner.getTokenOffset());
-    if (scanner.getTokenError() === Json.ScanError.None) {
-      let tokenValue = scanner.getTokenValue();
-      try {
-        let numberValue = JSON.parse(tokenValue);
-        if (!isNumber(numberValue)) {
-          return _error(localize('InvalidNumberFormat', 'Invalid number format.'), ErrorCode.Undefined, node);
-        }
-        node.value = numberValue;
-      } catch (e) {
-        return _error(localize('InvalidNumberFormat', 'Invalid number format.'), ErrorCode.Undefined, node);
-      }
-      node.isInteger = tokenValue.indexOf('.') === -1;
-    }
-    return _finalize(node, true);
-  }
-
-  function _parseLiteral(parent: ASTNode): ASTNode {
-    let node: ASTNodeImpl;
-    switch (scanner.getToken()) {
-      case Json.SyntaxKind.NullKeyword:
-        return _finalize(new NullASTNodeImpl(parent, scanner.getTokenOffset()), true);
-      case Json.SyntaxKind.TrueKeyword:
-        return _finalize(new BooleanASTNodeImpl(parent, true, scanner.getTokenOffset()), true);
-      case Json.SyntaxKind.FalseKeyword:
-        return _finalize(new BooleanASTNodeImpl(parent, false, scanner.getTokenOffset()), true);
-      default:
-        return null;
-    }
-  }
-
-  function _parseValue(parent: ASTNode, name: Json.Segment): ASTNode {
-    return _parseArray(parent) || _parseObject(parent) || _parseString(parent) || _parseNumber(parent) || _parseLiteral(parent);
-  }
-
-  let _root = null;
-  let token = _scanNext();
-  if (token !== Json.SyntaxKind.EOF) {
-    _root = _parseValue(null, null);
-    if (!_root) {
-      _error(localize('Invalid symbol', 'Expected a JSON object, array or literal.'), ErrorCode.Undefined);
-    } else if (scanner.getToken() !== Json.SyntaxKind.EOF) {
-      _error(localize('End of file expected', 'End of file expected.'), ErrorCode.Undefined);
-    }
-  }
-  return new JSONDocument(_root, problems, commentRanges);
 }

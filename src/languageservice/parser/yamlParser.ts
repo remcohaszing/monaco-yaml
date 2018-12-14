@@ -9,13 +9,14 @@ import * as nls from 'vscode-nls';
 const localize = nls.loadMessageBundle();
 
 import * as Yaml from '../../yaml-ast-parser/index'
-import { Schema, Type } from 'js-yaml';
 
 import { getLineStartPositions } from '../utils/documentPositionCalculator'
 import { parseYamlBoolean } from './scalar-type';
 import { ObjectASTNodeImpl, StringASTNodeImpl, PropertyASTNodeImpl, NullASTNodeImpl, ArrayASTNodeImpl, BooleanASTNodeImpl, NumberASTNodeImpl } from './jsonParser';
 import { ASTNode, PropertyASTNode, ErrorCode } from '../jsonLanguageTypes';
 import { SingleYAMLDocument, YAMLDocument } from '../yamlLanguageTypes';
+import { Schema } from '../../yaml-ast-parser/schema';
+import { Type } from '../../yaml-ast-parser/type';
 
 function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 
@@ -47,7 +48,8 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
       const keyNode = new StringASTNodeImpl(result, key.startPosition, key.endPosition - key.startPosition);
       keyNode.value = key.value;
 
-      const valueNode = (instance.value) ? recursivelyBuildAst(result, instance.value) : new NullASTNodeImpl(parent, instance.startPosition)
+      // TODO: calculate the correct NULL range.
+      const valueNode = (instance.value) ? recursivelyBuildAst(result, instance.value) : new NullASTNodeImpl(parent, instance.endPosition);
 
       result.keyNode = keyNode;
       result.valueNode = valueNode;
@@ -131,7 +133,7 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 }
 
 function convertError(e: Yaml.Error) {
-  return { message: `${e.reason}`, location: { start: e.mark.position, end: e.mark.position + e.mark.column, code: ErrorCode.Undefined } }
+  return { message: `${e.reason}`, location: { start: e.mark.position - e.mark.column, end: e.mark.position, code: ErrorCode.Undefined } }
 }
 
 function createJSONDocument(yamlDoc: Yaml.YAMLNode, startPositions: number[], text: string) {
@@ -169,7 +171,7 @@ export function parse(text: string, customTags = []): YAMLDocument {
   const startPositions = getLineStartPositions(text)
   // This is documented to return a YAMLNode even though the
   // typing only returns a YAMLDocument
-  const yamlDocs = []
+  const yamlDocs: Yaml.YAMLNode[] = []
 
   let schemaWithAdditionalTags = Schema.create(customTags.map((tag) => {
     const typeInfo = tag.split(' ');

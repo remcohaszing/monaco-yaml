@@ -20,10 +20,9 @@ Load with ESM is added, but not yet tested.
 
 ## Development
 
-* `git clone https://github.com/kpdecker/monaco-yaml`
+* `git clone https://github.com/pengx17/monaco-yaml`
 * `cd monaco-yaml`
 * `yarn`
-* `yarn watch`
 * open `$/monaco-yaml/test/index.html` in your favorite browser.
 
 A running example:
@@ -40,4 +39,4 @@ Manually clone dependencies list below and update the project files accordingly:
 - `src/yaml-ast-parser`: https://github.com/mulesoft-labs/yaml-ast-parser/tree/master/src
 
 ## License
-[MIT](https://github.com/kpdecker/monaco-yaml/blob/master/LICENSE.md)
+[MIT](https://github.com/pengx17/monaco-yaml/blob/master/LICENSE.md)
