@@ -5,14 +5,14 @@ import { SingleYAMLDocument, YAMLDocument } from '../yamlLanguageTypes';
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 export function removeDuplicates(arr, prop) {
-  var new_arr = [];
-  var lookup = {};
+  const new_arr = [];
+  const lookup = {};
 
-  for (var i in arr) {
+  for (const i in arr) {
     lookup[arr[i][prop]] = arr[i];
   }
 
-  for (i in lookup) {
+  for (const i in lookup) {
     new_arr.push(lookup[i]);
   }
 
@@ -20,17 +20,16 @@ export function removeDuplicates(arr, prop) {
 }
 
 export function getLineOffsets(textDocString: String): number[] {
-
-  let lineOffsets: number[] = [];
-  let text = textDocString;
+  const lineOffsets: number[] = [];
+  const text = textDocString;
   let isLineStart = true;
   for (let i = 0; i < text.length; i++) {
     if (isLineStart) {
       lineOffsets.push(i);
       isLineStart = false;
     }
-    let ch = text.charAt(i);
-    isLineStart = (ch === '\r' || ch === '\n');
+    const ch = text.charAt(i);
+    isLineStart = ch === '\r' || ch === '\n';
     if (ch === '\r' && i + 1 < text.length && text.charAt(i + 1) === '\n') {
       i++;
     }
@@ -43,27 +42,30 @@ export function getLineOffsets(textDocString: String): number[] {
 }
 
 export function removeDuplicatesObj(objArray) {
-
-  let nonDuplicateSet = new Set();
-  let nonDuplicateArr = [];
-  for (let obj in objArray) {
-
-    let currObj = objArray[obj];
-    let stringifiedObj = JSON.stringify(currObj);
+  const nonDuplicateSet = new Set();
+  const nonDuplicateArr = [];
+  for (const obj in objArray) {
+    const currObj = objArray[obj];
+    const stringifiedObj = JSON.stringify(currObj);
     if (!nonDuplicateSet.has(stringifiedObj)) {
       nonDuplicateArr.push(currObj);
       nonDuplicateSet.add(stringifiedObj);
     }
-
   }
 
   return nonDuplicateArr;
-
 }
 
-export function matchOffsetToDocument(offset: number, doc: YAMLDocument): SingleYAMLDocument {
-  for (let currDoc of doc.documents) {
-    if (currDoc.root && (currDoc.root.length + currDoc.root.offset) >= offset && currDoc.root.offset <= offset) {
+export function matchOffsetToDocument(
+  offset: number,
+  doc: YAMLDocument
+): SingleYAMLDocument {
+  for (const currDoc of doc.documents) {
+    if (
+      currDoc.root &&
+      currDoc.root.length + currDoc.root.offset >= offset &&
+      currDoc.root.offset <= offset
+    ) {
       return currDoc;
     }
   }

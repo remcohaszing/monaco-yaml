@@ -1,5 +1,3 @@
-
-
 import { Type } from '../../type';
 
 function resolveJavascriptUndefined() {
@@ -24,5 +22,5 @@ export default new Type('tag:yaml.org,2002:js/undefined', {
   resolve: resolveJavascriptUndefined,
   construct: constructJavascriptUndefined,
   predicate: isUndefined,
-  represent: representJavascriptUndefined
+  represent: representJavascriptUndefined,
 });

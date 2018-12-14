@@ -5,42 +5,68 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { SymbolKind, TextDocument, Range, DocumentSymbol, ColorInformation, ColorPresentation, Color, TextEdit } from 'vscode-languageserver-types';
+import {
+  Color,
+  ColorInformation,
+  ColorPresentation,
+  DocumentSymbol,
+  Range,
+  SymbolKind,
+  TextDocument,
+  TextEdit,
+} from 'vscode-languageserver-types';
 import { ASTNode, PropertyASTNode, Thenable } from '../jsonLanguageTypes';
-import { YAMLDocument, SingleYAMLDocument } from '../yamlLanguageTypes';
-import { IJSONSchemaService } from './jsonSchemaService';
-import { colorFromHex } from '../utils/colors';
 import { getNodeValue } from '../parser/jsonParser';
+import { colorFromHex } from '../utils/colors';
+import { SingleYAMLDocument, YAMLDocument } from '../yamlLanguageTypes';
+import { IJSONSchemaService } from './jsonSchemaService';
 
 export class YAMLDocumentSymbols {
-  constructor(private schemaService: IJSONSchemaService) {
-  }
+  constructor(private schemaService: IJSONSchemaService) {}
 
-  public findDocumentSymbols(document: TextDocument, doc: YAMLDocument): DocumentSymbol[] {
+  public findDocumentSymbols(
+    document: TextDocument,
+    doc: YAMLDocument
+  ): DocumentSymbol[] {
     if (!doc || doc.documents.length === 0) {
       return null;
     }
 
-    let collectOutlineEntries = (result: DocumentSymbol[], node: ASTNode): DocumentSymbol[] => {
+    const collectOutlineEntries = (
+      result: DocumentSymbol[],
+      node: ASTNode
+    ): DocumentSymbol[] => {
       if (node.type === 'array') {
         node.items.forEach((node, index) => {
           if (node) {
-            let range = getRange(document, node);
-            let selectionRange = range;
-            let name = String(index);
-            let children = collectOutlineEntries([], node);
-            result.push({ name, kind: this.getSymbolKind(node.type), range, selectionRange, children });
+            const range = getRange(document, node);
+            const selectionRange = range;
+            const name = String(index);
+            const children = collectOutlineEntries([], node);
+            result.push({
+              name,
+              kind: this.getSymbolKind(node.type),
+              range,
+              selectionRange,
+              children,
+            });
           }
         });
       } else if (node.type === 'object') {
         node.properties.forEach((property: PropertyASTNode) => {
-          let valueNode = property.valueNode;
+          const valueNode = property.valueNode;
           if (valueNode) {
-            let range = getRange(document, property);
-            let selectionRange = getRange(document, property.keyNode);
-            let name = property.keyNode.value;
-            let children = collectOutlineEntries([], valueNode);
-            result.push({ name, kind: this.getSymbolKind(valueNode.type), range, selectionRange, children });
+            const range = getRange(document, property);
+            const selectionRange = getRange(document, property.keyNode);
+            const name = property.keyNode.value;
+            const children = collectOutlineEntries([], valueNode);
+            result.push({
+              name,
+              kind: this.getSymbolKind(valueNode.type),
+              range,
+              selectionRange,
+              children,
+            });
           }
         });
       }
@@ -48,7 +74,7 @@ export class YAMLDocumentSymbols {
     };
 
     let results = [];
-    for (let yamlDoc of doc.documents) {
+    for (const yamlDoc of doc.documents) {
       if (yamlDoc.root) {
         const result = collectOutlineEntries([], yamlDoc.root);
         results = results.concat(result);
@@ -56,6 +82,92 @@ export class YAMLDocumentSymbols {
     }
 
     return results;
+  }
+
+  public findDocumentColors(
+    document: TextDocument,
+    doc: YAMLDocument
+  ): Thenable<ColorInformation[]> {
+    if (!doc || doc.documents.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    const _findDocumentColors = (currentDoc: SingleYAMLDocument) => {
+      return this.schemaService
+        .getSchemaForResource(document.uri, currentDoc)
+        .then(schema => {
+          const result: ColorInformation[] = [];
+          if (schema) {
+            const matchingSchemas = currentDoc.getMatchingSchemas(
+              schema.schema
+            );
+            const visitedNode = {};
+            for (const s of matchingSchemas) {
+              if (
+                !s.inverted &&
+                s.schema &&
+                (s.schema.format === 'color' ||
+                  s.schema.format === 'color-hex') &&
+                s.node &&
+                s.node.type === 'string'
+              ) {
+                const nodeId = String(s.node.offset);
+                if (!visitedNode[nodeId]) {
+                  const color = colorFromHex(getNodeValue(s.node));
+                  if (color) {
+                    const range = getRange(document, s.node);
+                    result.push({ color, range });
+                  }
+                  visitedNode[nodeId] = true;
+                }
+              }
+            }
+          }
+          return result;
+        });
+    };
+
+    return Promise.all(
+      doc.documents.map(currentDoc => _findDocumentColors(currentDoc))
+    ).then(infoArray =>
+      infoArray.reduce((acc, infos) => [...acc, ...infos], [])
+    );
+  }
+
+  public getColorPresentations(
+    document: TextDocument,
+    doc: YAMLDocument,
+    color: Color,
+    range: Range
+  ): ColorPresentation[] {
+    const result: ColorPresentation[] = [];
+    const red256 = Math.round(color.red * 255),
+      green256 = Math.round(color.green * 255),
+      blue256 = Math.round(color.blue * 255);
+
+    function toTwoDigitHex(n: number): string {
+      const r = n.toString(16);
+      return r.length !== 2 ? '0' + r : r;
+    }
+
+    let label;
+    if (color.alpha === 1) {
+      label = `#${toTwoDigitHex(red256)}${toTwoDigitHex(
+        green256
+      )}${toTwoDigitHex(blue256)}`;
+    } else {
+      label = `#${toTwoDigitHex(red256)}${toTwoDigitHex(
+        green256
+      )}${toTwoDigitHex(blue256)}${toTwoDigitHex(
+        Math.round(color.alpha * 255)
+      )}`;
+    }
+    result.push({
+      label,
+      textEdit: TextEdit.replace(range, JSON.stringify(label)),
+    });
+
+    return result;
   }
 
   private getSymbolKind(nodeType: string): SymbolKind {
@@ -70,65 +182,16 @@ export class YAMLDocumentSymbols {
         return SymbolKind.Array;
       case 'boolean':
         return SymbolKind.Boolean;
-      default: // 'null'
+      default:
+        // 'null'
         return SymbolKind.Variable;
     }
-  }
-
-  public findDocumentColors(document: TextDocument, doc: YAMLDocument): Thenable<ColorInformation[]> {
-    if (!doc || doc.documents.length === 0) {
-      return Promise.resolve([]);
-    }
-
-    const _findDocumentColors = (currentDoc: SingleYAMLDocument) => {
-      return this.schemaService.getSchemaForResource(document.uri, currentDoc).then(schema => {
-        let result: ColorInformation[] = [];
-        if (schema) {
-          let matchingSchemas = currentDoc.getMatchingSchemas(schema.schema);
-          let visitedNode = {};
-          for (let s of matchingSchemas) {
-            if (!s.inverted && s.schema && (s.schema.format === 'color' || s.schema.format === 'color-hex') && s.node && s.node.type === 'string') {
-              let nodeId = String(s.node.offset);
-              if (!visitedNode[nodeId]) {
-                let color = colorFromHex(getNodeValue(s.node));
-                if (color) {
-                  let range = getRange(document, s.node);
-                  result.push({ color, range });
-                }
-                visitedNode[nodeId] = true;
-              }
-            }
-          }
-        }
-        return result;
-      });
-    }
-
-    return Promise.all(doc.documents.map(currentDoc => _findDocumentColors(currentDoc)))
-      .then(infoArray => infoArray.reduce((acc, infos) => ([...acc, ...infos]), []));
-  }
-
-  public getColorPresentations(document: TextDocument, doc: YAMLDocument, color: Color, range: Range): ColorPresentation[] {
-    let result: ColorPresentation[] = [];
-    let red256 = Math.round(color.red * 255), green256 = Math.round(color.green * 255), blue256 = Math.round(color.blue * 255);
-
-    function toTwoDigitHex(n: number): string {
-      const r = n.toString(16);
-      return r.length !== 2 ? '0' + r : r;
-    }
-
-    let label;
-    if (color.alpha === 1) {
-      label = `#${toTwoDigitHex(red256)}${toTwoDigitHex(green256)}${toTwoDigitHex(blue256)}`;
-    } else {
-      label = `#${toTwoDigitHex(red256)}${toTwoDigitHex(green256)}${toTwoDigitHex(blue256)}${toTwoDigitHex(Math.round(color.alpha * 255))}`;
-    }
-    result.push({ label: label, textEdit: TextEdit.replace(range, JSON.stringify(label)) });
-
-    return result;
   }
 }
 
 function getRange(document: TextDocument, node: ASTNode) {
-  return Range.create(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
+  return Range.create(
+    document.positionAt(node.offset),
+    document.positionAt(node.offset + node.length)
+  );
 }

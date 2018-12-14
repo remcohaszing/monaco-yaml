@@ -1,34 +1,30 @@
-
 'use strict';
 
-import Mark from "./mark"
+import Mark from './mark';
 
 export default class YAMLException {
-  message: string
-  reason: string
-  name: string
-  mark: Mark
-  isWarning: boolean
-
-  private static CLASS_IDENTIFIER = "yaml-ast-parser.YAMLException";
-
   public static isInstance(instance: any): instance is YAMLException {
-    if (instance != null && instance.getClassIdentifier
-      && typeof (instance.getClassIdentifier) == "function") {
-
-      for (let currentIdentifier of instance.getClassIdentifier()) {
-        if (currentIdentifier == YAMLException.CLASS_IDENTIFIER) return true;
+    if (
+      instance != null &&
+      instance.getClassIdentifier &&
+      typeof instance.getClassIdentifier == 'function'
+    ) {
+      for (const currentIdentifier of instance.getClassIdentifier()) {
+        if (currentIdentifier == YAMLException.CLASS_IDENTIFIER) {
+          return true;
+        }
       }
     }
 
     return false;
   }
 
-  public getClassIdentifier(): string[] {
-    var superIdentifiers = [];
-
-    return superIdentifiers.concat(YAMLException.CLASS_IDENTIFIER);
-  }
+  private static CLASS_IDENTIFIER = 'yaml-ast-parser.YAMLException';
+  public message: string;
+  public reason: string;
+  public name: string;
+  public mark: Mark;
+  public isWarning: boolean;
 
   constructor(reason: string, mark: Mark = null, isWarning = false) {
     this.name = 'YAMLException';
@@ -38,8 +34,14 @@ export default class YAMLException {
     this.isWarning = isWarning;
   }
 
-  toString(compact: boolean = false) {
-    var result;
+  public getClassIdentifier(): string[] {
+    const superIdentifiers = [];
+
+    return superIdentifiers.concat(YAMLException.CLASS_IDENTIFIER);
+  }
+
+  public toString(compact: boolean = false) {
+    let result;
 
     result = 'JS-YAML: ' + (this.reason || '(unknown reason)');
 
@@ -48,6 +50,5 @@ export default class YAMLException {
     }
 
     return result;
-
   }
 }

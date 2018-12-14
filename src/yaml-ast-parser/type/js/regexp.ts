@@ -1,5 +1,3 @@
-
-
 import { Type } from '../../type';
 
 function resolveJavascriptRegExp(data) {
@@ -11,7 +9,7 @@ function resolveJavascriptRegExp(data) {
     return false;
   }
 
-  var regexp = data,
+  let regexp = data,
     tail = /\/([gim]*)$/.exec(data),
     modifiers = '';
 
@@ -22,15 +20,19 @@ function resolveJavascriptRegExp(data) {
       modifiers = tail[1];
     }
 
-    if (modifiers.length > 3) { return false; }
+    if (modifiers.length > 3) {
+      return false;
+    }
     // if expression starts with /, is should be properly terminated
-    if (regexp[regexp.length - modifiers.length - 1] !== '/') { return false; }
+    if (regexp[regexp.length - modifiers.length - 1] !== '/') {
+      return false;
+    }
 
     regexp = regexp.slice(1, regexp.length - modifiers.length - 1);
   }
 
   try {
-    var dummy = new RegExp(regexp, modifiers);
+    const dummy = new RegExp(regexp, modifiers);
     return true;
   } catch (error) {
     return false;
@@ -38,7 +40,7 @@ function resolveJavascriptRegExp(data) {
 }
 
 function constructJavascriptRegExp(data) {
-  var regexp = data,
+  let regexp = data,
     tail = /\/([gim]*)$/.exec(data),
     modifiers = '';
 
@@ -54,7 +56,7 @@ function constructJavascriptRegExp(data) {
 }
 
 function representJavascriptRegExp(object /*, style*/) {
-  var result = '/' + object.source + '/';
+  let result = '/' + object.source + '/';
 
   if (object.global) {
     result += 'g';
@@ -80,5 +82,5 @@ export default new Type('tag:yaml.org,2002:js/regexp', {
   resolve: resolveJavascriptRegExp,
   construct: constructJavascriptRegExp,
   predicate: isRegExp,
-  represent: representJavascriptRegExp
+  represent: representJavascriptRegExp,
 });

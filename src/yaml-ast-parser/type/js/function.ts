@@ -1,4 +1,3 @@
-
 declare var esprima: any;
 
 // Browserified version does not have esprima
@@ -17,15 +16,17 @@ function resolveJavascriptFunction(data) {
   }
 
   try {
-    var source = '(' + data + ')',
+    let source = '(' + data + ')',
       ast = esprima.parse(source, { range: true }),
       params = [],
       body;
 
-    if ('Program' !== ast.type ||
+    if (
+      'Program' !== ast.type ||
       1 !== ast.body.length ||
       'ExpressionStatement' !== ast.body[0].type ||
-      'FunctionExpression' !== ast.body[0]['expression'].type) {
+      'FunctionExpression' !== ast.body[0].expression.type
+    ) {
       return false;
     }
 
@@ -38,28 +39,30 @@ function resolveJavascriptFunction(data) {
 function constructJavascriptFunction(data) {
   /*jslint evil:true*/
 
-  var source = '(' + data + ')',
+  let source = '(' + data + ')',
     ast = esprima.parse(source, { range: true }),
     params: string[] = [],
     body;
 
-  if ('Program' !== ast.type ||
+  if (
+    'Program' !== ast.type ||
     1 !== ast.body.length ||
     'ExpressionStatement' !== ast.body[0].type ||
-    'FunctionExpression' !== ast.body[0]['expression'].type) {
+    'FunctionExpression' !== ast.body[0].expression.type
+  ) {
     throw new Error('Failed to resolve function');
   }
 
-  ast.body[0]['expression'].params.forEach(function (param) {
+  ast.body[0].expression.params.forEach(function(param) {
     params.push(param.name);
   });
 
-  body = ast.body[0]['expression'].body.range;
+  body = ast.body[0].expression.body.range;
 
   // Esprima's ranges include the first '{' and the last '}' characters on
   // function expressions. So cut them out.
   /*eslint-disable no-new-func*/
-  return new (<any>Function)(params, source.slice(body[0] + 1, body[1] - 1));
+  return new (Function as any)(params, source.slice(body[0] + 1, body[1] - 1));
 }
 
 function representJavascriptFunction(object /*, style*/) {
@@ -75,5 +78,5 @@ export default new Type('tag:yaml.org,2002:js/function', {
   resolve: resolveJavascriptFunction,
   construct: constructJavascriptFunction,
   predicate: isFunction,
-  represent: representJavascriptFunction
+  represent: representJavascriptFunction,
 });

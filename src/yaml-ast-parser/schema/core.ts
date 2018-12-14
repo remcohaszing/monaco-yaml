@@ -1,4 +1,3 @@
-
 // Standard YAML's Core schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2804923
 //
@@ -9,7 +8,5 @@ import { Schema } from '../schema';
 import json from './json';
 
 export default new Schema({
-  include: [
-    json
-  ]
+  include: [json],
 });

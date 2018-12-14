@@ -1,4 +1,3 @@
-
 // Standard YAML's JSON schema.
 // http://www.yaml.org/spec/1.2/spec.html#id2803231
 //
@@ -10,19 +9,12 @@ import { Schema } from '../schema';
 
 import failsafe from './failsafe';
 
-import NullType from '../type/null';
 import BoolType from '../type/bool';
-import IntType from '../type/int';
 import FloatType from '../type/float';
+import IntType from '../type/int';
+import NullType from '../type/null';
 
 export default new Schema({
-  include: [
-    failsafe
-  ],
-  implicit: [
-    NullType,
-    BoolType,
-    IntType,
-    FloatType
-  ]
+  include: [failsafe],
+  implicit: [NullType, BoolType, IntType, FloatType],
 });

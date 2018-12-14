@@ -17,21 +17,21 @@ import Thenable = monaco.Thenable;
 import CancellationToken = monaco.CancellationToken;
 import IDisposable = monaco.IDisposable;
 
-
-export interface WorkerAccessor {
-  (...more: Uri[]): Thenable<YAMLWorker>
-}
+export type WorkerAccessor = (...more: Uri[]) => Thenable<YAMLWorker>;
 
 // --- diagnostics --- ---
 
 export class DiagnosticsAdapter {
-
   private _disposables: IDisposable[] = [];
   private _listener: { [uri: string]: IDisposable } = Object.create(null);
 
-  constructor(private _languageId: string, private _worker: WorkerAccessor, defaults: LanguageServiceDefaultsImpl) {
+  constructor(
+    private _languageId: string,
+    private _worker: WorkerAccessor,
+    defaults: LanguageServiceDefaultsImpl
+  ) {
     const onModelAdd = (model: monaco.editor.IModel): void => {
-      let modeId = model.getModeId();
+      const modeId = model.getModeId();
       if (modeId !== this._languageId) {
         return;
       }
@@ -47,8 +47,8 @@ export class DiagnosticsAdapter {
 
     const onModelRemoved = (model: monaco.editor.IModel): void => {
       monaco.editor.setModelMarkers(model, this._languageId, []);
-      let uriStr = model.uri.toString();
-      let listener = this._listener[uriStr];
+      const uriStr = model.uri.toString();
+      const listener = this._listener[uriStr];
       if (listener) {
         listener.dispose();
         delete this._listener[uriStr];
@@ -56,32 +56,38 @@ export class DiagnosticsAdapter {
     };
 
     this._disposables.push(monaco.editor.onDidCreateModel(onModelAdd));
-    this._disposables.push(monaco.editor.onWillDisposeModel(model => {
-      onModelRemoved(model);
-      this._resetSchema(model.uri);
-    }));
-    this._disposables.push(monaco.editor.onDidChangeModelLanguage(event => {
-      onModelRemoved(event.model);
-      onModelAdd(event.model);
-      this._resetSchema(event.model.uri);
-    }));
+    this._disposables.push(
+      monaco.editor.onWillDisposeModel(model => {
+        onModelRemoved(model);
+        this._resetSchema(model.uri);
+      })
+    );
+    this._disposables.push(
+      monaco.editor.onDidChangeModelLanguage(event => {
+        onModelRemoved(event.model);
+        onModelAdd(event.model);
+        this._resetSchema(event.model.uri);
+      })
+    );
 
-    this._disposables.push(defaults.onDidChange(_ => {
-      monaco.editor.getModels().forEach(model => {
-        if (model.getModeId() === this._languageId) {
-          onModelRemoved(model);
-          onModelAdd(model);
-        }
-      });
-    }));
+    this._disposables.push(
+      defaults.onDidChange(_ => {
+        monaco.editor.getModels().forEach(model => {
+          if (model.getModeId() === this._languageId) {
+            onModelRemoved(model);
+            onModelAdd(model);
+          }
+        });
+      })
+    );
 
     this._disposables.push({
       dispose: () => {
         monaco.editor.getModels().forEach(onModelRemoved);
-        for (let key in this._listener) {
+        for (const key in this._listener) {
           this._listener[key].dispose();
         }
-      }
+      },
     });
 
     monaco.editor.getModels().forEach(onModelAdd);
@@ -99,34 +105,43 @@ export class DiagnosticsAdapter {
   }
 
   private _doValidate(resource: Uri, languageId: string): void {
-    this._worker(resource).then(worker => {
-      return worker.doValidation(resource.toString()).then(diagnostics => {
-        const markers = diagnostics.map(d => toDiagnostics(resource, d));
-        let model = monaco.editor.getModel(resource);
-        if (model.getModeId() === languageId) {
-          monaco.editor.setModelMarkers(model, languageId, markers);
-        }
+    this._worker(resource)
+      .then(worker => {
+        return worker.doValidation(resource.toString()).then(diagnostics => {
+          const markers = diagnostics.map(d => toDiagnostics(resource, d));
+          const model = monaco.editor.getModel(resource);
+          if (model.getModeId() === languageId) {
+            monaco.editor.setModelMarkers(model, languageId, markers);
+          }
+        });
+      })
+      .then(undefined, err => {
+        console.error(err);
       });
-    }).then(undefined, err => {
-      console.error(err);
-    });
   }
 }
 
-
 function toSeverity(lsSeverity: number): monaco.MarkerSeverity {
   switch (lsSeverity) {
-    case ls.DiagnosticSeverity.Error: return monaco.MarkerSeverity.Error;
-    case ls.DiagnosticSeverity.Warning: return monaco.MarkerSeverity.Warning;
-    case ls.DiagnosticSeverity.Information: return monaco.MarkerSeverity.Info;
-    case ls.DiagnosticSeverity.Hint: return monaco.MarkerSeverity.Hint;
+    case ls.DiagnosticSeverity.Error:
+      return monaco.MarkerSeverity.Error;
+    case ls.DiagnosticSeverity.Warning:
+      return monaco.MarkerSeverity.Warning;
+    case ls.DiagnosticSeverity.Information:
+      return monaco.MarkerSeverity.Info;
+    case ls.DiagnosticSeverity.Hint:
+      return monaco.MarkerSeverity.Hint;
     default:
       return monaco.MarkerSeverity.Info;
   }
 }
 
-function toDiagnostics(resource: Uri, diag: ls.Diagnostic): monaco.editor.IMarkerData {
-  let code = typeof diag.code === 'number' ? String(diag.code) : <string>diag.code;
+function toDiagnostics(
+  resource: Uri,
+  diag: ls.Diagnostic
+): monaco.editor.IMarkerData {
+  const code =
+    typeof diag.code === 'number' ? String(diag.code) : (diag.code as string);
 
   return {
     severity: toSeverity(diag.severity),
@@ -135,8 +150,8 @@ function toDiagnostics(resource: Uri, diag: ls.Diagnostic): monaco.editor.IMarke
     endLineNumber: diag.range.end.line + 1,
     endColumn: diag.range.end.character + 1,
     message: diag.message,
-    code: code,
-    source: diag.source
+    code,
+    source: diag.source,
   };
 }
 
@@ -153,63 +168,114 @@ function fromRange(range: IRange): ls.Range {
   if (!range) {
     return void 0;
   }
-  return { start: { line: range.startLineNumber - 1, character: range.startColumn - 1 }, end: { line: range.endLineNumber - 1, character: range.endColumn - 1 } };
+  return {
+    start: {
+      line: range.startLineNumber - 1,
+      character: range.startColumn - 1,
+    },
+    end: { line: range.endLineNumber - 1, character: range.endColumn - 1 },
+  };
 }
 function toRange(range: ls.Range): Range {
   if (!range) {
     return void 0;
   }
-  return new Range(range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1);
+  return new Range(
+    range.start.line + 1,
+    range.start.character + 1,
+    range.end.line + 1,
+    range.end.character + 1
+  );
 }
 
-function toCompletionItemKind(kind: number): monaco.languages.CompletionItemKind {
-  let mItemKind = monaco.languages.CompletionItemKind;
+function toCompletionItemKind(
+  kind: number
+): monaco.languages.CompletionItemKind {
+  const mItemKind = monaco.languages.CompletionItemKind;
 
   switch (kind) {
-    case ls.CompletionItemKind.Text: return mItemKind.Text;
-    case ls.CompletionItemKind.Method: return mItemKind.Method;
-    case ls.CompletionItemKind.Function: return mItemKind.Function;
-    case ls.CompletionItemKind.Constructor: return mItemKind.Constructor;
-    case ls.CompletionItemKind.Field: return mItemKind.Field;
-    case ls.CompletionItemKind.Variable: return mItemKind.Variable;
-    case ls.CompletionItemKind.Class: return mItemKind.Class;
-    case ls.CompletionItemKind.Interface: return mItemKind.Interface;
-    case ls.CompletionItemKind.Module: return mItemKind.Module;
-    case ls.CompletionItemKind.Property: return mItemKind.Property;
-    case ls.CompletionItemKind.Unit: return mItemKind.Unit;
-    case ls.CompletionItemKind.Value: return mItemKind.Value;
-    case ls.CompletionItemKind.Enum: return mItemKind.Enum;
-    case ls.CompletionItemKind.Keyword: return mItemKind.Keyword;
-    case ls.CompletionItemKind.Snippet: return mItemKind.Snippet;
-    case ls.CompletionItemKind.Color: return mItemKind.Color;
-    case ls.CompletionItemKind.File: return mItemKind.File;
-    case ls.CompletionItemKind.Reference: return mItemKind.Reference;
+    case ls.CompletionItemKind.Text:
+      return mItemKind.Text;
+    case ls.CompletionItemKind.Method:
+      return mItemKind.Method;
+    case ls.CompletionItemKind.Function:
+      return mItemKind.Function;
+    case ls.CompletionItemKind.Constructor:
+      return mItemKind.Constructor;
+    case ls.CompletionItemKind.Field:
+      return mItemKind.Field;
+    case ls.CompletionItemKind.Variable:
+      return mItemKind.Variable;
+    case ls.CompletionItemKind.Class:
+      return mItemKind.Class;
+    case ls.CompletionItemKind.Interface:
+      return mItemKind.Interface;
+    case ls.CompletionItemKind.Module:
+      return mItemKind.Module;
+    case ls.CompletionItemKind.Property:
+      return mItemKind.Property;
+    case ls.CompletionItemKind.Unit:
+      return mItemKind.Unit;
+    case ls.CompletionItemKind.Value:
+      return mItemKind.Value;
+    case ls.CompletionItemKind.Enum:
+      return mItemKind.Enum;
+    case ls.CompletionItemKind.Keyword:
+      return mItemKind.Keyword;
+    case ls.CompletionItemKind.Snippet:
+      return mItemKind.Snippet;
+    case ls.CompletionItemKind.Color:
+      return mItemKind.Color;
+    case ls.CompletionItemKind.File:
+      return mItemKind.File;
+    case ls.CompletionItemKind.Reference:
+      return mItemKind.Reference;
   }
   return mItemKind.Property;
 }
 
-function fromCompletionItemKind(kind: monaco.languages.CompletionItemKind): ls.CompletionItemKind {
-  let mItemKind = monaco.languages.CompletionItemKind;
+function fromCompletionItemKind(
+  kind: monaco.languages.CompletionItemKind
+): ls.CompletionItemKind {
+  const mItemKind = monaco.languages.CompletionItemKind;
 
   switch (kind) {
-    case mItemKind.Text: return ls.CompletionItemKind.Text;
-    case mItemKind.Method: return ls.CompletionItemKind.Method;
-    case mItemKind.Function: return ls.CompletionItemKind.Function;
-    case mItemKind.Constructor: return ls.CompletionItemKind.Constructor;
-    case mItemKind.Field: return ls.CompletionItemKind.Field;
-    case mItemKind.Variable: return ls.CompletionItemKind.Variable;
-    case mItemKind.Class: return ls.CompletionItemKind.Class;
-    case mItemKind.Interface: return ls.CompletionItemKind.Interface;
-    case mItemKind.Module: return ls.CompletionItemKind.Module;
-    case mItemKind.Property: return ls.CompletionItemKind.Property;
-    case mItemKind.Unit: return ls.CompletionItemKind.Unit;
-    case mItemKind.Value: return ls.CompletionItemKind.Value;
-    case mItemKind.Enum: return ls.CompletionItemKind.Enum;
-    case mItemKind.Keyword: return ls.CompletionItemKind.Keyword;
-    case mItemKind.Snippet: return ls.CompletionItemKind.Snippet;
-    case mItemKind.Color: return ls.CompletionItemKind.Color;
-    case mItemKind.File: return ls.CompletionItemKind.File;
-    case mItemKind.Reference: return ls.CompletionItemKind.Reference;
+    case mItemKind.Text:
+      return ls.CompletionItemKind.Text;
+    case mItemKind.Method:
+      return ls.CompletionItemKind.Method;
+    case mItemKind.Function:
+      return ls.CompletionItemKind.Function;
+    case mItemKind.Constructor:
+      return ls.CompletionItemKind.Constructor;
+    case mItemKind.Field:
+      return ls.CompletionItemKind.Field;
+    case mItemKind.Variable:
+      return ls.CompletionItemKind.Variable;
+    case mItemKind.Class:
+      return ls.CompletionItemKind.Class;
+    case mItemKind.Interface:
+      return ls.CompletionItemKind.Interface;
+    case mItemKind.Module:
+      return ls.CompletionItemKind.Module;
+    case mItemKind.Property:
+      return ls.CompletionItemKind.Property;
+    case mItemKind.Unit:
+      return ls.CompletionItemKind.Unit;
+    case mItemKind.Value:
+      return ls.CompletionItemKind.Value;
+    case mItemKind.Enum:
+      return ls.CompletionItemKind.Enum;
+    case mItemKind.Keyword:
+      return ls.CompletionItemKind.Keyword;
+    case mItemKind.Snippet:
+      return ls.CompletionItemKind.Snippet;
+    case mItemKind.Color:
+      return ls.CompletionItemKind.Color;
+    case mItemKind.File:
+      return ls.CompletionItemKind.File;
+    case mItemKind.Reference:
+      return ls.CompletionItemKind.Reference;
   }
   return ls.CompletionItemKind.Property;
 }
@@ -220,85 +286,104 @@ function toTextEdit(textEdit: ls.TextEdit): monaco.editor.ISingleEditOperation {
   }
   return {
     range: toRange(textEdit.range),
-    text: textEdit.newText
-  }
+    text: textEdit.newText,
+  };
 }
 
-export class CompletionAdapter implements monaco.languages.CompletionItemProvider {
-
-  constructor(private _worker: WorkerAccessor) {
-  }
+export class CompletionAdapter
+  implements monaco.languages.CompletionItemProvider {
+  constructor(private _worker: WorkerAccessor) {}
 
   public get triggerCharacters(): string[] {
     return [' ', ':'];
   }
 
-  provideCompletionItems(model: monaco.editor.IReadOnlyModel, position: Position, context: monaco.languages.CompletionContext, token: CancellationToken): Thenable<monaco.languages.CompletionList> {
+  public provideCompletionItems(
+    model: monaco.editor.IReadOnlyModel,
+    position: Position,
+    context: monaco.languages.CompletionContext,
+    token: CancellationToken
+  ): Thenable<monaco.languages.CompletionList> {
     const wordInfo = model.getWordUntilPosition(position);
     const resource = model.uri;
 
-    return this._worker(resource).then(worker => {
-      return worker.doComplete(resource.toString(), fromPosition(position));
-    }).then(info => {
-      if (!info) {
-        return;
-      }
-      let items: monaco.languages.CompletionItem[] = info.items.map(entry => {
-        let item: monaco.languages.CompletionItem = {
-          label: entry.label,
-          insertText: entry.insertText || entry.label,
-          sortText: entry.sortText,
-          filterText: entry.filterText,
-          documentation: entry.documentation,
-          detail: entry.detail,
-          kind: toCompletionItemKind(entry.kind),
-        };
-        if (entry.textEdit) {
-          item.range = toRange(entry.textEdit.range);
-          item.insertText = entry.textEdit.newText;
+    return this._worker(resource)
+      .then(worker => {
+        return worker.doComplete(resource.toString(), fromPosition(position));
+      })
+      .then(info => {
+        if (!info) {
+          return;
         }
-        if (entry.additionalTextEdits) {
-          item.additionalTextEdits = entry.additionalTextEdits.map(toTextEdit)
-        }
-        if (entry.insertTextFormat === ls.InsertTextFormat.Snippet) {
-          item.insertTextRules = monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet;
-        }
-        return item;
-      });
+        const items: monaco.languages.CompletionItem[] = info.items.map(
+          entry => {
+            const item: monaco.languages.CompletionItem = {
+              label: entry.label,
+              insertText: entry.insertText || entry.label,
+              sortText: entry.sortText,
+              filterText: entry.filterText,
+              documentation: entry.documentation,
+              detail: entry.detail,
+              kind: toCompletionItemKind(entry.kind),
+            };
+            if (entry.textEdit) {
+              item.range = toRange(entry.textEdit.range);
+              item.insertText = entry.textEdit.newText;
+            }
+            if (entry.additionalTextEdits) {
+              item.additionalTextEdits = entry.additionalTextEdits.map(
+                toTextEdit
+              );
+            }
+            if (entry.insertTextFormat === ls.InsertTextFormat.Snippet) {
+              item.insertTextRules =
+                monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet;
+            }
+            return item;
+          }
+        );
 
-      return {
-        isIncomplete: info.isIncomplete,
-        suggestions: items
-      };
-    });
+        return {
+          isIncomplete: info.isIncomplete,
+          suggestions: items,
+        };
+      });
   }
 }
 
 function isMarkupContent(thing: any): thing is ls.MarkupContent {
-  return thing && typeof thing === 'object' && typeof (<ls.MarkupContent>thing).kind === 'string';
+  return (
+    thing &&
+    typeof thing === 'object' &&
+    typeof (thing as ls.MarkupContent).kind === 'string'
+  );
 }
 
-function toMarkdownString(entry: ls.MarkupContent | ls.MarkedString): monaco.IMarkdownString {
+function toMarkdownString(
+  entry: ls.MarkupContent | ls.MarkedString
+): monaco.IMarkdownString {
   if (typeof entry === 'string') {
     return {
-      value: entry
+      value: entry,
     };
   }
   if (isMarkupContent(entry)) {
     if (entry.kind === 'plaintext') {
       return {
-        value: entry.value.replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&')
+        value: entry.value.replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&'),
       };
     }
     return {
-      value: entry.value
+      value: entry.value,
     };
   }
 
   return { value: '```' + entry.language + '\n' + entry.value + '\n```\n' };
 }
 
-function toMarkedStringArray(contents: ls.MarkupContent | ls.MarkedString | ls.MarkedString[]): monaco.IMarkdownString[] {
+function toMarkedStringArray(
+  contents: ls.MarkupContent | ls.MarkedString | ls.MarkedString[]
+): monaco.IMarkdownString[] {
   if (!contents) {
     return void 0;
   }
@@ -308,77 +393,104 @@ function toMarkedStringArray(contents: ls.MarkupContent | ls.MarkedString | ls.M
   return [toMarkdownString(contents)];
 }
 
-
 // --- hover ------
 
 export class HoverAdapter implements monaco.languages.HoverProvider {
+  constructor(private _worker: WorkerAccessor) {}
 
-  constructor(private _worker: WorkerAccessor) { }
+  public provideHover(
+    model: monaco.editor.IReadOnlyModel,
+    position: Position,
+    token: CancellationToken
+  ): Thenable<monaco.languages.Hover> {
+    const resource = model.uri;
 
-  provideHover(model: monaco.editor.IReadOnlyModel, position: Position, token: CancellationToken): Thenable<monaco.languages.Hover> {
-    let resource = model.uri;
-
-    return this._worker(resource).then(worker => {
-      return worker.doHover(resource.toString(), fromPosition(position));
-    }).then(info => {
-      if (!info) {
-        return;
-      }
-      return <monaco.languages.Hover>{
-        range: toRange(info.range),
-        contents: toMarkedStringArray(info.contents)
-      };
-    });
+    return this._worker(resource)
+      .then(worker => {
+        return worker.doHover(resource.toString(), fromPosition(position));
+      })
+      .then(info => {
+        if (!info) {
+          return;
+        }
+        return {
+          range: toRange(info.range),
+          contents: toMarkedStringArray(info.contents),
+        } as monaco.languages.Hover;
+      });
   }
 }
 
 // --- document symbols ------
 
 function toSymbolKind(kind: ls.SymbolKind): monaco.languages.SymbolKind {
-  let mKind = monaco.languages.SymbolKind;
+  const mKind = monaco.languages.SymbolKind;
 
   switch (kind) {
-    case ls.SymbolKind.File: return mKind.Array;
-    case ls.SymbolKind.Module: return mKind.Module;
-    case ls.SymbolKind.Namespace: return mKind.Namespace;
-    case ls.SymbolKind.Package: return mKind.Package;
-    case ls.SymbolKind.Class: return mKind.Class;
-    case ls.SymbolKind.Method: return mKind.Method;
-    case ls.SymbolKind.Property: return mKind.Property;
-    case ls.SymbolKind.Field: return mKind.Field;
-    case ls.SymbolKind.Constructor: return mKind.Constructor;
-    case ls.SymbolKind.Enum: return mKind.Enum;
-    case ls.SymbolKind.Interface: return mKind.Interface;
-    case ls.SymbolKind.Function: return mKind.Function;
-    case ls.SymbolKind.Variable: return mKind.Variable;
-    case ls.SymbolKind.Constant: return mKind.Constant;
-    case ls.SymbolKind.String: return mKind.String;
-    case ls.SymbolKind.Number: return mKind.Number;
-    case ls.SymbolKind.Boolean: return mKind.Boolean;
-    case ls.SymbolKind.Array: return mKind.Array;
+    case ls.SymbolKind.File:
+      return mKind.Array;
+    case ls.SymbolKind.Module:
+      return mKind.Module;
+    case ls.SymbolKind.Namespace:
+      return mKind.Namespace;
+    case ls.SymbolKind.Package:
+      return mKind.Package;
+    case ls.SymbolKind.Class:
+      return mKind.Class;
+    case ls.SymbolKind.Method:
+      return mKind.Method;
+    case ls.SymbolKind.Property:
+      return mKind.Property;
+    case ls.SymbolKind.Field:
+      return mKind.Field;
+    case ls.SymbolKind.Constructor:
+      return mKind.Constructor;
+    case ls.SymbolKind.Enum:
+      return mKind.Enum;
+    case ls.SymbolKind.Interface:
+      return mKind.Interface;
+    case ls.SymbolKind.Function:
+      return mKind.Function;
+    case ls.SymbolKind.Variable:
+      return mKind.Variable;
+    case ls.SymbolKind.Constant:
+      return mKind.Constant;
+    case ls.SymbolKind.String:
+      return mKind.String;
+    case ls.SymbolKind.Number:
+      return mKind.Number;
+    case ls.SymbolKind.Boolean:
+      return mKind.Boolean;
+    case ls.SymbolKind.Array:
+      return mKind.Array;
   }
   return mKind.Function;
 }
 
+export class DocumentSymbolAdapter
+  implements monaco.languages.DocumentSymbolProvider {
+  constructor(private _worker: WorkerAccessor) {}
 
-export class DocumentSymbolAdapter implements monaco.languages.DocumentSymbolProvider {
-
-  constructor(private _worker: WorkerAccessor) {
-  }
-
-  public provideDocumentSymbols(model: monaco.editor.IReadOnlyModel, token: CancellationToken): Thenable<monaco.languages.DocumentSymbol[]> {
+  public provideDocumentSymbols(
+    model: monaco.editor.IReadOnlyModel,
+    token: CancellationToken
+  ): Thenable<monaco.languages.DocumentSymbol[]> {
     const resource = model.uri;
 
-    return this._worker(resource).then(worker => worker.findDocumentSymbols(resource.toString())).then(items => {
-      if (!items) {
-        return;
-      }
-      return items.map(item => toDocumentSymbol(item));
-    });
+    return this._worker(resource)
+      .then(worker => worker.findDocumentSymbols(resource.toString()))
+      .then(items => {
+        if (!items) {
+          return;
+        }
+        return items.map(item => toDocumentSymbol(item));
+      });
   }
 }
 
-function toDocumentSymbol(item: ls.DocumentSymbol): monaco.languages.DocumentSymbol {
+function toDocumentSymbol(
+  item: ls.DocumentSymbol
+): monaco.languages.DocumentSymbol {
   return {
     detail: '',
     range: toRange(item.range),
@@ -386,94 +498,127 @@ function toDocumentSymbol(item: ls.DocumentSymbol): monaco.languages.DocumentSym
     kind: toSymbolKind(item.kind),
     selectionRange: toRange(item.selectionRange),
     children: item.children.map(child => toDocumentSymbol(child)),
-  }
-}
-
-
-function fromFormattingOptions(options: monaco.languages.FormattingOptions): ls.FormattingOptions {
-  return {
-    tabSize: options.tabSize,
-    insertSpaces: options.insertSpaces
   };
 }
 
-export class DocumentFormattingEditProvider implements monaco.languages.DocumentFormattingEditProvider {
+function fromFormattingOptions(
+  options: monaco.languages.FormattingOptions
+): ls.FormattingOptions {
+  return {
+    tabSize: options.tabSize,
+    insertSpaces: options.insertSpaces,
+  };
+}
 
-  constructor(private _worker: WorkerAccessor) {
-  }
+export class DocumentFormattingEditProvider
+  implements monaco.languages.DocumentFormattingEditProvider {
+  constructor(private _worker: WorkerAccessor) {}
 
-  public provideDocumentFormattingEdits(model: monaco.editor.IReadOnlyModel, options: monaco.languages.FormattingOptions, token: CancellationToken): Thenable<monaco.editor.ISingleEditOperation[]> {
+  public provideDocumentFormattingEdits(
+    model: monaco.editor.IReadOnlyModel,
+    options: monaco.languages.FormattingOptions,
+    token: CancellationToken
+  ): Thenable<monaco.editor.ISingleEditOperation[]> {
     const resource = model.uri;
 
     return this._worker(resource).then(worker => {
-      return worker.format(resource.toString(), null, fromFormattingOptions(options)).then(edits => {
-        if (!edits || edits.length === 0) {
-          return;
-        }
-        return edits.map(toTextEdit);
-      });
+      return worker
+        .format(resource.toString(), null, fromFormattingOptions(options))
+        .then(edits => {
+          if (!edits || edits.length === 0) {
+            return;
+          }
+          return edits.map(toTextEdit);
+        });
     });
   }
 }
 
-export class DocumentRangeFormattingEditProvider implements monaco.languages.DocumentRangeFormattingEditProvider {
+export class DocumentRangeFormattingEditProvider
+  implements monaco.languages.DocumentRangeFormattingEditProvider {
+  constructor(private _worker: WorkerAccessor) {}
 
-  constructor(private _worker: WorkerAccessor) {
-  }
-
-  public provideDocumentRangeFormattingEdits(model: monaco.editor.IReadOnlyModel, range: Range, options: monaco.languages.FormattingOptions, token: CancellationToken): Thenable<monaco.editor.ISingleEditOperation[]> {
+  public provideDocumentRangeFormattingEdits(
+    model: monaco.editor.IReadOnlyModel,
+    range: Range,
+    options: monaco.languages.FormattingOptions,
+    token: CancellationToken
+  ): Thenable<monaco.editor.ISingleEditOperation[]> {
     const resource = model.uri;
 
     return this._worker(resource).then(worker => {
-      return worker.format(resource.toString(), fromRange(range), fromFormattingOptions(options)).then(edits => {
-        if (!edits || edits.length === 0) {
-          return;
-        }
-        return edits.map(toTextEdit);
-      });
+      return worker
+        .format(
+          resource.toString(),
+          fromRange(range),
+          fromFormattingOptions(options)
+        )
+        .then(edits => {
+          if (!edits || edits.length === 0) {
+            return;
+          }
+          return edits.map(toTextEdit);
+        });
     });
   }
 }
 
+export class DocumentColorAdapter
+  implements monaco.languages.DocumentColorProvider {
+  constructor(private _worker: WorkerAccessor) {}
 
-export class DocumentColorAdapter implements monaco.languages.DocumentColorProvider {
+  public provideDocumentColors(
+    model: monaco.editor.IReadOnlyModel,
+    token: CancellationToken
+  ): Thenable<monaco.languages.IColorInformation[]> {
+    const resource = model.uri;
 
-	constructor(private _worker: WorkerAccessor) {
-	}
+    return this._worker(resource)
+      .then(worker => worker.findDocumentColors(resource.toString()))
+      .then(infos => {
+        if (!infos) {
+          return;
+        }
+        return infos.map(item => ({
+          color: item.color,
+          range: toRange(item.range),
+        }));
+      });
+  }
 
-	public provideDocumentColors(model: monaco.editor.IReadOnlyModel, token: CancellationToken): Thenable<monaco.languages.IColorInformation[]> {
-		const resource = model.uri;
+  public provideColorPresentations(
+    model: monaco.editor.IReadOnlyModel,
+    info: monaco.languages.IColorInformation,
+    token: CancellationToken
+  ): Thenable<monaco.languages.IColorPresentation[]> {
+    const resource = model.uri;
 
-		return this._worker(resource).then(worker => worker.findDocumentColors(resource.toString())).then(infos => {
-			if (!infos) {
-				return;
-			}
-			return infos.map(item => ({
-				color: item.color,
-				range: toRange(item.range)
-			}));
-		});
-	}
-
-	public provideColorPresentations(model: monaco.editor.IReadOnlyModel, info: monaco.languages.IColorInformation, token: CancellationToken): Thenable<monaco.languages.IColorPresentation[]> {
-		const resource = model.uri;
-
-		return this._worker(resource).then(worker => worker.getColorPresentations(resource.toString(), info.color, fromRange(info.range))).then(presentations => {
-			if (!presentations) {
-				return;
-			}
-			return presentations.map(presentation => {
-				let item: monaco.languages.IColorPresentation = {
-					label: presentation.label,
-				};
-				if (presentation.textEdit) {
-					item.textEdit = toTextEdit(presentation.textEdit)
-				}
-				if (presentation.additionalTextEdits) {
-					item.additionalTextEdits = presentation.additionalTextEdits.map(toTextEdit)
-				}
-				return item;
-			});
-		});
-	}
+    return this._worker(resource)
+      .then(worker =>
+        worker.getColorPresentations(
+          resource.toString(),
+          info.color,
+          fromRange(info.range)
+        )
+      )
+      .then(presentations => {
+        if (!presentations) {
+          return;
+        }
+        return presentations.map(presentation => {
+          const item: monaco.languages.IColorPresentation = {
+            label: presentation.label,
+          };
+          if (presentation.textEdit) {
+            item.textEdit = toTextEdit(presentation.textEdit);
+          }
+          if (presentation.additionalTextEdits) {
+            item.additionalTextEdits = presentation.additionalTextEdits.map(
+              toTextEdit
+            );
+          }
+          return item;
+        });
+      });
+  }
 }

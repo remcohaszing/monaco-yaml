@@ -1,16 +1,20 @@
 import * as common from './common';
 
 export default class Mark {
+  public filePath: string;
 
-  constructor(public name: string, public buffer: string, public position: number, public line: number, public column: number) {
-  }
+  public toLineEnd: boolean;
 
-  filePath: string;
+  constructor(
+    public name: string,
+    public buffer: string,
+    public position: number,
+    public line: number,
+    public column: number
+  ) {}
 
-  toLineEnd: boolean;
-
-  getSnippet(indent: number = 0, maxLength: number = 75) {
-    var head, start, tail, end, snippet;
+  public getSnippet(indent: number = 0, maxLength: number = 75) {
+    let head, start, tail, end, snippet;
 
     if (!this.buffer) {
       return null;
@@ -22,9 +26,12 @@ export default class Mark {
     head = '';
     start = this.position;
 
-    while (start > 0 && -1 === '\x00\r\n\x85\u2028\u2029'.indexOf(this.buffer.charAt(start - 1))) {
+    while (
+      start > 0 &&
+      -1 === '\x00\r\n\x85\u2028\u2029'.indexOf(this.buffer.charAt(start - 1))
+    ) {
       start -= 1;
-      if (this.position - start > (maxLength / 2 - 1)) {
+      if (this.position - start > maxLength / 2 - 1) {
         head = ' ... ';
         start += 5;
         break;
@@ -34,9 +41,12 @@ export default class Mark {
     tail = '';
     end = this.position;
 
-    while (end < this.buffer.length && -1 === '\x00\r\n\x85\u2028\u2029'.indexOf(this.buffer.charAt(end))) {
+    while (
+      end < this.buffer.length &&
+      -1 === '\x00\r\n\x85\u2028\u2029'.indexOf(this.buffer.charAt(end))
+    ) {
       end += 1;
-      if (end - this.position > (maxLength / 2 - 1)) {
+      if (end - this.position > maxLength / 2 - 1) {
         tail = ' ... ';
         end -= 5;
         break;
@@ -45,12 +55,20 @@ export default class Mark {
 
     snippet = this.buffer.slice(start, end);
 
-    return common.repeat(' ', indent) + head + snippet + tail + '\n' +
-      common.repeat(' ', indent + this.position - start + head.length) + '^';
+    return (
+      common.repeat(' ', indent) +
+      head +
+      snippet +
+      tail +
+      '\n' +
+      common.repeat(' ', indent + this.position - start + head.length) +
+      '^'
+    );
   }
 
-  toString(compact: boolean = true) {
-    var snippet, where = '';
+  public toString(compact: boolean = true) {
+    let snippet,
+      where = '';
 
     if (this.name) {
       where += 'in "' + this.name + '" ';
@@ -68,5 +86,4 @@ export default class Mark {
 
     return where;
   }
-
 }

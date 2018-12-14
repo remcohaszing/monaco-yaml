@@ -4,13 +4,37 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { JSONWorkerContribution, JSONPath, Segment, CompletionsCollector } from './jsonContributions';
+import {
+  Color,
+  ColorInformation,
+  ColorPresentation,
+  FoldingRange,
+  FoldingRangeKind,
+  MarkupKind,
+  Range,
+  TextEdit,
+} from 'vscode-languageserver-types';
+import {
+  CompletionsCollector,
+  JSONPath,
+  JSONWorkerContribution,
+  Segment,
+} from './jsonContributions';
 import { JSONSchema } from './jsonSchema';
-import { Range, TextEdit, Color, ColorInformation, ColorPresentation, FoldingRange, FoldingRangeKind, MarkupKind } from 'vscode-languageserver-types';
 
 export {
-  Range, TextEdit, JSONSchema, JSONWorkerContribution, JSONPath, Segment, CompletionsCollector,
-  Color, ColorInformation, ColorPresentation, FoldingRange, FoldingRangeKind
+  Range,
+  TextEdit,
+  JSONSchema,
+  JSONWorkerContribution,
+  JSONPath,
+  Segment,
+  CompletionsCollector,
+  Color,
+  ColorInformation,
+  ColorPresentation,
+  FoldingRange,
+  FoldingRangeKind,
 };
 
 /**
@@ -34,13 +58,27 @@ export enum ErrorCode {
   TrailingComma = 0x207,
   DuplicateKey = 0x208,
   CommentNotPermitted = 0x209,
-  SchemaResolveError = 0x300
+  SchemaResolveError = 0x300,
 }
 
-export type ASTNode = ObjectASTNode | PropertyASTNode | ArrayASTNode | StringASTNode | NumberASTNode | BooleanASTNode | NullASTNode;
+export type ASTNode =
+  | ObjectASTNode
+  | PropertyASTNode
+  | ArrayASTNode
+  | StringASTNode
+  | NumberASTNode
+  | BooleanASTNode
+  | NullASTNode;
 
 export interface BaseASTNode {
-  readonly type: 'object' | 'array' | 'property' | 'string' | 'number' | 'boolean' | 'null';
+  readonly type:
+    | 'object'
+    | 'array'
+    | 'property'
+    | 'string'
+    | 'number'
+    | 'boolean'
+    | 'null';
   readonly parent?: ASTNode;
   readonly offset: number;
   readonly length: number;
@@ -83,49 +121,49 @@ export interface NullASTNode extends BaseASTNode {
 }
 
 export interface LanguageSettings {
-	/**
-	 * If set, the validator will return syntax and semantic errors.
-	 */
+  /**
+   * If set, the validator will return syntax and semantic errors.
+   */
   validate?: boolean;
-	/**
-	 * Defines whether comments are allowed or not. If set to false, comments will be reported as errors.
-	 * DocumentLanguageSettings.allowComments will override this setting.
-	 */
+  /**
+   * Defines whether comments are allowed or not. If set to false, comments will be reported as errors.
+   * DocumentLanguageSettings.allowComments will override this setting.
+   */
   allowComments?: boolean;
 
-	/**
-	 * A list of known schemas and/or associations of schemas to file names.
-	 */
+  /**
+   * A list of known schemas and/or associations of schemas to file names.
+   */
   schemas?: SchemaConfiguration[];
 }
 
 export type SeverityLevel = 'error' | 'warning' | 'ignore';
 
 export interface DocumentLanguageSettings {
-	/**
-	 * The severity of reported comments. If not set, 'LanguageSettings.allowComments' defines wheter comments are ignored or reported as errors.
-	 */
+  /**
+   * The severity of reported comments. If not set, 'LanguageSettings.allowComments' defines wheter comments are ignored or reported as errors.
+   */
   comments?: SeverityLevel;
 
-	/**
-	 * The severity of reported trailing commas. If not set, trailing commas will be reported as errors.
-	 */
+  /**
+   * The severity of reported trailing commas. If not set, trailing commas will be reported as errors.
+   */
   trailingCommas?: SeverityLevel;
 }
 
 export interface SchemaConfiguration {
-	/**
-	 * The URI of the schema, which is also the identifier of the schema.
-	 */
+  /**
+   * The URI of the schema, which is also the identifier of the schema.
+   */
   uri: string;
-	/**
-	 * A list of file names that are associated to the schema. The '*' wildcard can be used. For example '*.schema.json', 'package.json'
-	 */
+  /**
+   * A list of file names that are associated to the schema. The '*' wildcard can be used. For example '*.schema.json', 'package.json'
+   */
   fileMatch?: string[];
-	/**
-	 * The schema for the given URI.
-	 * If no schema is provided, the schema will be fetched with the schema request service (if available).
-	 */
+  /**
+   * The schema for the given URI.
+   * If no schema is provided, the schema will be fetched with the schema request service (if available).
+   */
   schema?: JSONSchema;
 }
 
@@ -136,74 +174,82 @@ export interface WorkspaceContextService {
  * The schema request service is used to fetch schemas. The result should the schema file comment, or,
  * in case of an error, a displayable error string
  */
-export interface SchemaRequestService {
-  (uri: string): Thenable<string>;
-}
+export type SchemaRequestService = (uri: string) => Thenable<string>;
 
 export interface PromiseConstructor {
-	/**
-	 * Creates a new Promise.
-	 * @param executor A callback used to initialize the promise. This callback is passed two arguments:
-	 * a resolve callback used resolve the promise with a value or the result of another promise,
-	 * and a reject callback used to reject the promise with a provided reason or error.
-	 */
-  new <T>(executor: (resolve: (value?: T | Thenable<T>) => void, reject: (reason?: any) => void) => void): Thenable<T>;
+  /**
+   * Creates a new Promise.
+   * @param executor A callback used to initialize the promise. This callback is passed two arguments:
+   * a resolve callback used resolve the promise with a value or the result of another promise,
+   * and a reject callback used to reject the promise with a provided reason or error.
+   */
+  new <T>(
+    executor: (
+      resolve: (value?: T | Thenable<T>) => void,
+      reject: (reason?: any) => void
+    ) => void
+  ): Thenable<T>;
 
-	/**
-	 * Creates a Promise that is resolved with an array of results when all of the provided Promises
-	 * resolve, or rejected when any Promise is rejected.
-	 * @param values An array of Promises.
-	 * @returns A new Promise.
-	 */
+  /**
+   * Creates a Promise that is resolved with an array of results when all of the provided Promises
+   * resolve, or rejected when any Promise is rejected.
+   * @param values An array of Promises.
+   * @returns A new Promise.
+   */
   all<T>(values: Array<T | Thenable<T>>): Thenable<T[]>;
-	/**
-	 * Creates a new rejected promise for the provided reason.
-	 * @param reason The reason the promise was rejected.
-	 * @returns A new rejected Promise.
-	 */
+  /**
+   * Creates a new rejected promise for the provided reason.
+   * @param reason The reason the promise was rejected.
+   * @returns A new rejected Promise.
+   */
   reject<T>(reason: any): Thenable<T>;
 
-	/**
-		 * Creates a new resolved promise for the provided value.
-		 * @param value A promise.
-		 * @returns A promise whose internal state matches the provided promise.
-		 */
+  /**
+   * Creates a new resolved promise for the provided value.
+   * @param value A promise.
+   * @returns A promise whose internal state matches the provided promise.
+   */
   resolve<T>(value: T | Thenable<T>): Thenable<T>;
-
 }
 
 export interface Thenable<R> {
-	/**
-	* Attaches callbacks for the resolution and/or rejection of the Promise.
-	* @param onfulfilled The callback to execute when the Promise is resolved.
-	* @param onrejected The callback to execute when the Promise is rejected.
-	* @returns A Promise for the completion of which ever callback is executed.
-	*/
-  then<TResult>(onfulfilled?: (value: R) => TResult | Thenable<TResult>, onrejected?: (reason: any) => TResult | Thenable<TResult>): Thenable<TResult>;
-  then<TResult>(onfulfilled?: (value: R) => TResult | Thenable<TResult>, onrejected?: (reason: any) => void): Thenable<TResult>;
+  /**
+   * Attaches callbacks for the resolution and/or rejection of the Promise.
+   * @param onfulfilled The callback to execute when the Promise is resolved.
+   * @param onrejected The callback to execute when the Promise is rejected.
+   * @returns A Promise for the completion of which ever callback is executed.
+   */
+  then<TResult>(
+    onfulfilled?: (value: R) => TResult | Thenable<TResult>,
+    onrejected?: (reason: any) => TResult | Thenable<TResult>
+  ): Thenable<TResult>;
+  then<TResult>(
+    onfulfilled?: (value: R) => TResult | Thenable<TResult>,
+    onrejected?: (reason: any) => void
+  ): Thenable<TResult>;
 }
 
 export interface LanguageServiceParams {
-	/**
-	 * The schema request service is used to fetch schemas. The result should the schema file comment, or,
-	 * in case of an error, a displayable error string
-	 */
+  /**
+   * The schema request service is used to fetch schemas. The result should the schema file comment, or,
+   * in case of an error, a displayable error string
+   */
   schemaRequestService?: SchemaRequestService;
-	/**
-	 * The workspace context is used to resolve relative paths for relative schema references.
-	 */
+  /**
+   * The workspace context is used to resolve relative paths for relative schema references.
+   */
   workspaceContext?: WorkspaceContextService;
-	/**
-	 * An optional set of completion and hover participants.
-	 */
+  /**
+   * An optional set of completion and hover participants.
+   */
   contributions?: JSONWorkerContribution[];
-	/**
-	 * A promise constructor. If not set, the ES5 Promise will be used.
-	 */
+  /**
+   * A promise constructor. If not set, the ES5 Promise will be used.
+   */
   promiseConstructor?: PromiseConstructor;
-	/**
-	 * Describes the LSP capabilities the client supports.
-	 */
+  /**
+   * Describes the LSP capabilities the client supports.
+   */
   clientCapabilities?: ClientCapabilities;
 }
 
@@ -211,35 +257,34 @@ export interface LanguageServiceParams {
  * Describes what LSP capabilities the client supports
  */
 export interface ClientCapabilities {
-	/**
-	 * The text document client capabilities
-	 */
+  /**
+   * The text document client capabilities
+   */
   textDocument?: {
-		/**
-		 * Capabilities specific to completions.
-		 */
+    /**
+     * Capabilities specific to completions.
+     */
     completion?: {
-			/**
-			 * The client supports the following `CompletionItem` specific
-			 * capabilities.
-			 */
+      /**
+       * The client supports the following `CompletionItem` specific
+       * capabilities.
+       */
       completionItem?: {
-				/**
-				 * Client supports the follow content formats for the documentation
-				 * property. The order describes the preferred format of the client.
-				 */
+        /**
+         * Client supports the follow content formats for the documentation
+         * property. The order describes the preferred format of the client.
+         */
         documentationFormat?: MarkupKind[];
       };
-
     };
-		/**
-		 * Capabilities specific to hovers.
-		 */
+    /**
+     * Capabilities specific to hovers.
+     */
     hover?: {
-			/**
-			 * Client supports the follow content formats for the content
-			 * property. The order describes the preferred format of the client.
-			 */
+      /**
+       * Client supports the follow content formats for the content
+       * property. The order describes the preferred format of the client.
+       */
       contentFormat?: MarkupKind[];
     };
   };
@@ -250,9 +295,9 @@ export namespace ClientCapabilities {
     textDocument: {
       completion: {
         completionItem: {
-          documentationFormat: [MarkupKind.Markdown, MarkupKind.PlainText]
-        }
-      }
-    }
+          documentationFormat: [MarkupKind.Markdown, MarkupKind.PlainText],
+        },
+      },
+    },
   };
 }

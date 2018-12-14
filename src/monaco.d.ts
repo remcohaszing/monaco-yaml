@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-declare module monaco.languages.yaml {
+declare namespace monaco.languages.yaml {
   export interface DiagnosticsOptions {
     /**
      * If set, the validator will be enabled and perform syntax validation as well as schema based validation.
@@ -13,7 +13,7 @@ declare module monaco.languages.yaml {
     /**
      * A list of known schemas and/or associations of schemas to file names.
      */
-    readonly schemas?: {
+    readonly schemas?: Array<{
       /**
        * The URI of the schema, which is also the identifier of the schema.
        */
@@ -26,7 +26,7 @@ declare module monaco.languages.yaml {
        * The schema for the given URI.
        */
       readonly schema?: any;
-    }[];
+    }>;
 
     /**
      *  If set, the schema service would load schema content on-demand with 'fetch' if available

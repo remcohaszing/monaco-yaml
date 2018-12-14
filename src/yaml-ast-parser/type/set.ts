@@ -1,9 +1,7 @@
-
-
 import { Type } from '../type';
-import * as ast from "../yamlAST";
+import * as ast from '../yamlAST';
 
-var _hasOwnProperty = Object.prototype.hasOwnProperty;
+const _hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function resolveYamlSet(data) {
   if (null === data) {
@@ -24,5 +22,5 @@ function constructYamlSet(data) {
 export default new Type('tag:yaml.org,2002:set', {
   kind: 'mapping',
   resolve: resolveYamlSet,
-  construct: constructYamlSet
+  construct: constructYamlSet,
 });

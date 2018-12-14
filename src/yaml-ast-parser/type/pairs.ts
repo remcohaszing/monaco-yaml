@@ -1,9 +1,7 @@
-
-
 import { Type } from '../type';
-import * as ast from "../yamlAST";
+import * as ast from '../yamlAST';
 
-var _toString = Object.prototype.toString;
+const _toString = Object.prototype.toString;
 
 function resolveYamlPairs(data) {
   if (null === data) {
@@ -13,7 +11,11 @@ function resolveYamlPairs(data) {
     return false;
   }
 
-  var index, length, pair, keys, result,
+  let index,
+    length,
+    pair,
+    keys,
+    result,
     object = data.items;
 
   for (index = 0, length = object.length; index < length; index += 1) {
@@ -40,7 +42,10 @@ function constructYamlPairs(data) {
     return [];
   }
 
-  let index, length, keys, result,
+  let index,
+    length,
+    keys,
+    result,
     object = data.items;
 
   result = ast.newItems();
@@ -49,14 +54,14 @@ function constructYamlPairs(data) {
   result.endPosition = data.endPosition;
 
   for (index = 0, length = object.length; index < length; index += 1) {
-    let pair = object[index];
+    const pair = object[index];
 
-    let mapping = pair.mappings[0];
+    const mapping = pair.mappings[0];
 
-    let pairSeq = ast.newItems();
+    const pairSeq = ast.newItems();
     pairSeq.parent = result;
-    pairSeq.startPosition = mapping.key.startPosition
-    pairSeq.endPosition = mapping.value.startPosition
+    pairSeq.startPosition = mapping.key.startPosition;
+    pairSeq.endPosition = mapping.value.startPosition;
     mapping.key.parent = pairSeq;
     mapping.value.parent = pairSeq;
     pairSeq.items = [mapping.key, mapping.value];
@@ -70,5 +75,5 @@ function constructYamlPairs(data) {
 export default new Type('tag:yaml.org,2002:pairs', {
   kind: 'sequence',
   resolve: resolveYamlPairs,
-  construct: constructYamlPairs
+  construct: constructYamlPairs,
 });
