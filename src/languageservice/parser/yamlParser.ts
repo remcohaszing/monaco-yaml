@@ -72,7 +72,7 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
       // TODO: calculate the correct NULL range.
       const valueNode = instance.value
         ? recursivelyBuildAst(result, instance.value)
-        : new NullASTNodeImpl(parent, instance.endPosition);
+        : new NullASTNodeImpl(result, instance.endPosition);
 
       result.keyNode = keyNode;
       result.valueNode = valueNode;

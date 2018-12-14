@@ -48,7 +48,7 @@ describe('Formatter Tests', () => {
         assert.equal(edits[0].newText, 'cwd: test\n');
       });
 
-      it('Formatting works without custom tags', () => {
+      it('Formatting works with custom tags', () => {
         const content = `cwd:       !Test test`;
         const testTextDocument = setup(content);
         const edits = languageService.doFormat(

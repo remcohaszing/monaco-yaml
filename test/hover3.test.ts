@@ -50,7 +50,7 @@ describe('Hover Setting Tests', () => {
         const hover = parseSetup(content, 1);
         hover
           .then(function (result) {
-            assert.notEqual(result, undefined);
+            assert.equal(result, undefined);
           })
           .then(done, done);
       });

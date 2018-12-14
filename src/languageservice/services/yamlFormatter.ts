@@ -15,60 +15,70 @@ import {
 } from 'vscode-languageserver-types';
 import { EOL } from '../../fillers/os';
 import * as Yaml from '../../yaml-ast-parser/index';
+import { LanguageSettings } from '../yamlLanguageService';
 
-export function format(
-  document: TextDocument,
-  options: FormattingOptions,
-  customTags: String[]
-): TextEdit[] {
-  const text = document.getText();
-  customTags = customTags || [];
+export class YamlFormatter {
+  private customTags: string[];
 
-  const schemaWithAdditionalTags = jsyaml.Schema.create(
-    customTags.map(tag => {
-      const typeInfo = tag.split(' ');
-      return new jsyaml.Type(typeInfo[0], { kind: typeInfo[1] || 'scalar' });
-    })
-  );
-
-  // We need compiledTypeMap to be available from schemaWithAdditionalTags before we add the new custom properties
-  customTags.map(tag => {
-    const typeInfo = tag.split(' ');
-    schemaWithAdditionalTags.compiledTypeMap[typeInfo[0]] = new jsyaml.Type(
-      typeInfo[0],
-      { kind: typeInfo[1] || 'scalar' }
-    );
-  });
-
-  const additionalOptions: Yaml.LoadOptions = {
-    schema: schemaWithAdditionalTags,
-  };
-
-  const documents = [];
-  jsyaml.loadAll(text, doc => documents.push(doc), additionalOptions);
-
-  const dumpOptions = { indent: options.tabSize, noCompatMode: true };
-
-  let newText;
-  if (documents.length == 1) {
-    const yaml = documents[0];
-    newText = jsyaml.safeDump(yaml, dumpOptions);
-  } else {
-    const formatted = documents.map(d => jsyaml.safeDump(d, dumpOptions));
-    newText =
-      '%YAML 1.2' +
-      EOL +
-      '---' +
-      EOL +
-      formatted.join('...' + EOL + '---' + EOL) +
-      '...' +
-      EOL;
+  configure(settings: LanguageSettings) {
+    if (settings) {
+      this.customTags = settings.customTags || [];
+    }
   }
 
-  return [
-    TextEdit.replace(
-      Range.create(Position.create(0, 0), document.positionAt(text.length)),
-      newText
-    ),
-  ];
+  doFormat(
+    document: TextDocument,
+    options: FormattingOptions,
+  ): TextEdit[] {
+    const text = document.getText();
+    const customTags = this.customTags || [];
+
+    const schemaWithAdditionalTags = jsyaml.Schema.create(
+      customTags.map(tag => {
+        const typeInfo = tag.split(' ');
+        return new jsyaml.Type(typeInfo[0], { kind: typeInfo[1] || 'scalar' });
+      })
+    );
+
+    // We need compiledTypeMap to be available from schemaWithAdditionalTags before we add the new custom properties
+    customTags.map(tag => {
+      const typeInfo = tag.split(' ');
+      schemaWithAdditionalTags.compiledTypeMap[typeInfo[0]] = new jsyaml.Type(
+        typeInfo[0],
+        { kind: typeInfo[1] || 'scalar' }
+      );
+    });
+
+    const additionalOptions: Yaml.LoadOptions = {
+      schema: schemaWithAdditionalTags,
+    };
+
+    const documents = [];
+    jsyaml.loadAll(text, doc => documents.push(doc), additionalOptions);
+
+    const dumpOptions = { indent: options.tabSize, noCompatMode: true };
+
+    let newText;
+    if (documents.length == 1) {
+      const yaml = documents[0];
+      newText = jsyaml.safeDump(yaml, dumpOptions);
+    } else {
+      const formatted = documents.map(d => jsyaml.safeDump(d, dumpOptions));
+      newText =
+        '%YAML 1.2' +
+        EOL +
+        '---' +
+        EOL +
+        formatted.join('...' + EOL + '---' + EOL) +
+        '...' +
+        EOL;
+    }
+
+    return [
+      TextEdit.replace(
+        Range.create(Position.create(0, 0), document.positionAt(text.length)),
+        newText
+      ),
+    ];
+  }
 }

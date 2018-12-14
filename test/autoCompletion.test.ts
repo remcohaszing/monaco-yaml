@@ -38,7 +38,6 @@ describe('Auto Completion Tests', () => {
 
       function parseSetup(content: string, position) {
         const testTextDocument = setup(content);
-        const yDoc = parseYAML(testTextDocument.getText());
         return completionHelper(
           testTextDocument,
           testTextDocument.positionAt(position),
@@ -70,7 +69,7 @@ describe('Auto Completion Tests', () => {
         const completion = parseSetup(content, 12);
         completion
           .then(function (result) {
-            expect(result.items.length).toEqual(0);
+            expect(result.items.length).toEqual(1);
           })
           .then(done, done);
       });

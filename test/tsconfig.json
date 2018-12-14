@@ -7,7 +7,6 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "lib": ["es2016"],
-    "outDir": "./out/server",
     "downlevelIteration": true
   },
   "exclude": ["node_modules", "out"]
