@@ -5,7 +5,11 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { DiagnosticSeverity, TextDocument, Diagnostic } from 'vscode-languageserver-types';
+import {
+  DiagnosticSeverity,
+  TextDocument,
+  Diagnostic,
+} from 'vscode-languageserver-types';
 import { LanguageSettings } from '../yamlLanguageService';
 import { YAMLDocument } from '../yamlLanguageTypes';
 import { JSONSchemaService, ResolvedSchema } from './jsonSchemaService';
@@ -23,13 +27,16 @@ export class YAMLValidation {
     }
   }
 
-  public doValidation(textDocument: TextDocument, yamlDocument: YAMLDocument): Thenable<Diagnostic[]> {
+  public doValidation(
+    textDocument: TextDocument,
+    yamlDocument: YAMLDocument
+  ): Thenable<Diagnostic[]> {
     if (!this.validationEnabled) {
       return Promise.resolve([]);
     }
     return this.jsonSchemaService
       .getSchemaForResource(textDocument.uri)
-      .then(function (schema) {
+      .then(function(schema) {
         const diagnostics: Diagnostic[] = [];
         const added = {};
         let newSchema = schema;
@@ -55,7 +62,9 @@ export class YAMLValidation {
               currentDoc.errors.push({
                 location: {
                   offset: textDocument.offsetAt(curDiagnostic.range.start),
-                  length: textDocument.offsetAt(curDiagnostic.range.end) - textDocument.offsetAt(curDiagnostic.range.start),
+                  length:
+                    textDocument.offsetAt(curDiagnostic.range.end) -
+                    textDocument.offsetAt(curDiagnostic.range.start),
                 },
                 message: curDiagnostic.message,
                 severity: curDiagnostic.severity,
@@ -86,7 +95,7 @@ export class YAMLValidation {
           const currentDoc = yamlDocument.documents[currentYAMLDoc];
           currentDoc.errors
             .concat(currentDoc.warnings)
-            .forEach(function (error, idx) {
+            .forEach(function(error, idx) {
               // remove duplicated messages
               const signature =
                 error.location.offset +
@@ -103,7 +112,9 @@ export class YAMLValidation {
                       : DiagnosticSeverity.Error,
                   range: {
                     start: textDocument.positionAt(error.location.offset),
-                    end: textDocument.positionAt(error.location.offset + error.location.length),
+                    end: textDocument.positionAt(
+                      error.location.offset + error.location.length
+                    ),
                   },
                   message: error.message,
                 });

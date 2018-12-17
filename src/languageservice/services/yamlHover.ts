@@ -29,11 +29,11 @@ export class YAMLHover {
     private contributions: JSONWorkerContribution[] = []
   ) {}
 
-  public configure(languageSettings: LanguageSettings){
-		if(languageSettings){
-			this.shouldHover = !!languageSettings.hover;
-		}
-	}
+  public configure(languageSettings: LanguageSettings) {
+    if (languageSettings) {
+      this.shouldHover = !!languageSettings.hover;
+    }
+  }
 
   public doHover(
     document: TextDocument,
@@ -95,8 +95,14 @@ export class YAMLHover {
       .then(schema => {
         if (schema) {
           let newSchema = schema;
-          if (schema.schema && schema.schema.schemaSequence && schema.schema.schemaSequence[currentDocIndex]) {
-            newSchema = new SchemaService.ResolvedSchema(schema.schema.schemaSequence[currentDocIndex]);
+          if (
+            schema.schema &&
+            schema.schema.schemaSequence &&
+            schema.schema.schemaSequence[currentDocIndex]
+          ) {
+            newSchema = new SchemaService.ResolvedSchema(
+              schema.schema.schemaSequence[currentDocIndex]
+            );
           }
 
           const matchingSchemas = currentDoc.getMatchingSchemas(

@@ -34,7 +34,7 @@ function toFsPath(str): string {
 }
 
 const uri = toFsPath(
-  path.join(__dirname, './fixtures/customMultipleSchemaSequences.json'),
+  path.join(__dirname, './fixtures/customMultipleSchemaSequences.json')
 );
 const languageSettings: LanguageSettings = {
   schemas: [],
@@ -50,13 +50,13 @@ languageService.configure(languageSettings);
 
 describe('Multiple Documents Validation Tests', () => {
   // Tests for validator
-  describe('Multiple Documents Validation', function () {
+  describe('Multiple Documents Validation', function() {
     function setup(content: string) {
       return TextDocument.create(
         'file://~/Desktop/vscode-k8s/test.yaml',
         'yaml',
         0,
-        content,
+        content
       );
     }
 
@@ -64,7 +64,7 @@ describe('Multiple Documents Validation Tests', () => {
       const testTextDocument = setup(content);
       const yDoc = parseYAML(
         testTextDocument.getText(),
-        languageSettings.customTags,
+        languageSettings.customTags
       );
       return languageService.doValidation(testTextDocument, yDoc);
     }
@@ -75,11 +75,11 @@ describe('Multiple Documents Validation Tests', () => {
       return languageService.doHover(
         testTextDocument,
         testTextDocument.positionAt(position),
-        jsonDocument,
+        jsonDocument
       );
     }
 
-    it('Should validate multiple documents', (done) => {
+    it('Should validate multiple documents', done => {
       const content = `
 name: jack
 age: 22
@@ -88,56 +88,56 @@ analytics: true
             `;
       const validator = validatorSetup(content);
       validator
-        .then((result) => {
+        .then(result => {
           assert.equal(result.length, 0);
         })
         .then(done, done);
     });
 
-    it('Should find errors in both documents', (done) => {
+    it('Should find errors in both documents', done => {
       const content = `name1: jack
 age: asd
 ---
 cwd: False`;
       const validator = validatorSetup(content);
       validator
-        .then(function (result) {
+        .then(function(result) {
           assert.equal(result.length, 3);
         })
         .then(done, done);
     });
 
-    it('Should find errors in first document', (done) => {
+    it('Should find errors in first document', done => {
       const content = `name: jack
 age: age
 ---
 analytics: true`;
       const validator = validatorSetup(content);
       validator
-        .then(function (result) {
+        .then(function(result) {
           assert.equal(result.length, 1);
         })
         .then(done, done);
     });
 
-    it('Should find errors in second document', (done) => {
+    it('Should find errors in second document', done => {
       const content = `name: jack
 age: 22
 ---
 cwd: False`;
       const validator = validatorSetup(content);
       validator
-        .then(function (result) {
+        .then(function(result) {
           assert.equal(result.length, 1);
         })
         .then(done, done);
     });
 
-    it('Should hover in first document', (done) => {
+    it('Should hover in first document', done => {
       const content = `name: jack\nage: 22\n---\ncwd: False`;
       const hover = hoverSetup(content, 1 + content.indexOf('age'));
       hover
-        .then(function (result) {
+        .then(function(result) {
           assert.notEqual(result.contents.length, 0);
           assert.equal(result.contents[0], 'The age of this person');
         })

@@ -26,10 +26,7 @@ export class YamlFormatter {
     }
   }
 
-  doFormat(
-    document: TextDocument,
-    options: FormattingOptions,
-  ): TextEdit[] {
+  doFormat(document: TextDocument, options: FormattingOptions): TextEdit[] {
     const text = document.getText();
     const customTags = this.customTags || [];
 

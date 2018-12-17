@@ -213,7 +213,7 @@ export interface ISchemaCollector {
 
 class SchemaCollector implements ISchemaCollector {
   public schemas: IApplicableSchema[] = [];
-  constructor(private focusOffset = -1, private exclude: ASTNode = null) { }
+  constructor(private focusOffset = -1, private exclude: ASTNode = null) {}
   public add(schema: IApplicableSchema) {
     this.schemas.push(schema);
   }
@@ -237,9 +237,9 @@ class NoOpSchemaCollector implements ISchemaCollector {
   }
 
   public static instance = new NoOpSchemaCollector();
-  private constructor() { }
-  public add(schema: IApplicableSchema) { }
-  public merge(other: ISchemaCollector) { }
+  private constructor() {}
+  public add(schema: IApplicableSchema) {}
+  public merge(other: ISchemaCollector) {}
   public include(node: ASTNode) {
     return true;
   }
@@ -389,7 +389,7 @@ export class JSONDocument {
     public root: ASTNode,
     public readonly syntaxErrors: Diagnostic[] = [],
     public readonly comments: Range[] = []
-  ) { }
+  ) {}
 
   public getNodeFromOffset(
     offset: number,
@@ -1110,13 +1110,15 @@ function validate(
             break;
           }
           case 'array': {
-            propertyNode.valueNode.items.forEach((sequenceNode: ObjectASTNode) => {
-              sequenceNode.properties.forEach(propASTNode => {
-                const seqKey = propASTNode.keyNode.value;
-                seenKeys[seqKey] = propASTNode.valueNode;
-                unprocessedProperties.push(seqKey);
-              });
-            });
+            propertyNode.valueNode.items.forEach(
+              (sequenceNode: ObjectASTNode) => {
+                sequenceNode.properties.forEach(propASTNode => {
+                  const seqKey = propASTNode.keyNode.value;
+                  seenKeys[seqKey] = propASTNode.valueNode;
+                  unprocessedProperties.push(seqKey);
+                });
+              }
+            );
             break;
           }
           default: {

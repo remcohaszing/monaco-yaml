@@ -4,14 +4,17 @@
  *--------------------------------------------------------------------------------------------*/
 import { TextDocument } from 'vscode-languageserver';
 import { parse as parseYAML } from '../src/languageservice/parser/yamlParser';
-import { getLanguageService, LanguageSettings } from '../src/languageservice/yamlLanguageService';
+import {
+  getLanguageService,
+  LanguageSettings,
+} from '../src/languageservice/yamlLanguageService';
 import { schemaRequestService, workspaceContext } from './testHelper';
 const assert = require('assert');
 
 const languageService = getLanguageService(
   schemaRequestService,
   workspaceContext,
-  [],
+  []
 );
 
 const uri = 'http://json.schemastore.org/bowerrc';
@@ -24,14 +27,14 @@ languageSettings.schemas.push({ uri, fileMatch });
 languageService.configure(languageSettings);
 
 describe('Hover Setting Tests', () => {
-  describe('Yaml Hover with bowerrc', function () {
-    describe('doComplete', function () {
+  describe('Yaml Hover with bowerrc', function() {
+    describe('doComplete', function() {
       function setup(content: string) {
         return TextDocument.create(
           'file://~/Desktop/vscode-k8s/test.yaml',
           'yaml',
           0,
-          content,
+          content
         );
       }
 
@@ -41,15 +44,15 @@ describe('Hover Setting Tests', () => {
         return languageService.doHover(
           testTextDocument,
           testTextDocument.positionAt(position),
-          jsonDocument,
+          jsonDocument
         );
       }
 
-      it('Hover should not return anything', (done) => {
+      it('Hover should not return anything', done => {
         const content = 'cwd: test';
         const hover = parseSetup(content, 1);
         hover
-          .then(function (result) {
+          .then(function(result) {
             assert.equal(result, undefined);
           })
           .then(done, done);

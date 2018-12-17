@@ -226,11 +226,10 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 function convertError(e: Yaml.Error) {
   return {
     message: `${e.reason}`,
-    // TODO: YAML ast parser does not give a length for validation error,
-    // TODO: thus we treat the range from line start to the target position.
+    // TODO: YAML ast parser does not give a length for validation error.
     location: {
-      offset: e.mark.position - e.mark.column,
-      length: e.mark.column,
+      offset: e.mark.position,
+      length: 0,
     },
     code: ErrorCode.Undefined,
     severity: e.isWarning

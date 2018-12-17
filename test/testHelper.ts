@@ -19,7 +19,7 @@ import URI from '../src/languageservice/utils/uri';
 
 namespace VSCodeContentRequest {
   export const type: RequestType<{}, {}, {}, {}> = new RequestType(
-    'vscode/content',
+    'vscode/content'
   );
 }
 
@@ -28,7 +28,7 @@ let connection: IConnection = null;
 if (process.argv.indexOf('--stdio') === -1) {
   connection = createConnection(
     new IPCMessageReader(process),
-    new IPCMessageWriter(process),
+    new IPCMessageWriter(process)
   );
 } else {
   connection = createConnection();
@@ -50,7 +50,7 @@ connection.onInitialize(
         },
       },
     };
-  },
+  }
 );
 
 export let workspaceContext = {
@@ -69,24 +69,24 @@ export let schemaRequestService = (uri: string): Thenable<string> => {
     });
   } else if (Strings.startsWith(uri, 'vscode://')) {
     return connection.sendRequest(VSCodeContentRequest.type, uri).then(
-      (responseText) => {
+      responseText => {
         return responseText;
       },
-      (error) => {
+      error => {
         return error.message;
-      },
+      }
     );
   }
   return xhr({ url: uri, followRedirects: 5 }).then(
-    (response) => {
+    response => {
       return response.responseText;
     },
     (error: XHRResponse) => {
       return Promise.reject(
         error.responseText ||
           getErrorStatusDescription(error.status) ||
-          error.toString(),
+          error.toString()
       );
-    },
+    }
   );
 };

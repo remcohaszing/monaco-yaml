@@ -10,8 +10,8 @@ import {
 const assert = require('assert');
 
 describe('Array Utils Tests', () => {
-  describe('Server - Array Utils', function () {
-    describe('removeDuplicates', function () {
+  describe('Server - Array Utils', function() {
+    describe('removeDuplicates', function() {
       it('Remove one duplicate with property', () => {
         const obj1 = {
           test_key: 'test_value',
@@ -69,7 +69,7 @@ describe('Array Utils Tests', () => {
       });
     });
 
-    describe('getLineOffsets', function () {
+    describe('getLineOffsets', function() {
       it('No offset', () => {
         const offsets = getLineOffsets('');
         assert.equal(offsets.length, 0);
@@ -89,7 +89,7 @@ describe('Array Utils Tests', () => {
 
       it('Multiple offsets', () => {
         const offsets = getLineOffsets(
-          'first_offset\n  second_offset\n    third_offset',
+          'first_offset\n  second_offset\n    third_offset'
         );
         assert.equal(offsets.length, 3);
         assert.equal(offsets[0], 0);
@@ -98,7 +98,7 @@ describe('Array Utils Tests', () => {
       });
     });
 
-    describe('removeDuplicatesObj', function () {
+    describe('removeDuplicatesObj', function() {
       it('Remove one duplicate with property', () => {
         const obj1 = {
           test_key: 'test_value',

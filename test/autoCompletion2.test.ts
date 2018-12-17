@@ -12,7 +12,7 @@ const assert = require('assert');
 const languageService = getLanguageService(
   schemaRequestService,
   workspaceContext,
-  [],
+  []
 );
 
 const uri = 'http://json.schemastore.org/composer';
@@ -30,7 +30,7 @@ describe('Auto Completion Tests', () => {
       'file://~/Desktop/vscode-k8s/test.yaml',
       'yaml',
       0,
-      content,
+      content
     );
   }
 
@@ -38,13 +38,13 @@ describe('Auto Completion Tests', () => {
     const testTextDocument = setup(content);
     return completionHelper(
       testTextDocument,
-      testTextDocument.positionAt(position),
+      testTextDocument.positionAt(position)
     );
   }
 
   describe('yamlCompletion with composer', function() {
     describe('doComplete', function() {
-      it('Array autocomplete without word', (done) => {
+      it('Array autocomplete without word', done => {
         const content = 'authors:\n  - ';
         const completion = parseSetup(content, 14);
         completion
@@ -54,7 +54,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Array autocomplete without word on array symbol', (done) => {
+      it('Array autocomplete without word on array symbol', done => {
         const content = 'authors:\n  -';
         const completion = parseSetup(content, 13);
         completion
@@ -64,7 +64,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Array autocomplete without word on space before array symbol', (done) => {
+      it('Array autocomplete without word on space before array symbol', done => {
         const content = 'authors:\n  - name: test\n  ';
         const completion = parseSetup(content, 24);
         completion
@@ -74,7 +74,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Array autocomplete with letter', (done) => {
+      it('Array autocomplete with letter', done => {
         const content = 'authors:\n  - n';
         const completion = parseSetup(content, 14);
         completion
@@ -84,7 +84,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Array autocomplete without word (second item)', (done) => {
+      it('Array autocomplete without word (second item)', done => {
         const content = 'authors:\n  - name: test\n    ';
         const completion = parseSetup(content, 32);
         completion
@@ -94,7 +94,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Array autocomplete with letter (second item)', (done) => {
+      it('Array autocomplete with letter (second item)', done => {
         const content = 'authors:\n  - name: test\n    e';
         const completion = parseSetup(content, 27);
         completion
@@ -104,7 +104,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Autocompletion after array', (done) => {
+      it('Autocompletion after array', done => {
         const content = 'authors:\n  - name: test\n';
         const completion = parseSetup(content, 24);
         completion
@@ -114,7 +114,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Autocompletion after array with depth', (done) => {
+      it('Autocompletion after array with depth', done => {
         const content = 'archive:\n  exclude:\n  - test\n';
         const completion = parseSetup(content, 29);
         completion
@@ -124,7 +124,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Autocompletion after array with depth', (done) => {
+      it('Autocompletion after array with depth', done => {
         const content =
           'autoload:\n  classmap:\n  - test\n  exclude-from-classmap:\n  - test\n  ';
         const completion = parseSetup(content, 70);
@@ -137,7 +137,7 @@ describe('Auto Completion Tests', () => {
     });
 
     describe('Failure tests', function() {
-      it('Autocompletion has no results on value when they are not available', (done) => {
+      it('Autocompletion has no results on value when they are not available', done => {
         const content = 'time: ';
         const completion = parseSetup(content, 6);
         completion
@@ -147,7 +147,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Autocompletion has no results on value when they are not available (with depth)', (done) => {
+      it('Autocompletion has no results on value when they are not available (with depth)', done => {
         const content = 'archive:\n  exclude:\n    - test\n    ';
         const completion = parseSetup(content, 33);
         completion

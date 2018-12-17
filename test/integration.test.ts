@@ -12,7 +12,7 @@ const assert = require('assert');
 const languageService = getLanguageService(
   schemaRequestService,
   workspaceContext,
-  [],
+  []
 );
 
 const uri =
@@ -34,7 +34,7 @@ xdescribe('Kubernetes Integration Tests', () => {
         'file://~/Desktop/vscode-k8s/test.yaml',
         'yaml',
         0,
-        content,
+        content
       );
     }
 
@@ -46,7 +46,7 @@ xdescribe('Kubernetes Integration Tests', () => {
 
     // Validating basic nodes
     describe('Test that validation does not throw errors', function() {
-      it('Basic test', (done) => {
+      it('Basic test', done => {
         const content = `apiVersion: v1`;
         const validator = parseSetup(content);
         validator
@@ -56,7 +56,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Basic test on nodes with children', (done) => {
+      it('Basic test on nodes with children', done => {
         const content = `metadata:\n  name: hello`;
         const validator = parseSetup(content);
         validator
@@ -66,7 +66,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Advanced test on nodes with children', (done) => {
+      it('Advanced test on nodes with children', done => {
         const content = `apiVersion: v1\nmetadata:\n  name: test1`;
         const validator = parseSetup(content);
         validator
@@ -76,7 +76,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Type string validates under children', (done) => {
+      it('Type string validates under children', done => {
         const content = `apiVersion: v1\nkind: Pod\nmetadata:\n  resourceVersion: test`;
         const validator = parseSetup(content);
         validator
@@ -87,7 +87,7 @@ xdescribe('Kubernetes Integration Tests', () => {
       });
 
       describe('Type tests', function() {
-        it('Type String does not error on valid node', (done) => {
+        it('Type String does not error on valid node', done => {
           const content = `apiVersion: v1`;
           const validator = parseSetup(content);
           validator
@@ -97,7 +97,7 @@ xdescribe('Kubernetes Integration Tests', () => {
             .then(done, done);
         });
 
-        it('Type Boolean does not error on valid node', (done) => {
+        it('Type Boolean does not error on valid node', done => {
           const content = `readOnlyRootFilesystem: false`;
           const validator = parseSetup(content);
           validator
@@ -107,7 +107,7 @@ xdescribe('Kubernetes Integration Tests', () => {
             .then(done, done);
         });
 
-        it('Type Number does not error on valid node', (done) => {
+        it('Type Number does not error on valid node', done => {
           const content = `generation: 5`;
           const validator = parseSetup(content);
           validator
@@ -117,7 +117,7 @@ xdescribe('Kubernetes Integration Tests', () => {
             .then(done, done);
         });
 
-        it('Type Object does not error on valid node', (done) => {
+        it('Type Object does not error on valid node', done => {
           const content = `metadata:\n  clusterName: tes`;
           const validator = parseSetup(content);
           validator
@@ -127,7 +127,7 @@ xdescribe('Kubernetes Integration Tests', () => {
             .then(done, done);
         });
 
-        it('Type Array does not error on valid node', (done) => {
+        it('Type Array does not error on valid node', done => {
           const content = `items:\n  - apiVersion: v1`;
           const validator = parseSetup(content);
           validator
@@ -140,7 +140,7 @@ xdescribe('Kubernetes Integration Tests', () => {
     });
 
     describe('Test that validation DOES throw errors', function() {
-      it('Error when theres no value for a node', (done) => {
+      it('Error when theres no value for a node', done => {
         const content = `apiVersion:`;
         const validator = parseSetup(content);
         validator
@@ -150,7 +150,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Error on incorrect value type (number)', (done) => {
+      it('Error on incorrect value type (number)', done => {
         const content = `apiVersion: 1000`;
         const validator = parseSetup(content);
         validator
@@ -160,7 +160,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Error on incorrect value type (boolean)', (done) => {
+      it('Error on incorrect value type (boolean)', done => {
         const content = `apiVersion: False`;
         const validator = parseSetup(content);
         validator
@@ -170,7 +170,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Error on incorrect value type (string)', (done) => {
+      it('Error on incorrect value type (string)', done => {
         const content = `isNonResourceURL: hello_world`;
         const validator = parseSetup(content);
         validator
@@ -180,7 +180,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Error on incorrect value type (object)', (done) => {
+      it('Error on incorrect value type (object)', done => {
         const content = `apiVersion: v1\nkind: Pod\nmetadata:\n  name: False`;
         const validator = parseSetup(content);
         validator
@@ -190,7 +190,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Error on incorrect value type in multiple yaml documents', (done) => {
+      it('Error on incorrect value type in multiple yaml documents', done => {
         const content = `---\napiVersion: v1\n...\n---\napiVersion: False\n...`;
         const validator = parseSetup(content);
         validator
@@ -200,7 +200,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Property error message should be "Unexpected property {$property_name}" when property is not allowed ', (done) => {
+      it('Property error message should be "Unexpected property {$property_name}" when property is not allowed ', done => {
         const content = `unknown_node: test`;
         const validator = parseSetup(content);
         validator
@@ -220,7 +220,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           'file://~/Desktop/vscode-k8s/test.yaml',
           'yaml',
           0,
-          content,
+          content
         );
       }
 
@@ -229,11 +229,11 @@ xdescribe('Kubernetes Integration Tests', () => {
         const yDoc = parseYAML(testTextDocument.getText());
         return completionHelper(
           testTextDocument,
-          testTextDocument.positionAt(position),
+          testTextDocument.positionAt(position)
         );
       }
 
-      it('Autocomplete on root node without word', (done) => {
+      it('Autocomplete on root node without word', done => {
         const content = '';
         const completion = parseSetup(content, 0);
         completion
@@ -243,7 +243,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Autocomplete on root node with word', (done) => {
+      it('Autocomplete on root node with word', done => {
         const content = 'api';
         const completion = parseSetup(content, 6);
         completion
@@ -253,7 +253,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Autocomplete on default value (without value content)', (done) => {
+      it('Autocomplete on default value (without value content)', done => {
         const content = 'apiVersion: ';
         const completion = parseSetup(content, 10);
         completion
@@ -263,7 +263,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Autocomplete on default value (with value content)', (done) => {
+      it('Autocomplete on default value (with value content)', done => {
         const content = 'apiVersion: v1\nkind: Bin';
         const completion = parseSetup(content, 19);
         completion
@@ -273,7 +273,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Autocomplete on boolean value (without value content)', (done) => {
+      it('Autocomplete on boolean value (without value content)', done => {
         const content = 'isNonResourceURL: ';
         const completion = parseSetup(content, 18);
         completion
@@ -283,7 +283,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Autocomplete on boolean value (with value content)', (done) => {
+      it('Autocomplete on boolean value (with value content)', done => {
         const content = 'isNonResourceURL: fal';
         const completion = parseSetup(content, 21);
         completion
@@ -293,7 +293,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Autocomplete key in middle of file', (done) => {
+      it('Autocomplete key in middle of file', done => {
         const content = 'metadata:\n  nam';
         const completion = parseSetup(content, 14);
         completion
@@ -303,7 +303,7 @@ xdescribe('Kubernetes Integration Tests', () => {
           .then(done, done);
       });
 
-      it('Autocomplete key in middle of file 2', (done) => {
+      it('Autocomplete key in middle of file 2', done => {
         const content = 'metadata:\n  name: test\n  cluster';
         const completion = parseSetup(content, 31);
         completion
