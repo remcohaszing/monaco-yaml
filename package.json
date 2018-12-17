@@ -9,7 +9,7 @@
     "watch": "tsc -p ./src --watch",
     "prepublish": "rimraf ./out && rimraf ./release && yarn compile:umd && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts",
     "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
-    "test": "jest"
+    "test": "jest --verbose"
   },
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
@@ -51,14 +51,11 @@
   },
   "lint-staged": {
     "linters": {
-      "*.{json,scss,html}": [
+      "*.{json,scss,html,ts}": [
         "prettier --write",
         "git add"
       ]
-    },
-    "ignore": [
-      "src/backend/vendor/**/*"
-    ]
+    }
   },
   "husky": {
     "hooks": {

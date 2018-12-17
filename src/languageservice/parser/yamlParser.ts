@@ -25,6 +25,7 @@ import {
   StringASTNodeImpl,
 } from './jsonParser';
 import { parseYamlBoolean } from './scalar-type';
+import { DiagnosticSeverity } from 'vscode-languageserver-types';
 
 function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
   if (!node) {
@@ -99,10 +100,10 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
         const itemNode =
           item === null
             ? new NullASTNodeImpl(
-              parent,
-              instance.startPosition,
-              instance.endPosition - instance.startPosition
-            )
+                parent,
+                instance.startPosition,
+                instance.endPosition - instance.startPosition
+              )
             : recursivelyBuildAst(result, item);
 
         result.items.push(itemNode);
@@ -225,10 +226,16 @@ function recursivelyBuildAst(parent: ASTNode, node: Yaml.YAMLNode): ASTNode {
 function convertError(e: Yaml.Error) {
   return {
     message: `${e.reason}`,
+    // TODO: YAML ast parser does not give a length for validation error,
+    // TODO: thus we treat the range from line start to the target position.
     location: {
-      offset: e.mark.position,
-      code: ErrorCode.Undefined,
+      offset: e.mark.position - e.mark.column,
+      length: e.mark.column,
     },
+    code: ErrorCode.Undefined,
+    severity: e.isWarning
+      ? DiagnosticSeverity.Warning
+      : DiagnosticSeverity.Error,
   };
 }
 
@@ -248,14 +255,18 @@ function createJSONDocument(
         'Expected a YAML object, array or literal'
       ),
       code: ErrorCode.Undefined,
-      location: { start: yamlDoc.startPosition, end: yamlDoc.endPosition },
+      location: {
+        offset: yamlDoc.startPosition,
+        length: yamlDoc.endPosition - yamlDoc.startPosition,
+      },
+      severity: DiagnosticSeverity.Error,
     });
   }
 
   const duplicateKeyReason = 'duplicate key';
 
   // Patch ontop of yaml-ast-parser to disable duplicate key message on merge key
-  const isDuplicateAndNotMergeKey = function (
+  const isDuplicateAndNotMergeKey = function(
     error: Yaml.Error,
     yamlText: string
   ) {

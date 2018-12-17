@@ -5,10 +5,11 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { DiagnosticSeverity, TextDocument } from 'vscode-languageserver-types';
+import { DiagnosticSeverity, TextDocument, Diagnostic } from 'vscode-languageserver-types';
 import { LanguageSettings } from '../yamlLanguageService';
 import { YAMLDocument } from '../yamlLanguageTypes';
 import { JSONSchemaService, ResolvedSchema } from './jsonSchemaService';
+import { Thenable } from '../jsonLanguageTypes';
 
 export class YAMLValidation {
   private validationEnabled: boolean;
@@ -22,14 +23,14 @@ export class YAMLValidation {
     }
   }
 
-  public doValidation(textDocument: TextDocument, yamlDocument: YAMLDocument) {
+  public doValidation(textDocument: TextDocument, yamlDocument: YAMLDocument): Thenable<Diagnostic[]> {
     if (!this.validationEnabled) {
       return Promise.resolve([]);
     }
     return this.jsonSchemaService
       .getSchemaForResource(textDocument.uri)
-      .then(function(schema) {
-        const diagnostics = [];
+      .then(function (schema) {
+        const diagnostics: Diagnostic[] = [];
         const added = {};
         let newSchema = schema;
         if (schema) {
@@ -53,10 +54,11 @@ export class YAMLValidation {
               const curDiagnostic = diagnostics[diag];
               currentDoc.errors.push({
                 location: {
-                  start: curDiagnostic.range.start,
-                  end: curDiagnostic.range.end,
+                  offset: textDocument.offsetAt(curDiagnostic.range.start),
+                  length: textDocument.offsetAt(curDiagnostic.range.end) - textDocument.offsetAt(curDiagnostic.range.start),
                 },
                 message: curDiagnostic.message,
+                severity: curDiagnostic.severity,
               });
             }
             documentIndex++;
@@ -84,26 +86,25 @@ export class YAMLValidation {
           const currentDoc = yamlDocument.documents[currentYAMLDoc];
           currentDoc.errors
             .concat(currentDoc.warnings)
-            .forEach(function(error, idx) {
+            .forEach(function (error, idx) {
               // remove duplicated messages
               const signature =
-                error.location.start +
+                error.location.offset +
                 ' ' +
-                error.location.end +
+                error.location.length +
                 ' ' +
                 error.message;
               if (!added[signature]) {
                 added[signature] = true;
-                const range = {
-                  start: textDocument.positionAt(error.location.start),
-                  end: textDocument.positionAt(error.location.end),
-                };
                 diagnostics.push({
                   severity:
                     idx >= currentDoc.errors.length
                       ? DiagnosticSeverity.Warning
                       : DiagnosticSeverity.Error,
-                  range,
+                  range: {
+                    start: textDocument.positionAt(error.location.offset),
+                    end: textDocument.positionAt(error.location.offset + error.location.length),
+                  },
                   message: error.message,
                 });
               }

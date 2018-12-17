@@ -1,10 +1,10 @@
 import { ASTNode } from './jsonLanguageTypes';
-import { JSONDocument } from './parser/jsonParser';
+import { JSONDocument, IProblem } from './parser/jsonParser';
 
 export class SingleYAMLDocument extends JSONDocument {
   public lines;
-  public errors;
-  public warnings;
+  public errors: IProblem[];
+  public warnings: IProblem[];
 
   constructor(lines: number[]) {
     super(null, []);
