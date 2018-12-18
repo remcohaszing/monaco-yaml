@@ -31,7 +31,7 @@ export class YAMLHover {
 
   public configure(languageSettings: LanguageSettings) {
     if (languageSettings) {
-      this.shouldHover = !!languageSettings.hover;
+      this.shouldHover = languageSettings.hover !== false;
     }
   }
 

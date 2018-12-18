@@ -59,7 +59,7 @@ export class YAMLCompletion {
 
   public configure(settings: LanguageSettings) {
     if (settings) {
-      this.completionEnabled = settings.completion;
+      this.completionEnabled = settings.completion !== false;
     }
   }
 

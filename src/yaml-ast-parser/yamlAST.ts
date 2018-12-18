@@ -20,6 +20,7 @@ export interface YAMLNode extends YAMLDocument {
   startPosition: number;
   endPosition: number;
   kind: Kind;
+  colonPosition?: number; // Nearest colon position.
   anchorId?: string;
   valueObject?: any;
   parent: YAMLNode;
@@ -63,8 +64,7 @@ export interface YamlMap extends YAMLNode {
   mappings: YAMLMapping[];
 }
 export function newMapping(key: YAMLScalar, value: YAMLNode): YAMLMapping {
-  const end = value ? value.endPosition : key.endPosition + 1; // FIXME.workaround, end should be defied by position of ':'
-  // console.log('key: ' + key.value + ' ' + key.startPosition + '..' + key.endPosition + ' ' + value + ' end: ' + end);
+  const end = value ? value.endPosition : key.colonPosition + 1;
   const node = {
     key,
     value,

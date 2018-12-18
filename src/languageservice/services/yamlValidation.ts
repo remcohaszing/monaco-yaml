@@ -23,7 +23,7 @@ export class YAMLValidation {
 
   public configure(raw: LanguageSettings) {
     if (raw) {
-      this.validationEnabled = raw.validate;
+      this.validationEnabled = raw.validate !== false;
     }
   }
 

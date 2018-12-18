@@ -142,6 +142,7 @@ export class NumberASTNodeImpl extends ASTNodeImpl implements NumberASTNode {
 export class StringASTNodeImpl extends ASTNodeImpl implements StringASTNode {
   public type: 'string' = 'string';
   public value: string;
+  public isKey: boolean;
 
   constructor(parent: ASTNode, offset: number, length?: number) {
     super(parent, offset, length);
