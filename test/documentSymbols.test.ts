@@ -15,9 +15,28 @@ const languageService = getLanguageService(
   []
 );
 
+function traverse(
+  rootSymbols: DocumentSymbol[],
+  fn: (doc: DocumentSymbol) => void
+) {
+  if (!rootSymbols || rootSymbols.length === 0) {
+    return;
+  }
+  rootSymbols.forEach(symbol => {
+    fn(symbol);
+    traverse(symbol.children, fn);
+  });
+}
+
+function allNodes(rootSymbols: DocumentSymbol[]): DocumentSymbol[] {
+  const res: DocumentSymbol[] = [];
+  traverse(rootSymbols, doc => res.push(doc));
+  return res;
+}
+
 // TODO: this suite is outdated and should be updated.
 // https://github.com/Microsoft/vscode-json-languageservice/blob/master/src/test/documentSymbols.test.ts
-xdescribe('Document Symbols Tests', () => {
+describe('Document Symbols Tests', () => {
   describe('Document Symbols Tests', function() {
     function setup(content: string) {
       return TextDocument.create(
@@ -31,16 +50,18 @@ xdescribe('Document Symbols Tests', () => {
     function parseSetup(content: string) {
       const testTextDocument = setup(content);
       const jsonDocument = parseYAML(testTextDocument.getText());
-      return languageService.findDocumentSymbols(
+      const rootSymbols = languageService.findDocumentSymbols(
         testTextDocument,
         jsonDocument
       );
+
+      return allNodes(rootSymbols);
     }
 
     it('Document is empty', done => {
       const content = '';
       const symbols = parseSetup(content);
-      assert.equal(symbols, null);
+      assert.equal(symbols.length, 0);
       done();
     });
 
@@ -82,14 +103,14 @@ xdescribe('Document Symbols Tests', () => {
     it('Document Symbols with array of strings', done => {
       const content = 'items:\n  - test\n  - test';
       const symbols = parseSetup(content);
-      assert.equal(symbols.length, 1);
+      assert.equal(symbols.length, 3);
       done();
     });
 
     it('Document Symbols with array', done => {
       const content = 'authors:\n  - name: Josh\n  - email: jp';
       const symbols = parseSetup(content);
-      assert.equal(symbols.length, 3);
+      assert.equal(symbols.length, 5);
       done();
     });
 
@@ -97,7 +118,7 @@ xdescribe('Document Symbols Tests', () => {
       const content =
         'scripts:\n  node1: test\n  node2: test\nauthors:\n  - name: Josh\n  - email: jp';
       const symbols = parseSetup(content);
-      assert.equal(symbols.length, 6);
+      assert.equal(symbols.length, 8);
       done();
     });
 
