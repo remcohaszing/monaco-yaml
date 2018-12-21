@@ -14,7 +14,7 @@ const assert = require('assert');
 const languageService = getLanguageService(
   schemaRequestService,
   workspaceContext,
-  [],
+  []
 );
 
 const uri = 'http://json.schemastore.org/composer';
@@ -34,7 +34,7 @@ describe('Hover Tests', () => {
           'file://~/Desktop/vscode-k8s/test.yaml',
           'yaml',
           0,
-          content,
+          content
         );
       }
 
@@ -44,11 +44,11 @@ describe('Hover Tests', () => {
         return languageService.doHover(
           testTextDocument,
           testTextDocument.positionAt(position),
-          jsonDocument,
+          jsonDocument
         );
       }
 
-      it('Hover works on array nodes', (done) => {
+      it('Hover works on array nodes', done => {
         const content = 'authors:\n  - name: Josh';
         const hover = parseSetup(content, 14);
         hover
@@ -58,7 +58,7 @@ describe('Hover Tests', () => {
           .then(done, done);
       });
 
-      it('Hover works on array nodes 2', (done) => {
+      it('Hover works on array nodes 2', done => {
         const content = 'authors:\n  - name: Josh\n  - email: jp';
         const hover = parseSetup(content, 28);
         hover

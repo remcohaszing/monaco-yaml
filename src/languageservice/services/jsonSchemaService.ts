@@ -556,7 +556,8 @@ export class JSONSchemaService implements IJSONSchemaService {
           next.anyOf,
           next.allOf,
           next.oneOf,
-          next.items as JSONSchema[]
+          next.items as JSONSchema[],
+          next.schemaSequence
         );
       };
 

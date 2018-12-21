@@ -19,12 +19,21 @@ import {
 } from 'vscode-languageserver-types';
 import { matchOffsetToDocument } from '../utils/arrUtils';
 import { YAMLDocument } from '../yamlLanguageTypes';
+import { LanguageSettings } from '../yamlLanguageService';
 
 export class YAMLHover {
+  private shouldHover = true;
+
   constructor(
     private schemaService: SchemaService.IJSONSchemaService,
     private contributions: JSONWorkerContribution[] = []
   ) {}
+
+  public configure(languageSettings: LanguageSettings) {
+    if (languageSettings) {
+      this.shouldHover = languageSettings.hover !== false;
+    }
+  }
 
   public doHover(
     document: TextDocument,
@@ -33,11 +42,11 @@ export class YAMLHover {
   ): Thenable<Hover> {
     const offset = document.offsetAt(position);
     const currentDoc = matchOffsetToDocument(offset, doc);
-    if (currentDoc === null) {
+    if (currentDoc === null || !this.shouldHover) {
       return Promise.resolve(void 0);
     }
-    const currentDocIndex = doc.documents.indexOf(currentDoc);
     let node = currentDoc.getNodeFromOffset(offset);
+    const currentDocIndex = doc.documents.indexOf(currentDoc);
     if (
       !node ||
       ((node.type === 'object' || node.type === 'array') &&
@@ -85,8 +94,19 @@ export class YAMLHover {
       .getSchemaForResource(document.uri, currentDoc)
       .then(schema => {
         if (schema) {
+          let newSchema = schema;
+          if (
+            schema.schema &&
+            schema.schema.schemaSequence &&
+            schema.schema.schemaSequence[currentDocIndex]
+          ) {
+            newSchema = new SchemaService.ResolvedSchema(
+              schema.schema.schemaSequence[currentDocIndex]
+            );
+          }
+
           const matchingSchemas = currentDoc.getMatchingSchemas(
-            schema.schema,
+            newSchema.schema,
             node.offset
           );
 

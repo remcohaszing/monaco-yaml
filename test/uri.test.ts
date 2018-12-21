@@ -26,7 +26,7 @@ describe('URI Tests', () => {
         'www.foo.com',
         '/bar.html',
         'name=hello',
-        '123',
+        '123'
       );
       assert.equal(result.authority, 'www.foo.com');
       assert.equal(result.fragment, '123');
@@ -69,14 +69,14 @@ describe('URI Tests', () => {
   describe('URI toString', function() {
     it('toString with encoding', () => {
       const result = URI.parse(
-        'http://www.foo.com:8080/bar.html?name=hello#123',
+        'http://www.foo.com:8080/bar.html?name=hello#123'
       ).toString();
       assert.equal('http://www.foo.com:8080/bar.html?name%3Dhello#123', result);
     });
 
     it('toString without encoding', () => {
       const result = URI.parse(
-        'http://www.foo.com/bar.html?name=hello#123',
+        'http://www.foo.com/bar.html?name=hello#123'
       ).toString(true);
       assert.equal('http://www.foo.com/bar.html?name=hello#123', result);
     });

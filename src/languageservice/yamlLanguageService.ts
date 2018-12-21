@@ -27,7 +27,7 @@ import {
   JSONSchemaService,
 } from './services/jsonSchemaService';
 import { YAMLCompletion } from './services/yamlCompletion';
-import { format } from './services/yamlFormatter';
+import { YamlFormatter } from './services/yamlFormatter';
 import { YAMLHover } from './services/yamlHover';
 import { YAMLValidation } from './services/yamlValidation';
 import { YAMLDocument } from './yamlLanguageTypes';
@@ -38,7 +38,7 @@ export interface LanguageSettings {
   completion?: boolean; // Setting for whether we want to have completion results
   isKubernetes?: boolean; // If true then its validating against kubernetes
   schemas?: any[]; // List of schemas,
-  customTags?: String[]; // Array of Custom Tags
+  customTags?: string[]; // Array of Custom Tags
 }
 
 export interface Thenable<R> {
@@ -134,6 +134,7 @@ export function getLanguageService(
   const hover = new YAMLHover(schemaService, contributions);
   const yamlDocumentSymbols = new YAMLDocumentSymbols(schemaService);
   const yamlValidation = new YAMLValidation(schemaService);
+  const yamlFormatter = new YamlFormatter();
 
   return {
     configure: settings => {
@@ -147,6 +148,11 @@ export function getLanguageService(
           );
         });
       }
+
+      yamlValidation.configure(settings);
+      hover.configure(settings);
+      completer.configure(settings);
+      yamlFormatter.configure(settings);
     },
     registerCustomSchemaProvider: (schemaProvider: CustomSchemaProvider) => {
       schemaService.registerCustomSchemaProvider(schemaProvider);
@@ -165,7 +171,7 @@ export function getLanguageService(
       yamlDocumentSymbols
     ),
     resetSchema: (uri: string) => schemaService.onResourceChange(uri),
-    doFormat: format,
+    doFormat: yamlFormatter.doFormat.bind(yamlFormatter),
     parseYAMLDocument: (document: TextDocument) =>
       parseYAML(document.getText()),
   };

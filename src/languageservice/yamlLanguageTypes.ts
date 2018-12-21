@@ -1,10 +1,11 @@
 import { ASTNode } from './jsonLanguageTypes';
-import { JSONDocument } from './parser/jsonParser';
+import { JSONDocument, IProblem } from './parser/jsonParser';
+import { getPosition } from './utils/documentPositionCalculator';
 
 export class SingleYAMLDocument extends JSONDocument {
-  public lines;
-  public errors;
-  public warnings;
+  public lines: number[];
+  public errors: IProblem[];
+  public warnings: IProblem[];
 
   constructor(lines: number[]) {
     super(null, []);
@@ -56,16 +57,21 @@ export class SingleYAMLDocument extends JSONDocument {
     }
     return currMinNode || foundNode;
   }
+
+  // Returns a node at offset which will be used as a hint for completion
+  //
+  public getCompletionNodeFromOffset(offset: number): ASTNode {
+    if (!this.root) {
+      return;
+    }
+    // TODO
+  }
 }
 
 export class YAMLDocument {
   public documents: SingleYAMLDocument[];
-  public errors;
-  public warnings;
 
   constructor(documents: SingleYAMLDocument[]) {
     this.documents = documents;
-    this.errors = [];
-    this.warnings = [];
   }
 }

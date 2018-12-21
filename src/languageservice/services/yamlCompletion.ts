@@ -35,21 +35,18 @@ import {
   ClientCapabilities,
   ObjectASTNode,
   PropertyASTNode,
-  StringASTNode,
 } from '../jsonLanguageTypes';
 import { matchOffsetToDocument } from '../utils/arrUtils';
 import { stringifyObject } from '../utils/json';
 import { isDefined } from '../utils/objects';
 import { endsWith } from '../utils/strings';
 import { YAMLDocument } from '../yamlLanguageTypes';
+import { LanguageSettings } from '../yamlLanguageService';
 const localize = nls.loadMessageBundle();
 
-// !! FIXME: this implementation is buggy
-
 export class YAMLCompletion {
+  private completionEnabled = true;
   private supportsMarkdown: boolean | undefined;
-
-  private templateVarIdCounter = 0;
 
   constructor(
     private schemaService: SchemaService.IJSONSchemaService,
@@ -58,6 +55,12 @@ export class YAMLCompletion {
   ) {
     this.schemaService = schemaService;
     this.contributions = contributions;
+  }
+
+  public configure(settings: LanguageSettings) {
+    if (settings) {
+      this.completionEnabled = settings.completion !== false;
+    }
   }
 
   public doResolve(item: CompletionItem): Thenable<CompletionItem> {
@@ -88,7 +91,7 @@ export class YAMLCompletion {
 
     const currentDocIndex = doc.documents.indexOf(currentDoc);
 
-    if (currentDoc === null) {
+    if (currentDoc === null || !this.completionEnabled) {
       return Promise.resolve(result);
     }
 

@@ -492,11 +492,7 @@ function storeMappingPair(
     });
 
   _result.mappings.push(mapping);
-  _result.endPosition = valueNode
-    ? valueNode.endPosition
-    : keyNode.endPosition + 1; // FIXME.workaround should be position of ':' indeed
-  // }
-
+  _result.endPosition = mapping.endPosition;
   return _result;
 }
 
@@ -646,7 +642,8 @@ function readPlainScalar(state: State, nodeIndent, withinFlowCollection) {
     _lineIndent,
     _kind = state.kind,
     _result = state.result,
-    ch;
+    ch,
+    _colonPosition = -1;
   const state_result = ast.newScalar();
   state_result.plainScalar = true;
   state.result = state_result;
@@ -694,6 +691,7 @@ function readPlainScalar(state: State, nodeIndent, withinFlowCollection) {
         is_WS_OR_EOL(following) ||
         (withinFlowCollection && is_FLOW_INDICATOR(following))
       ) {
+        _colonPosition = state.position;
         break;
       }
     } else if (0x23 /* # */ === ch) {
@@ -750,6 +748,7 @@ function readPlainScalar(state: State, nodeIndent, withinFlowCollection) {
       state_result.startPosition,
       state_result.endPosition
     );
+    state_result.colonPosition = _colonPosition;
     return true;
   }
 

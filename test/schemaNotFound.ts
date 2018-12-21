@@ -11,7 +11,7 @@ const assert = require('assert');
 const languageService = getLanguageService(
   schemaRequestService,
   workspaceContext,
-  [],
+  []
 );
 
 const uri = 'SchemaDoesNotExist';
@@ -32,7 +32,7 @@ describe('Validation Tests', () => {
         'file://~/Desktop/vscode-k8s/test.yaml',
         'yaml',
         0,
-        content,
+        content
       );
     }
 
@@ -40,14 +40,14 @@ describe('Validation Tests', () => {
       const testTextDocument = setup(content);
       const yDoc = parseYAML(
         testTextDocument.getText(),
-        languageSettings.customTags,
+        languageSettings.customTags
       );
       return languageService.doValidation(testTextDocument, yDoc);
     }
 
     // Validating basic nodes
     describe('Test that validation throws error when schema is not found', function() {
-      it('Basic test', (done) => {
+      it('Basic test', done => {
         const content = `testing: true`;
         const validator = parseSetup(content);
         validator

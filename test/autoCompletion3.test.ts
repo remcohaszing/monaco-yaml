@@ -12,7 +12,7 @@ const assert = require('assert');
 const languageService = getLanguageService(
   schemaRequestService,
   workspaceContext,
-  [],
+  []
 );
 
 const uri = 'http://json.schemastore.org/asmdef';
@@ -32,7 +32,7 @@ describe('Auto Completion Tests', () => {
           'file://~/Desktop/vscode-k8s/test.yaml',
           'yaml',
           0,
-          content,
+          content
         );
       }
 
@@ -40,11 +40,11 @@ describe('Auto Completion Tests', () => {
         const testTextDocument = setup(content);
         return completionHelper(
           testTextDocument,
-          testTextDocument.positionAt(position),
+          testTextDocument.positionAt(position)
         );
       }
 
-      it('Array of enum autocomplete without word on array symbol', (done) => {
+      it('Array of enum autocomplete without word on array symbol', done => {
         const content = 'optionalUnityReferences:\n  -';
         const completion = parseSetup(content, 29);
         completion
@@ -54,7 +54,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Array of enum autocomplete without word', (done) => {
+      it('Array of enum autocomplete without word', done => {
         const content = 'optionalUnityReferences:\n  - ';
         const completion = parseSetup(content, 30);
         completion
@@ -64,7 +64,7 @@ describe('Auto Completion Tests', () => {
           .then(done, done);
       });
 
-      it('Array of enum autocomplete with letter', (done) => {
+      it('Array of enum autocomplete with letter', done => {
         const content = 'optionalUnityReferences:\n  - T';
         const completion = parseSetup(content, 31);
         completion
