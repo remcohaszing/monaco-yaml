@@ -11,7 +11,7 @@ const REPO_ROOT = path.join(__dirname, "../");
 helpers.packageESM({
   repoRoot: REPO_ROOT,
   esmSource: "out/esm",
-  esmDestination: "release/esm",
+  esmDestination: "lib/esm",
   entryPoints: ["monaco.contribution.js", "yamlMode.js", "yaml.worker.js"],
   resolveAlias: {
     "vscode-nls": path.join(REPO_ROOT, "out/esm/fillers/vscode-nls.js")

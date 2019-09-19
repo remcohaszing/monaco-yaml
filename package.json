@@ -7,13 +7,19 @@
     "compile": "rimraf ./out && yarn compile:umd && yarn compile:esm",
     "compile:umd": "tsc -p ./src/tsconfig.json",
     "compile:esm": "tsc -p ./src/tsconfig.esm.json",
-    "bundle": "rimraf ./release && yarn bundle:umd && yarn bundle:esm",
-    "bundle:umd": "node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts",
-    "bundle:esm": "node ./scripts/release",
+    "bundle": "rimraf ./lib && yarn bundle:umd && yarn bundle:esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
+    "bundle:umd": "node ./scripts/bundle-umd",
+    "bundle:esm": "node ./scripts/bundle-esm",
     "build": "yarn compile && yarn bundle",
     "prepublish": "yarn build",
     "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
     "test": "jest --verbose"
+  },
+  "main": "./lib/esm/monaco.contribution.js",
+  "module": "./lib/esm/monaco.contribution.js",
+  "typings": "./lib/monaco.d.ts",
+  "directories": {
+    "lib": "./lib"
   },
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [

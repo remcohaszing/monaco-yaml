@@ -28,7 +28,7 @@ function bundleOne(moduleId, exclude) {
 	requirejs.optimize({
 		baseUrl: 'out/amd/',
 		name: 'vs/language/yaml/' + moduleId,
-		out: 'release/dev/' + moduleId + '.js',
+		out: 'lib/dev/' + moduleId + '.js',
 		exclude: exclude,
 		paths: {
 			'vs/language/yaml': REPO_ROOT + '/out/amd'
@@ -62,8 +62,8 @@ function bundleOne(moduleId, exclude) {
 			main: 'vscode-nls'
 		}]
 	}, function () {
-		const devFilePath = path.join(REPO_ROOT, 'release/dev/' + moduleId + '.js');
-		const minFilePath = path.join(REPO_ROOT, 'release/min/' + moduleId + '.js');
+		const devFilePath = path.join(REPO_ROOT, 'lib/dev/' + moduleId + '.js');
+		const minFilePath = path.join(REPO_ROOT, 'lib/min/' + moduleId + '.js');
 		const fileContents = fs.readFileSync(devFilePath).toString();
 		console.log();
     console.log(`Minifying ${devFilePath}...`);
@@ -73,7 +73,7 @@ function bundleOne(moduleId, exclude) {
 			}
 		});
     console.log(`Done.`);
-		try { fs.mkdirSync(path.join(REPO_ROOT, 'release/min')) } catch (err) { }
+		try { fs.mkdirSync(path.join(REPO_ROOT, 'lib/min')) } catch (err) { }
     fs.writeFileSync(minFilePath, BUNDLED_FILE_HEADER + result.code);
 	})
 }

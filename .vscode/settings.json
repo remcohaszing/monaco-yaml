@@ -1,10 +1,10 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-	"files.trimTrailingWhitespace": true,
-	"search.exclude": {
-		"**/node_modules": true,
-		"**/release": true,
-		"**/out": true
+  "files.trimTrailingWhitespace": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/lib": true,
+    "**/out": true
   },
   "javascript.preferences.quoteStyle": "single",
   "typescript.preferences.quoteStyle": "single"
