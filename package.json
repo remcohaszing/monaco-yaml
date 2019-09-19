@@ -34,14 +34,20 @@
   "bugs": {
     "url": "https://github.com/pengx17/monaco-yaml/issues"
   },
+  "dependencies": {
+    "js-yaml": "^3.12.0"
+  },
+  "peerDependencies": {
+    "monaco-editor": "^0.16.2"
+  },
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "@types/node": "^10.9.3",
     "husky": "^1.2.1",
     "jest": "^23.6.0",
-    "js-yaml": "^3.12.0",
     "jsonc-parser": "^2.0.2",
     "lint-staged": "^8.1.0",
+    "monaco-editor": "^0.16.2",
     "monaco-editor-core": "0.15.5",
     "monaco-languages": "1.6.0",
     "monaco-plugin-helpers": "^1.0.2",
