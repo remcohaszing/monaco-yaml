@@ -3,11 +3,15 @@
   "version": "2.1.0",
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
+    "watch": "tsc -p ./src --watch",
     "compile": "rimraf ./out && yarn compile:umd && yarn compile:esm",
     "compile:umd": "tsc -p ./src/tsconfig.json",
     "compile:esm": "tsc -p ./src/tsconfig.esm.json",
-    "watch": "tsc -p ./src --watch",
-    "prepublish": "rimraf ./out && rimraf ./release && yarn compile:umd && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts",
+    "bundle": "rimraf ./release && yarn bundle:umd && yarn bundle:esm",
+    "bundle:umd": "node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts",
+    "bundle:esm": "node ./scripts/release",
+    "build": "yarn compile && yarn bundle",
+    "prepublish": "yarn build",
     "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
     "test": "jest --verbose"
   },
