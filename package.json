@@ -1,5 +1,5 @@
 {
-  "name": "monaco-yaml",
+  "name": "@magicsandbox/monaco-yaml",
   "version": "2.1.0",
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
