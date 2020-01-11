@@ -31,7 +31,7 @@ export class YAMLWorker {
     this._languageSettings = createData.languageSettings;
     this._languageId = createData.languageId;
     this._languageService = yamlService.getLanguageService(
-      createData.enableSchemaRequest && defaultSchemaRequestService,
+      createData.enableSchemaRequest && (createData.schemaRequestService || defaultSchemaRequestService),
       null,
       []
     );
@@ -131,6 +131,7 @@ export interface ICreateData {
   languageId: string;
   languageSettings: yamlService.LanguageSettings;
   enableSchemaRequest: boolean;
+  schemaRequestService?: yamlService.SchemaRequestService;
 }
 
 export function create(
