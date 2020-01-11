@@ -1,6 +1,6 @@
 {
-  "name": "@magicsandbox/monaco-yaml",
-  "version": "2.1.2",
+  "name": "@flexget/monaco-yaml",
+  "version": "2.1.3",
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
     "watch": "tsc -p ./src --watch",
@@ -11,7 +11,7 @@
     "bundle:umd": "node ./scripts/bundle-umd",
     "bundle:esm": "node ./scripts/bundle-esm",
     "build": "yarn compile && yarn bundle",
-    "prepare": "yarn build",
+    "prepublish": "yarn build",
     "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
     "test": "jest --verbose"
   },
@@ -23,16 +23,15 @@
   },
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
-    "kpdecker",
-    "pengx17"
+    "kristenmills"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pengx17/monaco-yaml"
+    "url": "https://github.com/kristenmills/monaco-yaml"
   },
   "bugs": {
-    "url": "https://github.com/pengx17/monaco-yaml/issues"
+    "url": "https://github.com/kristenmills/monaco-yaml/issues"
   },
   "dependencies": {
     "js-yaml": "^3.12.0"
