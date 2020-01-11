@@ -27,7 +27,7 @@ export class YAMLWorker {
   private _languageId: string;
 
   constructor(ctx: IWorkerContext, createData: ICreateData) {
-    const prefix = createData.prefix || '';
+    const prefix = createData.languageSettings.prefix || '';
     const service = (url: string) => defaultSchemaRequestService(`${prefix}${url}`);
     this._ctx = ctx;
     this._languageSettings = createData.languageSettings;

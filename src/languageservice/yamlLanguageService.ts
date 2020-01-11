@@ -33,6 +33,7 @@ import { YAMLValidation } from './services/yamlValidation';
 import { YAMLDocument } from './yamlLanguageTypes';
 
 export interface LanguageSettings {
+  prefix?: string;
   validate?: boolean; // Setting for whether we want to validate the schema
   hover?: boolean; // Setting for whether we want to have hover results
   completion?: boolean; // Setting for whether we want to have completion results
