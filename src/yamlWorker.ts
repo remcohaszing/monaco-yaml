@@ -27,11 +27,13 @@ export class YAMLWorker {
   private _languageId: string;
 
   constructor(ctx: IWorkerContext, createData: ICreateData) {
+    const prefix = createData.prefix || '';
+    const service = (url: string) => defaultSchemaRequestService(`${prefix}${url}`);
     this._ctx = ctx;
     this._languageSettings = createData.languageSettings;
     this._languageId = createData.languageId;
     this._languageService = yamlService.getLanguageService(
-      createData.enableSchemaRequest && (createData.schemaRequestService || defaultSchemaRequestService),
+      createData.enableSchemaRequest && service,
       null,
       []
     );
@@ -131,7 +133,7 @@ export interface ICreateData {
   languageId: string;
   languageSettings: yamlService.LanguageSettings;
   enableSchemaRequest: boolean;
-  schemaRequestService?: yamlService.SchemaRequestService;
+  prefix?: string;
 }
 
 export function create(
