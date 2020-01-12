@@ -16,6 +16,7 @@ import IRange = monaco.IRange;
 import Thenable = monaco.Thenable;
 import CancellationToken = monaco.CancellationToken;
 import IDisposable = monaco.IDisposable;
+import { CustomFormatterOptions } from 'yaml-language-server/out/server/src/languageservice/yamlLanguageService';
 
 export type WorkerAccessor = (...more: Uri[]) => Thenable<YAMLWorker>;
 
@@ -503,7 +504,7 @@ function toDocumentSymbol(
 
 function fromFormattingOptions(
   options: monaco.languages.FormattingOptions
-): ls.FormattingOptions {
+): ls.FormattingOptions & CustomFormatterOptions {
   return {
     tabSize: options.tabSize,
     insertSpaces: options.insertSpaces,
@@ -563,62 +564,62 @@ export class DocumentRangeFormattingEditProvider
   }
 }
 
-export class DocumentColorAdapter
-  implements monaco.languages.DocumentColorProvider {
-  constructor(private _worker: WorkerAccessor) {}
+// export class DocumentColorAdapter
+// implements monaco.languages.DocumentColorProvider {
+// constructor(private _worker: WorkerAccessor) {}
 
-  public provideDocumentColors(
-    model: monaco.editor.IReadOnlyModel,
-    token: CancellationToken
-  ): Thenable<monaco.languages.IColorInformation[]> {
-    const resource = model.uri;
+// public provideDocumentColors(
+// model: monaco.editor.IReadOnlyModel,
+// token: CancellationToken
+// ): Thenable<monaco.languages.IColorInformation[]> {
+// const resource = model.uri;
 
-    return this._worker(resource)
-      .then(worker => worker.findDocumentColors(resource.toString()))
-      .then(infos => {
-        if (!infos) {
-          return;
-        }
-        return infos.map(item => ({
-          color: item.color,
-          range: toRange(item.range),
-        }));
-      });
-  }
+// return this._worker(resource)
+// .then(worker => worker.findDocumentColors(resource.toString()))
+// .then(infos => {
+// if (!infos) {
+// return;
+// }
+// return infos.map(item => ({
+// color: item.color,
+// range: toRange(item.range),
+// }));
+// });
+// }
 
-  public provideColorPresentations(
-    model: monaco.editor.IReadOnlyModel,
-    info: monaco.languages.IColorInformation,
-    token: CancellationToken
-  ): Thenable<monaco.languages.IColorPresentation[]> {
-    const resource = model.uri;
+// public provideColorPresentations(
+// model: monaco.editor.IReadOnlyModel,
+// info: monaco.languages.IColorInformation,
+// token: CancellationToken
+// ): Thenable<monaco.languages.IColorPresentation[]> {
+// const resource = model.uri;
 
-    return this._worker(resource)
-      .then(worker =>
-        worker.getColorPresentations(
-          resource.toString(),
-          info.color,
-          fromRange(info.range)
-        )
-      )
-      .then(presentations => {
-        if (!presentations) {
-          return;
-        }
-        return presentations.map(presentation => {
-          const item: monaco.languages.IColorPresentation = {
-            label: presentation.label,
-          };
-          if (presentation.textEdit) {
-            item.textEdit = toTextEdit(presentation.textEdit);
-          }
-          if (presentation.additionalTextEdits) {
-            item.additionalTextEdits = presentation.additionalTextEdits.map(
-              toTextEdit
-            );
-          }
-          return item;
-        });
-      });
-  }
-}
+// return this._worker(resource)
+// .then(worker =>
+// worker.getColorPresentations(
+// resource.toString(),
+// info.color,
+// fromRange(info.range)
+// )
+// )
+// .then(presentations => {
+// if (!presentations) {
+// return;
+// }
+// return presentations.map(presentation => {
+// const item: monaco.languages.IColorPresentation = {
+// label: presentation.label,
+// };
+// if (presentation.textEdit) {
+// item.textEdit = toTextEdit(presentation.textEdit);
+// }
+// if (presentation.additionalTextEdits) {
+// item.additionalTextEdits = presentation.additionalTextEdits.map(
+// toTextEdit
+// );
+// }
+// return item;
+// });
+// });
+// }
+// }

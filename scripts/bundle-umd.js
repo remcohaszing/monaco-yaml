@@ -40,6 +40,11 @@ function bundleOne(moduleId, exclude) {
 			location: path.join(REPO_ROOT, 'node_modules/js-yaml/dist'),
 			main: 'js-yaml'
 		},
+		{
+			name: 'yaml-language-server',
+			location: path.join(REPO_ROOT, 'node_modules/yaml-language-server'),
+			main: 'index.js'
+		},
 
 		// The following is required by YAML language service
 		{

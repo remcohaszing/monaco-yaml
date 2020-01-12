@@ -16,7 +16,7 @@ helpers.packageESM({
   resolveAlias: {
     "vscode-nls": path.join(REPO_ROOT, "out/esm/fillers/vscode-nls.js")
   },
-  resolveSkip: ["monaco-editor", "monaco-editor-core", "js-yaml"],
+  resolveSkip: ["monaco-editor", "monaco-editor-core", "js-yaml", "yaml-language-server"],
   destinationFolderSimplification: {
     node_modules: "_deps",
     "jsonc-parser/lib/esm": "jsonc-parser",
