@@ -11,7 +11,7 @@
     "bundle:umd": "node ./scripts/bundle-umd",
     "bundle:esm": "node ./scripts/bundle-esm",
     "build": "yarn compile && yarn bundle",
-    "prepublish": "yarn build",
+    "prepare": "yarn build",
     "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
     "test": "jest --verbose"
   },
