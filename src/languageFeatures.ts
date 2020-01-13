@@ -16,7 +16,7 @@ import IRange = monaco.IRange;
 import Thenable = monaco.Thenable;
 import CancellationToken = monaco.CancellationToken;
 import IDisposable = monaco.IDisposable;
-import { CustomFormatterOptions } from 'yaml-language-server/out/server/src/languageservice/yamlLanguageService';
+import { CustomFormatterOptions } from './languageservice/yamlLanguageService';
 
 export type WorkerAccessor = (...more: Uri[]) => Thenable<YAMLWorker>;
 
@@ -508,6 +508,7 @@ function fromFormattingOptions(
   return {
     tabSize: options.tabSize,
     insertSpaces: options.insertSpaces,
+    ...options,
   };
 }
 

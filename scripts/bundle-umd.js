@@ -40,19 +40,27 @@ function bundleOne(moduleId, exclude) {
 			location: path.join(REPO_ROOT, 'node_modules/js-yaml/dist'),
 			main: 'js-yaml'
 		},
-		{
-			name: 'yaml-language-server',
-			location: path.join(REPO_ROOT, 'node_modules/yaml-language-server'),
-			main: 'index.js'
-		},
-
 		// The following is required by YAML language service
+		{
+			name: 'vscode-json-languageservice',
+			location: path.join(REPO_ROOT, 'node_modules/vscode-json-languageservice'),
+      main: 'lib/umd/jsonLanguageService'
+		},
+		{
+			name: 'vscode-languageserver-textdocument',
+			location: path.join(REPO_ROOT, 'node_modules/vscode-languageserver-textdocument'),
+      main: 'lib/umd/main'
+		},
+		{
+			name: 'yaml-ast-parser-custom-tags',
+			location: path.join(REPO_ROOT, 'node_modules/yaml-ast-parser-custom-tags'),
+      main: 'dist/src/index'
+		},
 		{
 			name: 'jsonc-parser',
 			location: path.join(REPO_ROOT, 'node_modules/jsonc-parser/lib/umd'),
 			main: 'main'
 		},
-
 	  {
 			name: 'vscode-languageserver-types',
 			location: path.join(REPO_ROOT, 'node_modules/vscode-languageserver-types/lib/umd'),

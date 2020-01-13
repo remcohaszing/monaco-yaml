@@ -11,12 +11,7 @@ import Thenable = monaco.Thenable;
 import IWorkerContext = monaco.worker.IWorkerContext;
 
 import * as ls from 'vscode-languageserver-types';
-import {
-  CustomFormatterOptions,
-  getLanguageService,
-  LanguageService,
-  LanguageSettings,
-} from 'yaml-language-server/out/server/src/languageservice/yamlLanguageService';
+import * as yamlService from './languageservice/yamlLanguageService';
 
 let defaultSchemaRequestService;
 if (typeof fetch !== 'undefined') {
@@ -27,8 +22,8 @@ if (typeof fetch !== 'undefined') {
 
 export class YAMLWorker {
   private _ctx: IWorkerContext;
-  private _languageService: LanguageService;
-  private _languageSettings: LanguageSettings;
+  private _languageService: yamlService.LanguageService;
+  private _languageSettings: yamlService.LanguageSettings;
   private _languageId: string;
   private _isKubernetes: boolean;
 
@@ -39,12 +34,12 @@ export class YAMLWorker {
     this._ctx = ctx;
     this._languageSettings = createData.languageSettings;
     this._languageId = createData.languageId;
-    this._languageService = getLanguageService(
+    this._languageService = yamlService.getLanguageService(
       createData.enableSchemaRequest && service,
       null,
       []
     );
-    this._isKubernetes = createData.isKubernetes || true;
+    this._isKubernetes = createData.isKubernetes || false;
     this._languageService.configure({
       ...this._languageSettings,
       hover: true,
@@ -84,7 +79,7 @@ export class YAMLWorker {
   public format(
     uri: string,
     range: ls.Range,
-    options: CustomFormatterOptions
+    options: yamlService.CustomFormatterOptions
   ): Thenable<ls.TextEdit[]> {
     const document = this._getTextDocument(uri);
     const textEdits = this._languageService.doFormat(document, options);
@@ -119,7 +114,7 @@ export class YAMLWorker {
 
 export interface ICreateData {
   languageId: string;
-  languageSettings: LanguageSettings;
+  languageSettings: yamlService.LanguageSettings;
   enableSchemaRequest: boolean;
   prefix?: string;
   isKubernetes?: boolean;
