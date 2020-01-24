@@ -1,6 +1,6 @@
 {
-  "name": "@flexget/monaco-yaml",
-  "version": "2.3.0",
+  "name": "monaco-yaml",
+  "version": "2.1.0",
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
     "watch": "tsc -p ./src --watch",
@@ -23,15 +23,16 @@
   },
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
-    "kristenmills"
+    "kpdecker",
+    "pengx17"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kristenmills/monaco-yaml"
+    "url": "https://github.com/pengx17/monaco-yaml"
   },
   "bugs": {
-    "url": "https://github.com/kristenmills/monaco-yaml/issues"
+    "url": "https://github.com/pengx17/monaco-yaml/issues"
   },
   "dependencies": {
     "js-yaml": "^3.12.0",
