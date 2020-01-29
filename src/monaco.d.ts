@@ -40,6 +40,8 @@ declare namespace monaco.languages.yaml {
      * Whether or not kubernetes yaml is supported
      */
     readonly isKubernetes?: boolean;
+
+    readonly format?: boolean;
   }
 
   export interface LanguageServiceDefaults {

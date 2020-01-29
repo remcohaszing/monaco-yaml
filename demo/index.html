@@ -30,6 +30,7 @@
         'vs/basic-languages': '../node_modules/monaco-languages/release/dev',
         'vs/language/yaml': '../lib/dev',
         vs: '../node_modules/monaco-editor-core/dev/vs',
+        prettier: '../node_modules/prettier',
       };
       if (document.location.protocol === 'http:') {
         // Add support for running local http server
@@ -51,6 +52,8 @@
       require([
         'vs/basic-languages/monaco.contribution',
         'vs/language/yaml/monaco.contribution',
+        'prettier/standalone',
+        'prettier/parser-yaml',
       ], function() {
         const yaml = `p1: `;
         const modelUri = monaco.Uri.parse('a://b/foo.json');
@@ -68,6 +71,7 @@
           hover: true,
           completion: true,
           validate: true,
+          format: true,
           schemas: [
             {
               uri: 'http://myserver/foo-schema.json', // id of the first schema
