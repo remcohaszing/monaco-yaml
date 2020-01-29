@@ -14,12 +14,12 @@ for the API that the JSON plugin offers to configure the JSON language support.
 
 ## Installing
 
-`yarn add @flexget/monaco-yaml`
+`yarn add monaco-yaml`
 See `test/index.html` as an example. Both vs loader and ESM are supported. 
 
 ## Development
 
-* `git clone https://github.com/kristenmills/monaco-yaml`
+* `git clone https://github.com/pengx17/monaco-yaml`
 * `cd monaco-yaml`
 * `yarn`
 * open `$/monaco-yaml/demo/index.html` in your favorite browser.
