@@ -3,13 +3,23 @@
   "version": "2.1.0",
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
+    "watch": "tsc -p ./src --watch",
     "compile": "rimraf ./out && yarn compile:umd && yarn compile:esm",
     "compile:umd": "tsc -p ./src/tsconfig.json",
     "compile:esm": "tsc -p ./src/tsconfig.esm.json",
-    "watch": "tsc -p ./src --watch",
-    "prepublish": "rimraf ./out && rimraf ./release && yarn compile:umd && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts",
+    "bundle": "rimraf ./lib && yarn bundle:umd && yarn bundle:esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
+    "bundle:umd": "node ./scripts/bundle-umd",
+    "bundle:esm": "node ./scripts/bundle-esm",
+    "build": "yarn compile && yarn bundle",
+    "prepare": "yarn build",
     "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
     "test": "jest --verbose"
+  },
+  "main": "./lib/esm/monaco.contribution.js",
+  "module": "./lib/esm/monaco.contribution.js",
+  "typings": "./lib/monaco.d.ts",
+  "directories": {
+    "lib": "./lib"
   },
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
@@ -24,25 +34,36 @@
   "bugs": {
     "url": "https://github.com/pengx17/monaco-yaml/issues"
   },
+  "optionalDependencies": {
+    "prettier": "^1.19.1"
+  },
+  "dependencies": {
+    "js-yaml": "^3.12.0",
+    "vscode-json-languageservice": "^3.4.11",
+    "vscode-languageserver": "^5.2.1",
+    "vscode-uri": "^2.1.1"
+  },
+  "peerDependencies": {
+    "monaco-editor": "^0.19.2"
+  },
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "@types/node": "^10.9.3",
     "husky": "^1.2.1",
     "jest": "^23.6.0",
-    "js-yaml": "^3.12.0",
     "jsonc-parser": "^2.0.2",
     "lint-staged": "^8.1.0",
+    "monaco-editor": "^0.16.2",
     "monaco-editor-core": "0.15.5",
     "monaco-languages": "1.6.0",
     "monaco-plugin-helpers": "^1.0.2",
-    "prettier": "^1.15.3",
+    "prettier": "^1.19.1",
     "requirejs": "^2.3.5",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.5",
-    "typescript": "^3.1.6",
+    "typescript": "^3.7.4",
     "uglify-es": "^3.3.9",
-    "vscode-languageserver-types": "3.12.0",
-    "yaml-language-server": "^0.1.0"
+    "vscode-languageserver-types": "3.12.0"
   },
   "prettier": {
     "singleQuote": true,

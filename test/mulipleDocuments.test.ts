@@ -3,79 +3,47 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import path = require('path');
-import { TextDocument } from 'vscode-languageserver';
-import { parse as parseYAML } from '../src/languageservice/parser/yamlParser';
 import {
-  getLanguageService,
-  LanguageSettings,
-} from '../src/languageservice/yamlLanguageService';
-import { schemaRequestService, workspaceContext } from './testHelper';
-const assert = require('assert');
+  setupTextDocument,
+  configureLanguageService,
+  toFsPath,
+} from './utils/testHelper';
+import assert = require('assert');
+import { ServiceSetup } from './utils/serviceSetup';
 
-const languageService = getLanguageService(
-  schemaRequestService,
-  workspaceContext,
-  []
-);
-
-function toFsPath(str): string {
-  if (typeof str !== 'string') {
-    throw new TypeError(`Expected a string, got ${typeof str}`);
-  }
-
-  let pathName;
-  pathName = path.resolve(str);
-  pathName = pathName.replace(/\\/g, '/');
-  // Windows drive letter must be prefixed with a slash
-  if (pathName[0] !== '/') {
-    pathName = `/${pathName}`;
-  }
-  return encodeURI(`file://${pathName}`).replace(/[?#]/g, encodeURIComponent);
-}
-
+/**
+ * Setup the schema we are going to use with the language settings
+ */
 const uri = toFsPath(
   path.join(__dirname, './fixtures/customMultipleSchemaSequences.json')
 );
-const languageSettings: LanguageSettings = {
-  schemas: [],
-  validate: true,
-  customTags: [],
-  hover: true,
-};
 const fileMatch = ['*.yml', '*.yaml'];
-languageSettings.schemas.push({ uri, fileMatch });
-languageSettings.customTags.push('!Test');
-languageSettings.customTags.push('!Ref sequence');
-languageService.configure(languageSettings);
+const languageSettingsSetup = new ServiceSetup()
+  .withHover()
+  .withValidate()
+  .withSchemaFileMatch({ uri, fileMatch: fileMatch })
+  .withCustomTags(['!Test', '!Ref sequence']);
 
+// Defines a Mocha test describe to group tests of similar kind together
 describe('Multiple Documents Validation Tests', () => {
   // Tests for validator
   describe('Multiple Documents Validation', function() {
-    function setup(content: string) {
-      return TextDocument.create(
-        'file://~/Desktop/vscode-k8s/test.yaml',
-        'yaml',
-        0,
-        content
-      );
-    }
-
     function validatorSetup(content: string) {
-      const testTextDocument = setup(content);
-      const yDoc = parseYAML(
-        testTextDocument.getText(),
-        languageSettings.customTags
+      const testTextDocument = setupTextDocument(content);
+      const languageService = configureLanguageService(
+        languageSettingsSetup.languageSettings
       );
-      return languageService.doValidation(testTextDocument, yDoc);
+      return languageService.doValidation(testTextDocument, false);
     }
 
     function hoverSetup(content: string, position) {
-      const testTextDocument = setup(content);
-      const jsonDocument = parseYAML(testTextDocument.getText());
+      const testTextDocument = setupTextDocument(content);
+      const languageService = configureLanguageService(
+        languageSettingsSetup.languageSettings
+      );
       return languageService.doHover(
         testTextDocument,
-        testTextDocument.positionAt(position),
-        jsonDocument
+        testTextDocument.positionAt(position)
       );
     }
 
@@ -84,7 +52,7 @@ describe('Multiple Documents Validation Tests', () => {
 name: jack
 age: 22
 ---
-analytics: true
+cwd: test
             `;
       const validator = validatorSetup(content);
       validator
@@ -111,7 +79,7 @@ cwd: False`;
       const content = `name: jack
 age: age
 ---
-analytics: true`;
+cwd: test`;
       const validator = validatorSetup(content);
       validator
         .then(function(result) {
@@ -124,7 +92,8 @@ analytics: true`;
       const content = `name: jack
 age: 22
 ---
-cwd: False`;
+cwd: False
+`;
       const validator = validatorSetup(content);
       validator
         .then(function(result) {
@@ -134,11 +103,11 @@ cwd: False`;
     });
 
     it('Should hover in first document', done => {
-      const content = `name: jack\nage: 22\n---\ncwd: False`;
+      const content = 'name: jack\nage: 22\n---\ncwd: False';
       const hover = hoverSetup(content, 1 + content.indexOf('age'));
       hover
         .then(function(result) {
-          assert.notEqual(result.contents.length, 0);
+          assert.notEqual((result.contents as []).length, 0);
           assert.equal(result.contents[0], 'The age of this person');
         })
         .then(done, done);

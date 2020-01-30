@@ -1,11 +1,11 @@
 'use strict';
 
 import assert = require('assert');
+import * as SchemaService from '../src/languageservice/services/yamlSchemaService';
+import * as JsonSchema from '../src/languageservice/jsonSchema07';
 import fs = require('fs');
-import path = require('path');
 import url = require('url');
-import * as JsonSchema from '../src/languageservice/jsonSchema';
-import * as SchemaService from '../src/languageservice/services/jsonSchemaService';
+import path = require('path');
 
 const fixtureDocuments = {
   'http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json':
@@ -25,11 +25,14 @@ const fixtureDocuments = {
   'http://schema.management.azure.com/schemas/2015-08-01/Microsoft.Compute.json':
     'Microsoft.Compute.json',
 };
+
 const requestServiceMock = function(uri: string): Promise<string> {
   if (uri.length && uri[uri.length - 1] === '#') {
     uri = uri.substr(0, uri.length - 1);
   }
+
   const fileName = fixtureDocuments[uri];
+
   if (fileName) {
     return new Promise<string>((c, e) => {
       const fixturePath = path.join(__dirname, './fixtures', fileName);
@@ -42,14 +45,13 @@ const requestServiceMock = function(uri: string): Promise<string> {
 };
 
 const workspaceContext = {
-  resolveRelativePath: (relativePath: string, resource: string) => {
-    return url.resolve(resource, relativePath);
-  },
+  resolveRelativePath: (relativePath: string, resource: string) =>
+    url.resolve(resource, relativePath),
 };
 
 describe('JSON Schema', () => {
   test('Resolving $refs', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -75,7 +77,7 @@ describe('JSON Schema', () => {
     service
       .getResolvedSchema('https://myschemastore/main')
       .then(solvedSchema => {
-        assert.deepEqual(solvedSchema.schema.properties.child, {
+        assert.deepEqual(solvedSchema.schema.properties['child'], {
           id: 'https://myschemastore/child',
           type: 'bool',
           description: 'Test description',
@@ -90,7 +92,7 @@ describe('JSON Schema', () => {
   });
 
   test('Resolving $refs 2', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -122,7 +124,7 @@ describe('JSON Schema', () => {
     service
       .getResolvedSchema('http://json.schemastore.org/swagger-2.0')
       .then(fs => {
-        assert.deepEqual(fs.schema.properties.responseValue, {
+        assert.deepEqual(fs.schema.properties['responseValue'], {
           type: 'object',
           required: ['$ref'],
           properties: { $ref: { type: 'string' } },
@@ -137,7 +139,7 @@ describe('JSON Schema', () => {
   });
 
   test('Resolving $refs 3', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -173,15 +175,15 @@ describe('JSON Schema', () => {
     service
       .getResolvedSchema('https://myschemastore/main/schema1.json')
       .then(fs => {
-        assert.deepEqual(fs.schema.properties.p1, {
+        assert.deepEqual(fs.schema.properties['p1'], {
           type: 'string',
           enum: ['object'],
         });
-        assert.deepEqual(fs.schema.properties.p2, {
+        assert.deepEqual(fs.schema.properties['p2'], {
           type: 'string',
           enum: ['object'],
         });
-        assert.deepEqual(fs.schema.properties.p3, {
+        assert.deepEqual(fs.schema.properties['p3'], {
           type: 'string',
           enum: ['object'],
         });
@@ -195,7 +197,7 @@ describe('JSON Schema', () => {
   });
 
   test('FileSchema', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -235,7 +237,7 @@ describe('JSON Schema', () => {
   });
 
   test('Array FileSchema', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -278,7 +280,7 @@ describe('JSON Schema', () => {
   });
 
   test('Missing subschema', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -312,7 +314,7 @@ describe('JSON Schema', () => {
   });
 
   test('Preloaded Schema', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -349,7 +351,7 @@ describe('JSON Schema', () => {
   });
 
   test('Null Schema', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -368,7 +370,7 @@ describe('JSON Schema', () => {
   });
 
   test('Schema not found', function(testDone) {
-    const service = new SchemaService.JSONSchemaService(
+    const service = new SchemaService.YAMLSchemaService(
       requestServiceMock,
       workspaceContext
     );
@@ -384,5 +386,25 @@ describe('JSON Schema', () => {
           testDone(error);
         }
       );
+  });
+
+  test('Schema with non uri registers correctly', function(testDone) {
+    const service = new SchemaService.YAMLSchemaService(
+      requestServiceMock,
+      workspaceContext
+    );
+    const non_uri = 'non_uri';
+    service.registerExternalSchema(non_uri, ['*.yml', '*.yaml'], {
+      properties: {
+        test_node: {
+          description: 'my test_node description',
+          enum: ['test 1', 'test 2'],
+        },
+      },
+    });
+    service.getResolvedSchema(non_uri).then(schema => {
+      assert.notEqual(schema, undefined);
+      testDone();
+    });
   });
 });

@@ -39,5 +39,5 @@ export function parseYamlBoolean(input: string): boolean {
   ) {
     return false;
   }
-  throw new Error(`Invalid boolean "${input}"`);
+  throw `Invalid boolean "${input}"`;
 }

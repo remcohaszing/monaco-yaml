@@ -25,92 +25,77 @@ export class YAMLWorker {
   private _languageService: yamlService.LanguageService;
   private _languageSettings: yamlService.LanguageSettings;
   private _languageId: string;
+  private _isKubernetes: boolean;
 
   constructor(ctx: IWorkerContext, createData: ICreateData) {
+    const prefix = createData.prefix || '';
+    const service = (url: string) =>
+      defaultSchemaRequestService(`${prefix}${url}`);
     this._ctx = ctx;
     this._languageSettings = createData.languageSettings;
     this._languageId = createData.languageId;
     this._languageService = yamlService.getLanguageService(
-      createData.enableSchemaRequest && defaultSchemaRequestService,
+      createData.enableSchemaRequest && service,
       null,
       []
     );
+    this._isKubernetes = createData.isKubernetes || false;
     this._languageService.configure({
       ...this._languageSettings,
       hover: true,
-      isKubernetes: true,
+      isKubernetes: this._isKubernetes,
     });
   }
 
   public doValidation(uri: string): Thenable<ls.Diagnostic[]> {
     const document = this._getTextDocument(uri);
     if (document) {
-      const yamlDocument = this._languageService.parseYAMLDocument(document);
-      return this._languageService.doValidation(document, yamlDocument);
+      return this._languageService.doValidation(document, this._isKubernetes);
     }
     return Promise.as([]);
   }
+
   public doComplete(
     uri: string,
     position: ls.Position
   ): Thenable<ls.CompletionList> {
     const document = this._getTextDocument(uri);
-    const yamlDocument = this._languageService.parseYAMLDocument(document);
-    return this._languageService.doComplete(document, position, yamlDocument);
+    return this._languageService.doComplete(
+      document,
+      position,
+      this._isKubernetes
+    );
   }
+
   public doResolve(item: ls.CompletionItem): Thenable<ls.CompletionItem> {
     return this._languageService.doResolve(item);
   }
+
   public doHover(uri: string, position: ls.Position): Thenable<ls.Hover> {
     const document = this._getTextDocument(uri);
-    const yamlDocument = this._languageService.parseYAMLDocument(document);
-    return this._languageService.doHover(document, position, yamlDocument);
+    return this._languageService.doHover(document, position);
   }
+
   public format(
     uri: string,
     range: ls.Range,
-    options: ls.FormattingOptions
+    options: yamlService.CustomFormatterOptions
   ): Thenable<ls.TextEdit[]> {
     const document = this._getTextDocument(uri);
-    const textEdits = this._languageService.doFormat(document, options, []);
+    const textEdits = this._languageService.doFormat(document, options);
     return Promise.as(textEdits);
   }
+
   public resetSchema(uri: string): Thenable<boolean> {
     return Promise.as(this._languageService.resetSchema(uri));
   }
+
   public findDocumentSymbols(uri: string): Thenable<ls.DocumentSymbol[]> {
     const document = this._getTextDocument(uri);
-    const yamlDocument = this._languageService.parseYAMLDocument(document);
-    const symbols = this._languageService.findDocumentSymbols(
-      document,
-      yamlDocument
-    );
+    const symbols = this._languageService.findDocumentSymbols2(document);
     return Promise.as(symbols);
   }
-  public findDocumentColors(uri: string): Thenable<ls.ColorInformation[]> {
-    const document = this._getTextDocument(uri);
-    const stylesheet = this._languageService.parseYAMLDocument(document);
-    const colorSymbols = this._languageService.findDocumentColors(
-      document,
-      stylesheet
-    );
-    return Promise.as(colorSymbols);
-  }
-  public getColorPresentations(
-    uri: string,
-    color: ls.Color,
-    range: ls.Range
-  ): Thenable<ls.ColorPresentation[]> {
-    const document = this._getTextDocument(uri);
-    const stylesheet = this._languageService.parseYAMLDocument(document);
-    const colorPresentations = this._languageService.getColorPresentations(
-      document,
-      stylesheet,
-      color,
-      range
-    );
-    return Promise.as(colorPresentations);
-  }
+
   private _getTextDocument(uri: string): ls.TextDocument {
     const models = this._ctx.getMirrorModels();
     for (const model of models) {
@@ -131,6 +116,8 @@ export interface ICreateData {
   languageId: string;
   languageSettings: yamlService.LanguageSettings;
   enableSchemaRequest: boolean;
+  prefix?: string;
+  isKubernetes?: boolean;
 }
 
 export function create(

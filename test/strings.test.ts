@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import {
-  convertSimple2RegExp,
-  endsWith,
   startsWith,
+  endsWith,
+  convertSimple2RegExp,
 } from '../src/languageservice/utils/strings';
 const assert = require('assert');
 

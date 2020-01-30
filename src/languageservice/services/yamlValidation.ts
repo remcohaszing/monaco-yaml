@@ -5,123 +5,90 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import {
-  DiagnosticSeverity,
-  TextDocument,
-  Diagnostic,
-} from 'vscode-languageserver-types';
-import { LanguageSettings } from '../yamlLanguageService';
-import { YAMLDocument } from '../yamlLanguageTypes';
-import { JSONSchemaService, ResolvedSchema } from './jsonSchemaService';
-import { Thenable } from '../jsonLanguageTypes';
+import { Diagnostic, TextDocument } from 'vscode-languageserver-types';
+import { PromiseConstructor, LanguageSettings } from '../yamlLanguageService';
+import { parse as parseYAML, YAMLDocument } from '../parser/yamlParser07';
+import { SingleYAMLDocument } from '../parser/yamlParser04';
+import { YAMLSchemaService } from './yamlSchemaService';
+import { JSONValidation } from 'vscode-json-languageservice/lib/umd/services/jsonValidation';
 
 export class YAMLValidation {
+  private promise: PromiseConstructor;
   private validationEnabled: boolean;
-  public constructor(private jsonSchemaService: JSONSchemaService) {
+  private customTags: String[];
+  private jsonValidation;
+
+  private MATCHES_MULTIPLE =
+    'Matches multiple schemas when only one must validate.';
+
+  public constructor(
+    schemaService: YAMLSchemaService,
+    promiseConstructor: PromiseConstructor
+  ) {
+    this.promise = promiseConstructor || Promise;
     this.validationEnabled = true;
+    this.jsonValidation = new JSONValidation(schemaService, this.promise);
   }
 
-  public configure(raw: LanguageSettings) {
-    if (raw) {
-      this.validationEnabled = raw.validate !== false;
+  public configure(settings: LanguageSettings) {
+    if (settings) {
+      this.validationEnabled = settings.validate;
+      this.customTags = settings.customTags;
     }
   }
 
-  public doValidation(
+  public async doValidation(
     textDocument: TextDocument,
-    yamlDocument: YAMLDocument
-  ): Thenable<Diagnostic[]> {
+    isKubernetes: boolean = false
+  ): Promise<Diagnostic[]> {
     if (!this.validationEnabled) {
-      return Promise.resolve([]);
+      return this.promise.resolve([]);
     }
-    return this.jsonSchemaService
-      .getSchemaForResource(textDocument.uri)
-      .then(function(schema) {
-        const diagnostics: Diagnostic[] = [];
-        const added = {};
-        let newSchema = schema;
-        if (schema) {
-          let documentIndex = 0;
-          for (const currentYAMLDoc in yamlDocument.documents) {
-            const currentDoc = yamlDocument.documents[currentYAMLDoc];
-            if (
-              schema.schema &&
-              schema.schema.schemaSequence &&
-              schema.schema.schemaSequence[documentIndex]
-            ) {
-              newSchema = new ResolvedSchema(
-                schema.schema.schemaSequence[documentIndex]
-              );
-            }
-            const diagnostics = currentDoc.validate(
-              textDocument,
-              newSchema.schema
-            );
-            for (const diag in diagnostics) {
-              const curDiagnostic = diagnostics[diag];
-              currentDoc.errors.push({
-                location: {
-                  offset: textDocument.offsetAt(curDiagnostic.range.start),
-                  length:
-                    textDocument.offsetAt(curDiagnostic.range.end) -
-                    textDocument.offsetAt(curDiagnostic.range.start),
-                },
-                message: curDiagnostic.message,
-                severity: curDiagnostic.severity,
-              });
-            }
-            documentIndex++;
-          }
-        }
-        if (newSchema && newSchema.errors.length > 0) {
-          for (const curDiagnostic of newSchema.errors) {
-            diagnostics.push({
-              severity: DiagnosticSeverity.Error,
-              range: {
-                start: {
-                  line: 0,
-                  character: 0,
-                },
-                end: {
-                  line: 0,
-                  character: 1,
-                },
-              },
-              message: curDiagnostic,
-            });
-          }
-        }
-        for (const currentYAMLDoc in yamlDocument.documents) {
-          const currentDoc = yamlDocument.documents[currentYAMLDoc];
-          currentDoc.errors
-            .concat(currentDoc.warnings)
-            .forEach(function(error, idx) {
-              // remove duplicated messages
-              const signature =
-                error.location.offset +
-                ' ' +
-                error.location.length +
-                ' ' +
-                error.message;
-              if (!added[signature]) {
-                added[signature] = true;
-                diagnostics.push({
-                  severity:
-                    idx >= currentDoc.errors.length
-                      ? DiagnosticSeverity.Warning
-                      : DiagnosticSeverity.Error,
-                  range: {
-                    start: textDocument.positionAt(error.location.offset),
-                    end: textDocument.positionAt(
-                      error.location.offset + error.location.length
-                    ),
-                  },
-                  message: error.message,
-                });
-              }
-            });
-        }
-        return diagnostics;
-      });
+    const yamlDocument: YAMLDocument = parseYAML(
+      textDocument.getText(),
+      this.customTags
+    );
+    const validationResult: Diagnostic[] = [];
+    let index = 0;
+    for (const currentYAMLDoc of yamlDocument.documents) {
+      currentYAMLDoc.isKubernetes = isKubernetes;
+      currentYAMLDoc.currentDocIndex = index;
+
+      const validation = await this.jsonValidation.doValidation(
+        textDocument,
+        currentYAMLDoc
+      );
+      const syd = (currentYAMLDoc as unknown) as SingleYAMLDocument;
+      if (syd.errors.length > 0) {
+        validationResult.push(...syd.errors);
+      }
+
+      validationResult.push(...validation);
+      index++;
+    }
+
+    const foundSignatures = new Set();
+    const duplicateMessagesRemoved = [];
+    for (const err of validationResult as Diagnostic[]) {
+      /**
+       * A patch ontop of the validation that removes the
+       * 'Matches many schemas' error for kubernetes
+       * for a better user experience.
+       */
+      if (isKubernetes && err.message === this.MATCHES_MULTIPLE) {
+        continue;
+      }
+      const errSig =
+        err.range.start.line +
+        ' ' +
+        err.range.start.character +
+        ' ' +
+        err.message;
+      if (!foundSignatures.has(errSig)) {
+        duplicateMessagesRemoved.push(err);
+        foundSignatures.add(errSig);
+      }
+    }
+    return duplicateMessagesRemoved;
   }
 }

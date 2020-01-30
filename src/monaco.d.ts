@@ -32,6 +32,16 @@ declare namespace monaco.languages.yaml {
      *  If set, the schema service would load schema content on-demand with 'fetch' if available
      */
     readonly enableSchemaRequest?: boolean;
+    /**
+     * If specified, this prefix will be added to all on demand schema requests
+     */
+    readonly prefix?: string;
+    /**
+     * Whether or not kubernetes yaml is supported
+     */
+    readonly isKubernetes?: boolean;
+
+    readonly format?: boolean;
   }
 
   export interface LanguageServiceDefaults {

@@ -15,8 +15,7 @@ for the API that the JSON plugin offers to configure the JSON language support.
 ## Installing
 
 `yarn add monaco-yaml`
-See `demo/index.html` as an example. Currently only load with vs loader is supported. (AMD)
-Load with ESM is added, but not yet tested.
+See `demo/index.html` as an example. Both vs loader and ESM are supported. 
 
 ## Development
 
@@ -36,7 +35,7 @@ Manually clone dependencies list below and update the project files accordingly:
 - `src/languageservice`: https://github.com/redhat-developer/yaml-language-server
   - `cp yaml-language-server/src/languageservice monaco-yaml/src/languageservice`
   - Modify the import paths, go to the test page and see if it still works
-- `src/yaml-ast-parser`: https://github.com/mulesoft-labs/yaml-ast-parser/tree/master/src
+- `src/yaml-ast-parser-custom-tags`: https://github.com/JPinkney/yaml-ast-parser/tree/master/src
 
 ## License
 [MIT](https://github.com/pengx17/monaco-yaml/blob/master/LICENSE.md)

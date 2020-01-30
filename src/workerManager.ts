@@ -84,6 +84,8 @@ export class WorkerManager {
           languageId: this._defaults.languageId,
           enableSchemaRequest: this._defaults.diagnosticsOptions
             .enableSchemaRequest,
+          prefix: this._defaults.diagnosticsOptions.prefix,
+          isKubernetes: this._defaults.diagnosticsOptions.isKubernetes,
         },
       });
 

@@ -5,171 +5,51 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { Thenable } from 'vscode-json-languageservice';
-import { JSONWorkerContribution } from '../jsonContributions';
-import * as Parser from '../parser/jsonParser';
-import * as SchemaService from './jsonSchemaService';
-
 import {
-  Hover,
-  MarkedString,
-  Position,
-  Range,
-  TextDocument,
-} from 'vscode-languageserver-types';
-import { matchOffsetToDocument } from '../utils/arrUtils';
-import { YAMLDocument } from '../yamlLanguageTypes';
+  PromiseConstructor,
+  Thenable,
+  LanguageService,
+} from 'vscode-json-languageservice';
+import { Hover, TextDocument, Position } from 'vscode-languageserver-types';
+import { matchOffsetToDocument2 } from '../utils/arrUtils';
 import { LanguageSettings } from '../yamlLanguageService';
+import { parse as parseYAML } from '../parser/yamlParser07';
+import { YAMLSchemaService } from './yamlSchemaService';
+import { JSONHover } from 'vscode-json-languageservice/lib/umd/services/jsonHover';
 
 export class YAMLHover {
-  private shouldHover = true;
+  private promise: PromiseConstructor;
+  private shouldHover: boolean;
+  private jsonHover;
 
   constructor(
-    private schemaService: SchemaService.IJSONSchemaService,
-    private contributions: JSONWorkerContribution[] = []
-  ) {}
+    schemaService: YAMLSchemaService,
+    promiseConstructor: PromiseConstructor
+  ) {
+    this.promise = promiseConstructor || Promise;
+    this.shouldHover = true;
+    this.jsonHover = new JSONHover(schemaService, [], Promise);
+  }
 
   public configure(languageSettings: LanguageSettings) {
     if (languageSettings) {
-      this.shouldHover = languageSettings.hover !== false;
+      this.shouldHover = languageSettings.hover;
     }
   }
 
-  public doHover(
-    document: TextDocument,
-    position: Position,
-    doc: YAMLDocument
-  ): Thenable<Hover> {
+  public doHover(document: TextDocument, position: Position): Thenable<Hover> {
+    if (!this.shouldHover || !document) {
+      return this.promise.resolve(void 0);
+    }
+    const doc = parseYAML(document.getText());
     const offset = document.offsetAt(position);
-    const currentDoc = matchOffsetToDocument(offset, doc);
-    if (currentDoc === null || !this.shouldHover) {
-      return Promise.resolve(void 0);
+    const currentDoc = matchOffsetToDocument2(offset, doc);
+    if (currentDoc === null) {
+      return this.promise.resolve(void 0);
     }
-    let node = currentDoc.getNodeFromOffset(offset);
+
     const currentDocIndex = doc.documents.indexOf(currentDoc);
-    if (
-      !node ||
-      ((node.type === 'object' || node.type === 'array') &&
-        offset > node.offset + 1 &&
-        offset < node.offset + node.length - 1)
-    ) {
-      return Promise.resolve(null);
-    }
-    const hoverRangeNode = node;
-
-    // use the property description when hovering over an object key
-    if (node.type === 'string') {
-      const parent = node.parent;
-      if (parent && parent.type === 'property' && parent.keyNode === node) {
-        node = parent.valueNode;
-        if (!node) {
-          return Promise.resolve(null);
-        }
-      }
-    }
-
-    const hoverRange = Range.create(
-      document.positionAt(hoverRangeNode.offset),
-      document.positionAt(hoverRangeNode.offset + hoverRangeNode.length)
-    );
-
-    const createHover = (contents: MarkedString[]) => {
-      const result: Hover = {
-        contents,
-        range: hoverRange,
-      };
-      return result;
-    };
-
-    const location = Parser.getNodePath(node);
-    for (let i = this.contributions.length - 1; i >= 0; i--) {
-      const contribution = this.contributions[i];
-      const promise = contribution.getInfoContribution(document.uri, location);
-      if (promise) {
-        return promise.then(htmlContent => createHover(htmlContent));
-      }
-    }
-
-    return this.schemaService
-      .getSchemaForResource(document.uri, currentDoc)
-      .then(schema => {
-        if (schema) {
-          let newSchema = schema;
-          if (
-            schema.schema &&
-            schema.schema.schemaSequence &&
-            schema.schema.schemaSequence[currentDocIndex]
-          ) {
-            newSchema = new SchemaService.ResolvedSchema(
-              schema.schema.schemaSequence[currentDocIndex]
-            );
-          }
-
-          const matchingSchemas = currentDoc.getMatchingSchemas(
-            newSchema.schema,
-            node.offset
-          );
-
-          let title: string = null;
-          let markdownDescription: string = null;
-          let markdownEnumValueDescription = null,
-            enumValue = null;
-          matchingSchemas.forEach(s => {
-            if (s.node === node && !s.inverted && s.schema) {
-              title = title || s.schema.title;
-              markdownDescription =
-                markdownDescription ||
-                s.schema.markdownDescription ||
-                toMarkdown(s.schema.description);
-              if (s.schema.enum) {
-                const idx = s.schema.enum.indexOf(Parser.getNodeValue(node));
-                if (s.schema.markdownEnumDescriptions) {
-                  markdownEnumValueDescription =
-                    s.schema.markdownEnumDescriptions[idx];
-                } else if (s.schema.enumDescriptions) {
-                  markdownEnumValueDescription = toMarkdown(
-                    s.schema.enumDescriptions[idx]
-                  );
-                }
-                if (markdownEnumValueDescription) {
-                  enumValue = s.schema.enum[idx];
-                  if (typeof enumValue !== 'string') {
-                    enumValue = JSON.stringify(enumValue);
-                  }
-                }
-              }
-            }
-            return true;
-          });
-          let result = '';
-          if (title) {
-            result = toMarkdown(title);
-          }
-          if (markdownDescription) {
-            if (result.length > 0) {
-              result += '\n\n';
-            }
-            result += markdownDescription;
-          }
-          if (markdownEnumValueDescription) {
-            if (result.length > 0) {
-              result += '\n\n';
-            }
-            result += `\`${toMarkdown(
-              enumValue
-            )}\`: ${markdownEnumValueDescription}`;
-          }
-          return createHover([result]);
-        }
-        return null;
-      });
+    currentDoc.currentDocIndex = currentDocIndex;
+    return this.jsonHover.doHover(document, position, currentDoc);
   }
-}
-
-function toMarkdown(plain: string) {
-  if (plain) {
-    const res = plain.replace(/([^\n\r])(\r?\n)([^\n\r])/gm, '$1\n\n$3'); // single new lines to \n\n (Markdown paragraph)
-    return res.replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&'); // escape markdown syntax tokens: http://daringfireball.net/projects/markdown/syntax#backslash
-  }
-  return void 0;
 }

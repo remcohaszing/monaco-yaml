@@ -2,60 +2,53 @@
  *  Copyright (c) Red Hat. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { FormattingOptions, TextDocument } from 'vscode-languageserver';
-import { getLanguageService } from '../src/languageservice/yamlLanguageService';
-import { schemaRequestService, workspaceContext } from './testHelper';
-const assert = require('assert');
+import {
+  configureLanguageService,
+  setupTextDocument,
+} from './utils/testHelper';
+import { ServiceSetup } from './utils/serviceSetup';
+import assert = require('assert');
 
-const languageService = getLanguageService(
-  schemaRequestService,
-  workspaceContext,
-  []
+const languageSettingsSetup = new ServiceSetup().withFormat();
+const languageService = configureLanguageService(
+  languageSettingsSetup.languageSettings
 );
 
-const uri = 'http://json.schemastore.org/bowerrc';
-const languageSettings = {
-  schemas: [],
-  validate: true,
-  customTags: [],
-};
-const fileMatch = ['*.yml', '*.yaml'];
-languageSettings.schemas.push({ uri, fileMatch });
-languageSettings.customTags.push('!Test');
-languageService.configure(languageSettings);
-
+// Defines a Mocha test describe to group tests of similar kind together
 describe('Formatter Tests', () => {
   // Tests for validator
   describe('Formatter', function() {
-    function setup(content: string) {
-      return TextDocument.create(
-        'file://~/Desktop/vscode-k8s/test.yaml',
-        'yaml',
-        0,
-        content
-      );
-    }
-
     describe('Test that formatter works with custom tags', function() {
+      function parseSetup(content: string, options = {}) {
+        const testTextDocument = setupTextDocument(content);
+        return languageService.doFormat(testTextDocument, options);
+      }
+
       it('Formatting works without custom tags', () => {
-        const content = `cwd: test`;
-        const testTextDocument = setup(content);
-        const edits = languageService.doFormat(
-          testTextDocument,
-          {} as FormattingOptions
-        );
+        const content = 'cwd: test';
+        const edits = parseSetup(content);
         assert.notEqual(edits.length, 0);
         assert.equal(edits[0].newText, 'cwd: test\n');
       });
 
       it('Formatting works with custom tags', () => {
-        const content = `cwd:       !Test test`;
-        const testTextDocument = setup(content);
-        const edits = languageService.doFormat(
-          testTextDocument,
-          {} as FormattingOptions
-        );
+        const content = 'cwd:       !Test test';
+        const edits = parseSetup(content);
         assert.notEqual(edits.length, 0);
+        assert.equal(edits[0].newText, 'cwd: !Test test\n');
+      });
+
+      it('Formatting wraps text', () => {
+        const content = `comments: >
+                test test test test test test test test test test test test`;
+        const edits = parseSetup(content, {
+          printWidth: 20,
+          proseWrap: 'always',
+        });
+        assert.equal(
+          edits[0].newText,
+          'comments: >\n  test test test\n  test test test\n  test test test\n  test test test\n'
+        );
       });
     });
   });

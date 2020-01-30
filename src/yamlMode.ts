@@ -72,7 +72,11 @@ const richEditConfiguration: monaco.languages.LanguageConfiguration = {
   comments: {
     lineComment: '#',
   },
-  brackets: [['{', '}'], ['[', ']'], ['(', ')']],
+  brackets: [
+    ['{', '}'],
+    ['[', ']'],
+    ['(', ')'],
+  ],
   autoClosingPairs: [
     { open: '{', close: '}' },
     { open: '[', close: ']' },

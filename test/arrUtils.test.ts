@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import {
-  getLineOffsets,
   removeDuplicates,
+  getLineOffsets,
   removeDuplicatesObj,
 } from '../src/languageservice/utils/arrUtils';
 const assert = require('assert');
@@ -123,7 +123,6 @@ describe('Array Utils Tests', () => {
         };
 
         const arr = [obj1, obj2];
-        const prop = 'test_key';
 
         const result = removeDuplicatesObj(arr);
         assert.equal(result.length, 2);

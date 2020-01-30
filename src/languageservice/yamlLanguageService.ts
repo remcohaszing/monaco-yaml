@@ -5,40 +5,79 @@
  *--------------------------------------------------------------------------------------------*/
 
 import {
-  Color,
-  ColorInformation,
-  ColorPresentation,
-  CompletionItem,
+  YAMLSchemaService,
+  CustomSchemaProvider,
+} from './services/yamlSchemaService';
+import {
+  TextDocument,
+  Position,
   CompletionList,
   Diagnostic,
+  Hover,
+  SymbolInformation,
   DocumentSymbol,
-  FormattingOptions,
-  Position,
-  Range,
-  TextDocument,
+  CompletionItem,
   TextEdit,
 } from 'vscode-languageserver-types';
-import { JSONWorkerContribution } from './jsonContributions';
-import { JSONSchema } from './jsonSchema';
-import { parse as parseYAML } from './parser/yamlParser';
+import { JSONSchema } from './jsonSchema04';
 import { YAMLDocumentSymbols } from './services/documentSymbols';
-import {
-  CustomSchemaProvider,
-  JSONSchemaService,
-} from './services/jsonSchemaService';
 import { YAMLCompletion } from './services/yamlCompletion';
-import { YamlFormatter } from './services/yamlFormatter';
 import { YAMLHover } from './services/yamlHover';
 import { YAMLValidation } from './services/yamlValidation';
-import { YAMLDocument } from './yamlLanguageTypes';
+import { YAMLFormatter } from './services/yamlFormatter';
+import {
+  LanguageService as JSONLanguageService,
+  getLanguageService as getJSONLanguageService,
+  JSONWorkerContribution,
+} from 'vscode-json-languageservice';
 
 export interface LanguageSettings {
-  validate?: boolean; // Setting for whether we want to validate the schema
-  hover?: boolean; // Setting for whether we want to have hover results
-  completion?: boolean; // Setting for whether we want to have completion results
-  isKubernetes?: boolean; // If true then its validating against kubernetes
-  schemas?: any[]; // List of schemas,
-  customTags?: string[]; // Array of Custom Tags
+  validate?: boolean; //Setting for whether we want to validate the schema
+  hover?: boolean; //Setting for whether we want to have hover results
+  completion?: boolean; //Setting for whether we want to have completion results
+  format?: boolean; //Setting for whether we want to have the formatter or not
+  isKubernetes?: boolean; //If true then its validating against kubernetes
+  // tslint:disable-next-line: no-any
+  schemas?: any[]; //List of schemas,
+  customTags?: Array<String>; //Array of Custom Tags
+}
+
+export interface PromiseConstructor {
+  /**
+   * Creates a new Promise.
+   * @param executor A callback used to initialize the promise. This callback is passed two arguments:
+   * a resolve callback used resolve the promise with a value or the result of another promise,
+   * and a reject callback used to reject the promise with a provided reason or error.
+   */
+  // tslint:disable-next-line: no-any
+  new <T>(
+    executor: (
+      resolve: (value?: T | Thenable<T>) => void,
+      reject: (reason?: any) => void
+    ) => void
+  ): Thenable<T>;
+
+  /**
+   * Creates a Promise that is resolved with an array of results when all of the provided Promises
+   * resolve, or rejected when any Promise is rejected.
+   * @param values An array of Promises.
+   * @returns A new Promise.
+   */
+  all<T>(values: Array<T | Thenable<T>>): Thenable<T[]>;
+  /**
+   * Creates a new rejected promise for the provided reason.
+   * @param reason The reason the promise was rejected.
+   * @returns A new rejected Promise.
+   */
+  // tslint:disable-next-line: no-any
+  reject<T>(reason: any): Thenable<T>;
+
+  /**
+   * Creates a new resolved promise for the provided value.
+   * @param value A promise.
+   * @returns A promise whose internal state matches the provided promise.
+   */
+  resolve<T>(value: T | Thenable<T>): Thenable<T>;
 }
 
 export interface Thenable<R> {
@@ -48,10 +87,12 @@ export interface Thenable<R> {
    * @param onrejected The callback to execute when the Promise is rejected.
    * @returns A Promise for the completion of which ever callback is executed.
    */
+  // tslint:disable-next-line: no-any
   then<TResult>(
     onfulfilled?: (value: R) => TResult | Thenable<TResult>,
     onrejected?: (reason: any) => TResult | Thenable<TResult>
   ): Thenable<TResult>;
+  // tslint:disable-next-line: no-any
   then<TResult>(
     onfulfilled?: (value: R) => TResult | Thenable<TResult>,
     onrejected?: (reason: any) => void
@@ -65,7 +106,9 @@ export interface WorkspaceContextService {
  * The schema request service is used to fetch schemas. The result should the schema file comment, or,
  * in case of an error, a displayable error string
  */
-export type SchemaRequestService = (uri: string) => Thenable<string>;
+export interface SchemaRequestService {
+  (uri: string): Thenable<string>;
+}
 
 export interface SchemaConfiguration {
   /**
@@ -83,58 +126,51 @@ export interface SchemaConfiguration {
   schema?: JSONSchema;
 }
 
+export interface CustomFormatterOptions {
+  singleQuote?: boolean;
+  bracketSpacing?: boolean;
+  proseWrap?: string;
+  printWidth?: number;
+  enable?: boolean;
+}
+
 export interface LanguageService {
   configure(settings: LanguageSettings): void;
-  registerCustomSchemaProvider(schemaProvider: CustomSchemaProvider): void; // Register a custom schema provider
+  registerCustomSchemaProvider(schemaProvider: CustomSchemaProvider): void;
   doComplete(
     document: TextDocument,
     position: Position,
-    doc: YAMLDocument
+    isKubernetes: boolean
   ): Thenable<CompletionList>;
   doValidation(
     document: TextDocument,
-    yamlDocument: YAMLDocument
+    isKubernetes: boolean
   ): Thenable<Diagnostic[]>;
-  doHover(document: TextDocument, position: Position, doc: YAMLDocument);
-  findDocumentSymbols(
-    document: TextDocument,
-    doc: YAMLDocument
-  ): DocumentSymbol[];
-  findDocumentColors(
-    document: TextDocument,
-    doc: YAMLDocument
-  ): Thenable<ColorInformation[]>;
-  getColorPresentations(
-    document: TextDocument,
-    doc: YAMLDocument,
-    color: Color,
-    range: Range
-  ): ColorPresentation[];
-  doResolve(completionItem: CompletionItem): Thenable<CompletionItem>;
+  doHover(document: TextDocument, position: Position): Thenable<Hover | null>;
+  findDocumentSymbols(document: TextDocument): SymbolInformation[];
+  findDocumentSymbols2(document: TextDocument): DocumentSymbol[];
+  doResolve(completionItem): Thenable<CompletionItem>;
   resetSchema(uri: string): boolean;
-  doFormat(
-    document: TextDocument,
-    options: FormattingOptions,
-    customTags?: String[]
-  ): TextEdit[];
-  parseYAMLDocument(document: TextDocument): YAMLDocument;
+  doFormat(document: TextDocument, options: CustomFormatterOptions): TextEdit[];
 }
 
 export function getLanguageService(
   schemaRequestService: SchemaRequestService,
   workspaceContext: WorkspaceContextService,
-  contributions: JSONWorkerContribution[]
+  contributions: JSONWorkerContribution[],
+  promiseConstructor?: PromiseConstructor
 ): LanguageService {
-  const schemaService = new JSONSchemaService(
+  const promise = promiseConstructor || Promise;
+
+  const schemaService = new YAMLSchemaService(
     schemaRequestService,
     workspaceContext
   );
-
-  const completer = new YAMLCompletion(schemaService, contributions);
-  const hover = new YAMLHover(schemaService, contributions);
+  const completer = new YAMLCompletion(schemaService, contributions, promise);
+  const hover = new YAMLHover(schemaService, promise);
   const yamlDocumentSymbols = new YAMLDocumentSymbols(schemaService);
-  const yamlValidation = new YAMLValidation(schemaService);
-  const yamlFormatter = new YamlFormatter();
+  const yamlValidation = new YAMLValidation(schemaService, promise);
+  const formatter = new YAMLFormatter();
 
   return {
     configure: settings => {
@@ -148,11 +184,12 @@ export function getLanguageService(
           );
         });
       }
-
       yamlValidation.configure(settings);
       hover.configure(settings);
-      completer.configure(settings);
-      yamlFormatter.configure(settings);
+      const customTagsSetting =
+        settings && settings['customTags'] ? settings['customTags'] : [];
+      completer.configure(settings, customTagsSetting);
+      formatter.configure(settings);
     },
     registerCustomSchemaProvider: (schemaProvider: CustomSchemaProvider) => {
       schemaService.registerCustomSchemaProvider(schemaProvider);
@@ -164,15 +201,10 @@ export function getLanguageService(
     findDocumentSymbols: yamlDocumentSymbols.findDocumentSymbols.bind(
       yamlDocumentSymbols
     ),
-    findDocumentColors: yamlDocumentSymbols.findDocumentColors.bind(
-      yamlDocumentSymbols
-    ),
-    getColorPresentations: yamlDocumentSymbols.getColorPresentations.bind(
+    findDocumentSymbols2: yamlDocumentSymbols.findHierarchicalDocumentSymbols.bind(
       yamlDocumentSymbols
     ),
     resetSchema: (uri: string) => schemaService.onResourceChange(uri),
-    doFormat: yamlFormatter.doFormat.bind(yamlFormatter),
-    parseYAMLDocument: (document: TextDocument) =>
-      parseYAML(document.getText()),
+    doFormat: formatter.format.bind(formatter),
   };
 }

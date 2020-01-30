@@ -41,7 +41,7 @@ export function getLineStartPositions(text: string) {
 
     if (c === '\r') {
       // Check for Windows encoding, otherwise we are old Mac
-      if (i + 1 < text.length && text[i + 1] == '\n') {
+      if (i + 1 < text.length && text[i + 1] === '\n') {
         i++;
       }
 

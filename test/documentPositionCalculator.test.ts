@@ -6,6 +6,7 @@ import {
   binarySearch,
   getLineStartPositions,
   getPosition,
+  insertionPointReturnValue,
 } from '../src/languageservice/utils/documentPositionCalculator';
 const assert = require('assert');
 
