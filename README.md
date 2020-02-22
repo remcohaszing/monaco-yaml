@@ -15,7 +15,8 @@ for the API that the JSON plugin offers to configure the JSON language support.
 ## Installing
 
 `yarn add monaco-yaml`
-See `demo/index.html` as an example. Both vs loader and ESM are supported. 
+Both vs loader and ESM are supported.
+See `examples` directory for esm and umd examples.
 
 ## Development
 
