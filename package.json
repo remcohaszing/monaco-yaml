@@ -72,7 +72,7 @@
   },
   "lint-staged": {
     "linters": {
-      "*.{json,scss,html,ts}": [
+      "*.{json,scss,html,ts,js,jsx}": [
         "prettier --write",
         "git add"
       ]
