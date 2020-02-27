@@ -58,6 +58,7 @@
     "monaco-languages": "1.6.0",
     "monaco-plugin-helpers": "^1.0.2",
     "prettier": "^1.19.1",
+    "request-light": "^0.2.5",
     "requirejs": "^2.3.5",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.5",
