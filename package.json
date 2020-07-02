@@ -54,7 +54,7 @@
     "jsonc-parser": "^2.0.2",
     "lint-staged": "^8.1.0",
     "monaco-editor": "^0.16.2",
-    "monaco-editor-core": "0.15.5",
+    "monaco-editor-core": "0.16.1",
     "monaco-languages": "1.6.0",
     "monaco-plugin-helpers": "^1.0.2",
     "prettier": "^1.19.1",

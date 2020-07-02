@@ -2807,10 +2807,10 @@ mkdirp@0.x, mkdirp@^0.5.0, mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
-monaco-editor-core@0.15.5:
-  version "0.15.5"
-  resolved "https://registry.yarnpkg.com/monaco-editor-core/-/monaco-editor-core-0.15.5.tgz#145f1953a8e319282d92502252d68ef3486b6875"
-  integrity sha512-kM3KHRjj16cFdK5Z0EppKUu793JVMpsEesBSWlqdgrxcmjyDMXV6xK0oatPcAYp3eOfbbyjPhruxDXj85FKyIg==
+monaco-editor-core@0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/monaco-editor-core/-/monaco-editor-core-0.16.1.tgz#cb0242ef09e479e4482bffcc228ce7d1f266a20e"
+  integrity sha512-nydAuVbU3B1T/sNz4ZiO+92HUnLyVE4YQWr91R8WDEBItFZuwPs7Z2VaCTgouU6BwNrSnDdK/kAyhKgpih+GHQ==
 
 monaco-editor@^0.16.2:
   version "0.16.2"
