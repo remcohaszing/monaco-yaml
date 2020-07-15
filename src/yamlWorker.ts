@@ -6,7 +6,6 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import Promise = monaco.Promise;
 import Thenable = monaco.Thenable;
 import IWorkerContext = monaco.worker.IWorkerContext;
 
@@ -52,7 +51,7 @@ export class YAMLWorker {
     if (document) {
       return this._languageService.doValidation(document, this._isKubernetes);
     }
-    return Promise.as([]);
+    return Promise.resolve([]);
   }
 
   public doComplete(
@@ -83,17 +82,17 @@ export class YAMLWorker {
   ): Thenable<ls.TextEdit[]> {
     const document = this._getTextDocument(uri);
     const textEdits = this._languageService.doFormat(document, options);
-    return Promise.as(textEdits);
+    return Promise.resolve(textEdits);
   }
 
   public resetSchema(uri: string): Thenable<boolean> {
-    return Promise.as(this._languageService.resetSchema(uri));
+    return Promise.resolve(this._languageService.resetSchema(uri));
   }
 
   public findDocumentSymbols(uri: string): Thenable<ls.DocumentSymbol[]> {
     const document = this._getTextDocument(uri);
     const symbols = this._languageService.findDocumentSymbols2(document);
-    return Promise.as(symbols);
+    return Promise.resolve(symbols);
   }
 
   private _getTextDocument(uri: string): ls.TextDocument {

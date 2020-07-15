@@ -326,6 +326,11 @@ export class CompletionAdapter
               documentation: entry.documentation,
               detail: entry.detail,
               kind: toCompletionItemKind(entry.kind),
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                ...wordInfo,
+              },
             };
             if (entry.textEdit) {
               item.range = toRange(entry.textEdit.range);
