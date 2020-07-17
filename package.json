@@ -38,33 +38,28 @@
     "prettier": "^1.19.1"
   },
   "dependencies": {
-    "js-yaml": "^3.12.0",
-    "vscode-json-languageservice": "^3.4.11",
-    "vscode-languageserver": "^5.2.1",
-    "vscode-uri": "^2.1.1"
+    "yaml-language-server": "^0.9.0"
   },
   "peerDependencies": {
-    "monaco-editor": "^0.19.2"
+    "monaco-editor": "^0.20.0"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "@types/node": "^10.9.3",
     "husky": "^1.2.1",
     "jest": "^23.6.0",
-    "jsonc-parser": "^2.0.2",
     "lint-staged": "^8.1.0",
-    "monaco-editor": "^0.16.2",
-    "monaco-editor-core": "0.16.1",
-    "monaco-languages": "1.6.0",
-    "monaco-plugin-helpers": "^1.0.2",
+    "monaco-editor": "^0.20.0",
+    "monaco-editor-core": "^0.20.0",
+    "monaco-languages": "^1.10.0",
+    "monaco-plugin-helpers": "^1.0.3",
     "prettier": "^1.19.1",
     "request-light": "^0.2.5",
     "requirejs": "^2.3.5",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.5",
     "typescript": "^3.7.4",
-    "uglify-es": "^3.3.9",
-    "vscode-languageserver-types": "3.12.0"
+    "uglify-es": "^3.3.9"
   },
   "prettier": {
     "singleQuote": true,

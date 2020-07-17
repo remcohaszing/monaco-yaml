@@ -2,4 +2,4 @@
 /out/
 /lib/
 *.log
-
+/src/languageservice

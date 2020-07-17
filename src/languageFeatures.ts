@@ -16,7 +16,7 @@ import IRange = monaco.IRange;
 import Thenable = monaco.Thenable;
 import CancellationToken = monaco.CancellationToken;
 import IDisposable = monaco.IDisposable;
-import { CustomFormatterOptions } from './languageservice/yamlLanguageService';
+import { CustomFormatterOptions } from 'yaml-language-server/out/server/src/languageservice/yamlLanguageService';
 
 export type WorkerAccessor = (...more: Uri[]) => Thenable<YAMLWorker>;
 
@@ -504,6 +504,7 @@ function toDocumentSymbol(
     kind: toSymbolKind(item.kind),
     selectionRange: toRange(item.selectionRange),
     children: item.children.map(child => toDocumentSymbol(child)),
+    tags: [],
   };
 }
 
