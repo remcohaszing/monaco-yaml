@@ -11,7 +11,7 @@
     "bundle:umd": "node ./scripts/bundle-umd",
     "bundle:esm": "node ./scripts/bundle-esm",
     "build": "yarn compile && yarn bundle",
-    "prepare": "yarn build",
+    "prepare": "patch-package &&yarn build",
     "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
     "test": "jest --verbose"
   },
@@ -53,6 +53,7 @@
     "monaco-editor-core": "^0.20.0",
     "monaco-languages": "^1.10.0",
     "monaco-plugin-helpers": "^1.0.3",
+    "patch-package": "^6.2.2",
     "prettier": "^1.19.1",
     "request-light": "^0.2.5",
     "requirejs": "^2.3.5",
