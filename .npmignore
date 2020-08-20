@@ -1,6 +1,8 @@
 /.vscode/
 /out/
 /scripts/
+/examples/
+/patches/
 /src/
 /test/
 /.gitignore
