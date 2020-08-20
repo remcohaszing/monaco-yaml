@@ -5,7 +5,7 @@ module.exports = {
   entry: {
     main: './index.jsx',
     'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
-    'yaml.worker': 'monaco-yaml/esm/yaml.worker.js',
+    'yaml.worker': 'monaco-yaml/lib/esm/yaml.worker.js',
   },
   output: {
     globalObject: 'this',
@@ -36,4 +36,8 @@ module.exports = {
       template: './index.html',
     }),
   ],
+  node: {
+    fs: 'empty',
+    module: 'empty',
+  },
 };

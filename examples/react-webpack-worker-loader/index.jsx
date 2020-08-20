@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import MonacoEditor from 'react-monaco-editor';
-import 'monaco-yaml/esm/monaco.contribution';
+import 'monaco-yaml/lib/esm/monaco.contribution';
 import { languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
 // NOTE: This will give you all editor featues. If you would prefer to limit to only the editor
@@ -11,7 +11,7 @@ import 'monaco-editor';
 // NOTE: using loader syntax becuase Yaml worker imports editor.worker directly and that
 // import shouldn't go through loader syntax.
 import EditorWorker from 'worker-loader!monaco-editor/esm/vs/editor/editor.worker';
-import YamlWorker from 'worker-loader!monaco-yaml/esm/yaml.worker';
+import YamlWorker from 'worker-loader!monaco-yaml/lib/esm/yaml.worker';
 
 window.MonacoEnvironment = {
   getWorker(workerId, label) {
