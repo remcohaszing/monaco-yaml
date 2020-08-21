@@ -50,13 +50,11 @@ helpers.packageESM({
     buffer: path.join(REPO_ROOT, 'out/esm/fillers/buffer.js'),
     prettier: path.join(REPO_ROOT, 'out/esm/fillers/prettier.js'),
   },
-  resolveSkip: ['monaco-editor', 'monaco-editor-core', 'js-yaml', 'prettier'],
+  resolveSkip: ['monaco-editor', 'monaco-editor-core', 'js-yaml', 'prettier/standalone', 'prettier/parser-yaml'],
   destinationFolderSimplification: {
     node_modules: '_deps',
     'jsonc-parser/lib/esm': 'jsonc-parser',
     'vscode-languageserver-types/lib/esm': 'vscode-languageserver-types',
     'vscode-uri/lib/esm': 'vscode-uri',
-    // "vscode-json-languageservice/lib/umd": "vscode-json-languageservice/lib/esm",
-    // "js-yaml/dist": "js-yaml"
   },
 });
