@@ -62,12 +62,9 @@
     "semi": true
   },
   "lint-staged": {
-    "linters": {
-      "*.{json,scss,html,ts,js,jsx}": [
-        "prettier --write",
-        "git add"
-      ]
-    }
+    "src/*.{json,scss,html,ts,js,jsx}|scripts/*.js": [
+      "prettier --write"
+    ]
   },
   "husky": {
     "hooks": {
