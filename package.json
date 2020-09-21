@@ -5,8 +5,8 @@
   "scripts": {
     "watch": "tsc -p ./src --watch",
     "compile": "rimraf ./out && yarn compile:umd && yarn compile:esm",
-    "compile:umd": "tsc -p ./src/tsconfig.json",
-    "compile:esm": "tsc -p ./src/tsconfig.esm.json",
+    "compile:umd": "tsc -p ./tsconfig.json",
+    "compile:esm": "tsc -p ./tsconfig.esm.json",
     "bundle": "rimraf ./lib && yarn bundle:umd && yarn bundle:esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
     "bundle:umd": "node ./scripts/bundle-umd",
     "bundle:esm": "node ./scripts/bundle-esm",
