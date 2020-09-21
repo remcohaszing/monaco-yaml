@@ -1,7 +1,7 @@
 const requirejs = require('requirejs');
 const path = require('path');
 const fs = require('fs');
-const UglifyES = require('uglify-es');
+const uglifyES = require('uglify-es');
 const helpers = require('monaco-plugin-helpers');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -33,47 +33,9 @@ function bundleOne(moduleId, exclude) {
       exclude: exclude,
       paths: {
         'vs/language/yaml': REPO_ROOT + '/out/amd',
-        'yaml-language-server/out/server/src/languageservice/yamlLanguageService':
-          REPO_ROOT +
-          '/node_modules/yaml-language-server/out/server/src/languageservice/yamlLanguageService',
       },
       optimize: 'none',
       packages: [
-        {
-          name: 'js-yaml',
-          location: path.join(REPO_ROOT, 'node_modules/js-yaml/dist'),
-          main: 'js-yaml',
-        },
-        // The following is required by YAML language service
-        {
-          name: 'vscode-json-languageservice',
-          location: path.join(
-            REPO_ROOT,
-            'node_modules/vscode-json-languageservice'
-          ),
-          main: 'lib/umd/jsonLanguageService',
-        },
-        {
-          name: 'vscode-languageserver-textdocument',
-          location: path.join(
-            REPO_ROOT,
-            'node_modules/vscode-languageserver-textdocument'
-          ),
-          main: 'lib/umd/main',
-        },
-        {
-          name: 'yaml-ast-parser-custom-tags',
-          location: path.join(
-            REPO_ROOT,
-            'node_modules/yaml-ast-parser-custom-tags'
-          ),
-          main: 'dist/src/index',
-        },
-        {
-          name: 'jsonc-parser',
-          location: path.join(REPO_ROOT, 'node_modules/jsonc-parser/lib/umd'),
-          main: 'main',
-        },
         {
           name: 'vscode-languageserver-types',
           location: path.join(
@@ -83,14 +45,12 @@ function bundleOne(moduleId, exclude) {
           main: 'main',
         },
         {
-          name: 'vscode-uri',
-          location: path.join(REPO_ROOT, 'node_modules/vscode-uri/lib/umd'),
+          name: 'yaml-language-server',
+          location: path.join(
+            REPO_ROOT,
+            'node_modules/yaml-language-server/out/server/src'
+          ),
           main: 'index',
-        },
-        {
-          name: 'vscode-nls',
-          location: path.join(REPO_ROOT, '/out/amd/fillers'),
-          main: 'vscode-nls',
         },
       ],
     },
@@ -100,7 +60,7 @@ function bundleOne(moduleId, exclude) {
       const fileContents = fs.readFileSync(devFilePath).toString();
       console.log();
       console.log(`Minifying ${devFilePath}...`);
-      const result = UglifyES.minify(fileContents, {
+      const result = uglifyES.minify(fileContents, {
         output: {
           comments: 'some',
         },
