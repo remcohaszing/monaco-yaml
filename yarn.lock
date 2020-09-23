@@ -2894,20 +2894,20 @@ mkdirp@0.x, mkdirp@^0.5.0, mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
-monaco-editor-core@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/monaco-editor-core/-/monaco-editor-core-0.20.0.tgz#d5ce01307d298dbca6ab9194812812b32b50433f"
-  integrity sha512-4mdmfEejTvRZzrEIn70jqqNl3g15vnkRdTkJ8uMK4jiljntlwhiSc5vknZOLt1QM8za16C3tDrSl2mTL9ma2Sg==
+monaco-editor-core@^0.21.0:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/monaco-editor-core/-/monaco-editor-core-0.21.1.tgz#df3bbc04db9d429486146afb63bc536e8d544202"
+  integrity sha512-Wh5ow3Cg9SiQFPql534mT5Ec9u4HGjCvJ+yWxUs9nKv3MENF5vC/8L0KWGUXK1t7F2mGUlgkI+nseDvOE8HEmw==
 
-monaco-editor@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.20.0.tgz#5d5009343a550124426cb4d965a4d27a348b4dea"
-  integrity sha512-hkvf4EtPJRMQlPC3UbMoRs0vTAFAYdzFQ+gpMb8A+9znae1c43q8Mab9iVsgTcg/4PNiLGGn3SlDIa8uvK1FIQ==
+monaco-editor@^0.21.0:
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.21.0.tgz#35d964cbeff8b035d574bb113e9491331810d5f1"
+  integrity sha512-fUmW7iC+wKWMetD44iVacEoSi+RqkA+C0vQvAk/FkEugg70iwGGLj5WoheAULaxLASQbYiapD2+85FJ0cnErYg==
 
-monaco-languages@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/monaco-languages/-/monaco-languages-1.10.0.tgz#1e1b0f2b02c8c311b9db1ddb83f5c654f2f92fe1"
-  integrity sha512-ARAws17Xh0K4WsZYkJY6CqHn9EYdYN8CjzK6w/jgXIwU0owzCdUWxzu+FNJ/LeDLcKxL/YK3phcwGFj9IqX2yw==
+monaco-languages@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/monaco-languages/-/monaco-languages-2.1.0.tgz#b85a942d96ab8ccc2f5c18c4641e0887f156632a"
+  integrity sha512-c2afUp3lbUCrvEdVrH8EThQYbj5tb2FpvXFnFN3gOJScDlFknWb5nbaxiaVqY9CSIqzJVZpNc5HXpP5FWOuS3g==
 
 monaco-plugin-helpers@^1.0.3:
   version "1.0.3"
