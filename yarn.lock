@@ -2953,20 +2953,20 @@ mock-require@^3.0.3:
     get-caller-file "^1.0.2"
     normalize-path "^2.1.1"
 
-monaco-editor-core@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/monaco-editor-core/-/monaco-editor-core-0.20.0.tgz#d5ce01307d298dbca6ab9194812812b32b50433f"
-  integrity sha512-4mdmfEejTvRZzrEIn70jqqNl3g15vnkRdTkJ8uMK4jiljntlwhiSc5vknZOLt1QM8za16C3tDrSl2mTL9ma2Sg==
+monaco-editor-core@^0.21.2:
+  version "0.21.2"
+  resolved "https://registry.yarnpkg.com/monaco-editor-core/-/monaco-editor-core-0.21.2.tgz#06e94d625bf7edc452e4d32c41a96229875001ec"
+  integrity sha512-uYk9x50dkFsoAHmzYytS29ohDlb2JZsGowK5icwra8FYwdOy77uAq2bDCMYo6NZ4T/aKRKOnnO5S3ifaJwqaBw==
 
-monaco-editor@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.20.0.tgz#5d5009343a550124426cb4d965a4d27a348b4dea"
-  integrity sha512-hkvf4EtPJRMQlPC3UbMoRs0vTAFAYdzFQ+gpMb8A+9znae1c43q8Mab9iVsgTcg/4PNiLGGn3SlDIa8uvK1FIQ==
+monaco-editor@^0.21.1:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.21.1.tgz#5e77cfb7105cdbcb3d3090f5f37fbf8471a889f8"
+  integrity sha512-6zBIh9tE8dkV/wvdssE6Rwqlt1RaLmBH27iCuQlDJdcWQukgoXiy7Fc+oH9cmtdnU5IojjOn/xLfnW0qJLoDYg==
 
-monaco-languages@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/monaco-languages/-/monaco-languages-1.10.0.tgz#1e1b0f2b02c8c311b9db1ddb83f5c654f2f92fe1"
-  integrity sha512-ARAws17Xh0K4WsZYkJY6CqHn9EYdYN8CjzK6w/jgXIwU0owzCdUWxzu+FNJ/LeDLcKxL/YK3phcwGFj9IqX2yw==
+monaco-languages@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/monaco-languages/-/monaco-languages-2.1.1.tgz#08f3eacbdd21ba1637ab61056720a3bcb41bafe6"
+  integrity sha512-VuiqdK1NAIVnXVDUWMQUwqmYsIaWVoi9N735QnwP0O5WZaihA9Spt3JTC1Tk8lBqk5ei/DB2394BWfONeZ+5BA==
 
 monaco-plugin-helpers@^1.0.3:
   version "1.0.3"
@@ -4687,10 +4687,10 @@ yaml-ast-parser-custom-tags@0.0.43:
   resolved "https://registry.yarnpkg.com/yaml-ast-parser-custom-tags/-/yaml-ast-parser-custom-tags-0.0.43.tgz#46968145ce4e24cb03c3312057f0f141b93a7d02"
   integrity sha512-R5063FF/JSAN6qXCmylwjt9PcDH6M0ExEme/nJBzLspc6FJDmHHIqM7xh2WfEmsTJqClF79A9VkXjkAqmZw9SQ==
 
-yaml-language-server@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/yaml-language-server/-/yaml-language-server-0.11.0.tgz#ee75957c0c9ba2166e7839c385f4b2762b6a4dee"
-  integrity sha512-tAEVZvlNLhmF2NLzhOm6UnejjPUp/iiEdxDLdP1Cm3M2YOJ7QLwrYtr0lzoNLLxQkzJwXmuBX01idECTWln82g==
+yaml-language-server@^0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/yaml-language-server/-/yaml-language-server-0.11.1.tgz#4ddc72eb9a6dd7dc41f31af2a8f5c72cce456cc9"
+  integrity sha512-N3Tu3g4O6ZWV7W0LVsNk62DtKJDQkbnPZRDd7ntaAeEl8QkxL1vnMunI26uzDU4PwwG4tPJ8g/VRS6U+fVp/6A==
   dependencies:
     js-yaml "^3.13.1"
     jsonc-parser "^2.2.1"
