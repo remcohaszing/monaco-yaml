@@ -41,7 +41,7 @@
     "yaml-language-server": "^0.9.0"
   },
   "peerDependencies": {
-    "monaco-editor": "^0.21.0"
+    "monaco-editor": "^0.21.2"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
@@ -49,8 +49,8 @@
     "husky": "^1.2.1",
     "jest": "^23.6.0",
     "lint-staged": "^8.1.0",
-    "monaco-editor": "^0.21.0",
-    "monaco-editor-core": "^0.21.0",
+    "monaco-editor": "^0.21.2",
+    "monaco-editor-core": "^0.21.2",
     "monaco-languages": "^2.1.0",
     "monaco-plugin-helpers": "^1.0.3",
     "patch-package": "^6.2.2",
