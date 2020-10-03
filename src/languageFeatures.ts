@@ -16,7 +16,7 @@ import IRange = monaco.IRange;
 import Thenable = monaco.Thenable;
 import CancellationToken = monaco.CancellationToken;
 import IDisposable = monaco.IDisposable;
-import { CustomFormatterOptions } from 'yaml-language-server/out/server/src/languageservice/yamlLanguageService';
+import { CustomFormatterOptions } from 'yaml-language-server';
 
 export type WorkerAccessor = (...more: Uri[]) => Thenable<YAMLWorker>;
 
@@ -305,7 +305,6 @@ export class CompletionAdapter
     context: monaco.languages.CompletionContext,
     token: CancellationToken
   ): Thenable<monaco.languages.CompletionList> {
-    const wordInfo = model.getWordUntilPosition(position);
     const resource = model.uri;
 
     return this._worker(resource)
@@ -316,6 +315,15 @@ export class CompletionAdapter
         if (!info) {
           return;
         }
+
+        const wordInfo = model.getWordUntilPosition(position);
+        const wordRange = new Range(
+          position.lineNumber,
+          wordInfo.startColumn,
+          position.lineNumber,
+          wordInfo.endColumn
+        );
+
         const items: monaco.languages.CompletionItem[] = info.items.map(
           entry => {
             const item: monaco.languages.CompletionItem = {
@@ -326,11 +334,7 @@ export class CompletionAdapter
               documentation: entry.documentation,
               detail: entry.detail,
               kind: toCompletionItemKind(entry.kind),
-              range: {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                ...wordInfo,
-              },
+              range: wordRange,
             };
             if (entry.textEdit) {
               item.range = toRange(entry.textEdit.range);

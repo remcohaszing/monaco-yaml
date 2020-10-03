@@ -10,7 +10,7 @@ import Thenable = monaco.Thenable;
 import IWorkerContext = monaco.worker.IWorkerContext;
 
 import * as ls from 'vscode-languageserver-types';
-import * as yamlService from 'yaml-language-server/out/server/src/languageservice/yamlLanguageService';
+import * as yamlService from 'yaml-language-server';
 
 let defaultSchemaRequestService;
 if (typeof fetch !== 'undefined') {

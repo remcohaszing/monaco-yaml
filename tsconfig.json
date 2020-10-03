@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "umd",
+    "moduleResolution": "node",
+    "lib": ["dom", "es2016"],
+    "outDir": "./out/amd",
+    "target": "es6",
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin"
+      }
+    ]
+  },
+  "exclude": ["node_modules", "out", "lib", "test"]
+}
