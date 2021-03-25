@@ -14,7 +14,7 @@ const STOP_WHEN_IDLE_FOR = 2 * 60 * 1000; // 2min
 
 export class WorkerManager {
   private _defaults: LanguageServiceDefaultsImpl;
-  private _idleCheckInterval: NodeJS.Timer;
+  private _idleCheckInterval: number;
   private _lastUsedTime: number;
   private _configChangeListener: IDisposable;
 

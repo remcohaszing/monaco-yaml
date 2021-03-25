@@ -37,7 +37,7 @@ export class DiagnosticsAdapter {
         return;
       }
 
-      let handle: NodeJS.Timer;
+      let handle: number;
       this._listener[model.uri.toString()] = model.onDidChangeContent(() => {
         clearTimeout(handle);
         handle = setTimeout(() => this._doValidate(model.uri, modeId), 500);

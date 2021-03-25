@@ -12,8 +12,7 @@
     "bundle:esm": "node ./scripts/bundle-esm",
     "build": "yarn compile && yarn bundle",
     "prepare": "yarn build",
-    "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write",
-    "test": "jest --verbose"
+    "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write"
   },
   "main": "./lib/esm/monaco.contribution.js",
   "module": "./lib/esm/monaco.contribution.js",
@@ -38,10 +37,7 @@
     "yaml-language-server": "^0.11.1"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.10",
-    "@types/node": "^12.12.6",
     "husky": "^1.2.1",
-    "jest": "^23.6.0",
     "lint-staged": "^10.1.2",
     "monaco-editor": "^0.21.2",
     "monaco-editor-core": "^0.21.2",
@@ -50,10 +46,7 @@
     "prettier": "^1.19.1",
     "requirejs": "^2.3.6",
     "rimraf": "^2.6.2",
-    "ts-jest": "^23.10.5",
     "typescript": "^3.8.3",
-    "typescript-tslint-plugin": "^0.5.5",
-    "eslint": "^6.8.0",
     "uglify-es": "^3.3.9"
   },
   "prettier": {
@@ -70,22 +63,5 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  },
-  "jest": {
-    "globals": {
-      "ts-jest": {
-        "tsConfig": "./test/tsconfig.json"
-      }
-    },
-    "moduleFileExtensions": [
-      "js",
-      "ts"
-    ],
-    "transform": {
-      "^.+\\.(ts|tsx)$": "ts-jest"
-    },
-    "testMatch": [
-      "**/test/*.test.+(ts|js)"
-    ]
   }
 }
