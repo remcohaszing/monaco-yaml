@@ -17,9 +17,9 @@
   "main": "./lib/esm/monaco.contribution.js",
   "module": "./lib/esm/monaco.contribution.js",
   "typings": "./lib/monaco.d.ts",
-  "directories": {
-    "lib": "./lib"
-  },
+  "files": [
+    "lib"
+  ],
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
     "kpdecker",
