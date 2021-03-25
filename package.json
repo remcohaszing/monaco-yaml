@@ -11,7 +11,7 @@
     "bundle:umd": "node ./scripts/bundle-umd",
     "bundle:esm": "node ./scripts/bundle-esm",
     "build": "yarn compile && yarn bundle",
-    "prepare": "yarn build",
+    "prepare": "husky install && yarn build",
     "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write"
   },
   "main": "./lib/esm/monaco.contribution.js",
@@ -37,8 +37,8 @@
     "yaml-language-server": "^0.11.1"
   },
   "devDependencies": {
-    "husky": "^1.2.1",
-    "lint-staged": "^10.1.2",
+    "husky": "^5.2.0",
+    "lint-staged": "^10.5.4",
     "monaco-editor": "^0.21.2",
     "monaco-editor-core": "^0.21.2",
     "monaco-languages": "^2.1.1",
@@ -58,10 +58,5 @@
     "src/*.{json,scss,html,ts,js,jsx}|scripts/*.js": [
       "prettier --write"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }
