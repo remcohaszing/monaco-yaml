@@ -13,7 +13,7 @@
     "build": "yarn compile && yarn bundle",
     "prepare": "husky install",
     "prepack": "yarn build",
-    "lint": "prettier \"{src,test}/**/*.{json,scss,html,ts}\" --write"
+    "lint": "prettier \"**/*.{css,js,json,jsx,html,md,ts}\" --check"
   },
   "main": "./lib/esm/monaco.contribution.js",
   "module": "./lib/esm/monaco.contribution.js",
