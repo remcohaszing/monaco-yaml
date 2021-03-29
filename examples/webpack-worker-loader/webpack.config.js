@@ -3,9 +3,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    main: './index.jsx',
-    'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
-    'yaml.worker': 'monaco-yaml/lib/esm/yaml.worker.js',
+    main: './index.js',
   },
   output: {
     globalObject: 'this',
@@ -14,13 +12,6 @@ module.exports = {
   },
   module: {
     rules: [
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-        },
-      },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
