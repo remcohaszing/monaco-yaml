@@ -11,8 +11,7 @@
     "bundle:umd": "node ./scripts/bundle-umd",
     "bundle:esm": "node ./scripts/bundle-esm",
     "build": "yarn compile && yarn bundle",
-    "prepare": "husky install",
-    "prepack": "yarn build",
+    "prepare": "husky install && yarn build",
     "lint": "prettier \"**/*.{css,js,json,jsx,html,md,ts}\" --check"
   },
   "main": "./lib/esm/monaco.contribution.js",
