@@ -6,7 +6,6 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import Thenable = monaco.Thenable;
 import IWorkerContext = monaco.worker.IWorkerContext;
 
 import * as ls from 'vscode-languageserver-types';
@@ -46,7 +45,7 @@ export class YAMLWorker {
     });
   }
 
-  public doValidation(uri: string): Thenable<ls.Diagnostic[]> {
+  public doValidation(uri: string): PromiseLike<ls.Diagnostic[]> {
     const document = this._getTextDocument(uri);
     if (document) {
       return this._languageService.doValidation(document, this._isKubernetes);
@@ -57,7 +56,7 @@ export class YAMLWorker {
   public doComplete(
     uri: string,
     position: ls.Position
-  ): Thenable<ls.CompletionList> {
+  ): PromiseLike<ls.CompletionList> {
     const document = this._getTextDocument(uri);
     return this._languageService.doComplete(
       document,
@@ -66,11 +65,11 @@ export class YAMLWorker {
     );
   }
 
-  public doResolve(item: ls.CompletionItem): Thenable<ls.CompletionItem> {
+  public doResolve(item: ls.CompletionItem): PromiseLike<ls.CompletionItem> {
     return this._languageService.doResolve(item);
   }
 
-  public doHover(uri: string, position: ls.Position): Thenable<ls.Hover> {
+  public doHover(uri: string, position: ls.Position): PromiseLike<ls.Hover> {
     const document = this._getTextDocument(uri);
     return this._languageService.doHover(document, position);
   }
@@ -79,17 +78,17 @@ export class YAMLWorker {
     uri: string,
     range: ls.Range,
     options: yamlService.CustomFormatterOptions
-  ): Thenable<ls.TextEdit[]> {
+  ): PromiseLike<ls.TextEdit[]> {
     const document = this._getTextDocument(uri);
     const textEdits = this._languageService.doFormat(document, options);
     return Promise.resolve(textEdits);
   }
 
-  public resetSchema(uri: string): Thenable<boolean> {
+  public resetSchema(uri: string): PromiseLike<boolean> {
     return Promise.resolve(this._languageService.resetSchema(uri));
   }
 
-  public findDocumentSymbols(uri: string): Thenable<ls.DocumentSymbol[]> {
+  public findDocumentSymbols(uri: string): PromiseLike<ls.DocumentSymbol[]> {
     const document = this._getTextDocument(uri);
     const symbols = this._languageService.findDocumentSymbols2(document);
     return Promise.resolve(symbols);

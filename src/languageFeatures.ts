@@ -13,12 +13,11 @@ import Uri = monaco.Uri;
 import Position = monaco.Position;
 import Range = monaco.Range;
 import IRange = monaco.IRange;
-import Thenable = monaco.Thenable;
 import CancellationToken = monaco.CancellationToken;
 import IDisposable = monaco.IDisposable;
 import { CustomFormatterOptions } from 'yaml-language-server';
 
-export type WorkerAccessor = (...more: Uri[]) => Thenable<YAMLWorker>;
+export type WorkerAccessor = (...more: Uri[]) => PromiseLike<YAMLWorker>;
 
 // --- diagnostics --- ---
 
@@ -304,7 +303,7 @@ export class CompletionAdapter
     position: Position,
     context: monaco.languages.CompletionContext,
     token: CancellationToken
-  ): Thenable<monaco.languages.CompletionList> {
+  ): PromiseLike<monaco.languages.CompletionList> {
     const resource = model.uri;
 
     return this._worker(resource)
@@ -412,7 +411,7 @@ export class HoverAdapter implements monaco.languages.HoverProvider {
     model: monaco.editor.IReadOnlyModel,
     position: Position,
     token: CancellationToken
-  ): Thenable<monaco.languages.Hover> {
+  ): PromiseLike<monaco.languages.Hover> {
     const resource = model.uri;
 
     return this._worker(resource)
@@ -484,7 +483,7 @@ export class DocumentSymbolAdapter
   public provideDocumentSymbols(
     model: monaco.editor.IReadOnlyModel,
     token: CancellationToken
-  ): Thenable<monaco.languages.DocumentSymbol[]> {
+  ): PromiseLike<monaco.languages.DocumentSymbol[]> {
     const resource = model.uri;
 
     return this._worker(resource)
@@ -530,7 +529,7 @@ export class DocumentFormattingEditProvider
     model: monaco.editor.IReadOnlyModel,
     options: monaco.languages.FormattingOptions,
     token: CancellationToken
-  ): Thenable<monaco.editor.ISingleEditOperation[]> {
+  ): PromiseLike<monaco.editor.ISingleEditOperation[]> {
     const resource = model.uri;
 
     return this._worker(resource).then((worker) => {
@@ -555,7 +554,7 @@ export class DocumentRangeFormattingEditProvider
     range: Range,
     options: monaco.languages.FormattingOptions,
     token: CancellationToken
-  ): Thenable<monaco.editor.ISingleEditOperation[]> {
+  ): PromiseLike<monaco.editor.ISingleEditOperation[]> {
     const resource = model.uri;
 
     return this._worker(resource).then((worker) => {
@@ -582,7 +581,7 @@ export class DocumentRangeFormattingEditProvider
 // public provideDocumentColors(
 // model: monaco.editor.IReadOnlyModel,
 // token: CancellationToken
-// ): Thenable<monaco.languages.IColorInformation[]> {
+// ): PromiseLike<monaco.languages.IColorInformation[]> {
 // const resource = model.uri;
 
 // return this._worker(resource)
@@ -602,7 +601,7 @@ export class DocumentRangeFormattingEditProvider
 // model: monaco.editor.IReadOnlyModel,
 // info: monaco.languages.IColorInformation,
 // token: CancellationToken
-// ): Thenable<monaco.languages.IColorPresentation[]> {
+// ): PromiseLike<monaco.languages.IColorPresentation[]> {
 // const resource = model.uri;
 
 // return this._worker(resource)
