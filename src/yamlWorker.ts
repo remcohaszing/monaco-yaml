@@ -14,8 +14,8 @@ import * as yamlService from 'yaml-language-server';
 
 let defaultSchemaRequestService;
 if (typeof fetch !== 'undefined') {
-  defaultSchemaRequestService = function(url) {
-    return fetch(url).then(response => response.text());
+  defaultSchemaRequestService = function (url) {
+    return fetch(url).then((response) => response.text());
   };
 }
 

@@ -12,7 +12,7 @@
     "bundle:esm": "node ./scripts/bundle-esm",
     "build": "yarn compile && yarn bundle",
     "prepare": "husky install && yarn build",
-    "lint": "prettier \"**/*.{css,js,json,jsx,html,md,ts}\" --check"
+    "lint": "prettier --check ."
   },
   "main": "./lib/esm/monaco.contribution.js",
   "module": "./lib/esm/monaco.contribution.js",
@@ -44,7 +44,7 @@
     "monaco-editor-core": "^0.21.2",
     "monaco-languages": "^2.1.1",
     "monaco-plugin-helpers": "^1.0.3",
-    "prettier": "^1.19.1",
+    "prettier": "2.0.5",
     "requirejs": "^2.3.6",
     "rimraf": "^2.6.2",
     "typescript": "^4.2.3",
@@ -57,7 +57,7 @@
     "semi": true
   },
   "lint-staged": {
-    "src/*.{json,scss,html,ts,js,jsx}|scripts/*.js": [
+    "*.{css,json,md,html,ts,js,jsx,yaml}": [
       "prettier --write"
     ]
   }
