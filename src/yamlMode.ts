@@ -4,13 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
+import { languages, Uri, IDisposable } from 'monaco-editor';
 import * as languageFeatures from './languageFeatures';
 import { LanguageServiceDefaultsImpl } from './monaco.contribution';
 import { WorkerManager } from './workerManager';
 import { YAMLWorker } from './yamlWorker';
-
-import Uri = monaco.Uri;
-import IDisposable = monaco.IDisposable;
 
 export function setupMode(defaults: LanguageServiceDefaultsImpl): void {
   const disposables: IDisposable[] = [];
@@ -27,31 +25,31 @@ export function setupMode(defaults: LanguageServiceDefaultsImpl): void {
   const languageId = defaults.languageId;
 
   disposables.push(
-    monaco.languages.registerCompletionItemProvider(
+    languages.registerCompletionItemProvider(
       languageId,
       new languageFeatures.CompletionAdapter(worker)
     )
   );
   disposables.push(
-    monaco.languages.registerHoverProvider(
+    languages.registerHoverProvider(
       languageId,
       new languageFeatures.HoverAdapter(worker)
     )
   );
   disposables.push(
-    monaco.languages.registerDocumentSymbolProvider(
+    languages.registerDocumentSymbolProvider(
       languageId,
       new languageFeatures.DocumentSymbolAdapter(worker)
     )
   );
   disposables.push(
-    monaco.languages.registerDocumentFormattingEditProvider(
+    languages.registerDocumentFormattingEditProvider(
       languageId,
       new languageFeatures.DocumentFormattingEditProvider(worker)
     )
   );
   disposables.push(
-    monaco.languages.registerDocumentRangeFormattingEditProvider(
+    languages.registerDocumentRangeFormattingEditProvider(
       languageId,
       new languageFeatures.DocumentRangeFormattingEditProvider(worker)
     )
@@ -60,14 +58,14 @@ export function setupMode(defaults: LanguageServiceDefaultsImpl): void {
     new languageFeatures.DiagnosticsAdapter(languageId, worker, defaults)
   );
   disposables.push(
-    monaco.languages.setLanguageConfiguration(languageId, richEditConfiguration)
+    languages.setLanguageConfiguration(languageId, richEditConfiguration)
   );
 
   // Color adapter should be necessary most of the time:
-  // disposables.push(monaco.languages.registerColorProvider(languageId, new languageFeatures.DocumentColorAdapter(worker)));
+  // disposables.push(languages.registerColorProvider(languageId, new languageFeatures.DocumentColorAdapter(worker)));
 }
 
-const richEditConfiguration: monaco.languages.LanguageConfiguration = {
+const richEditConfiguration: languages.LanguageConfiguration = {
   comments: {
     lineComment: '#',
   },
@@ -94,7 +92,7 @@ const richEditConfiguration: monaco.languages.LanguageConfiguration = {
   onEnterRules: [
     {
       beforeText: /:\s*$/,
-      action: { indentAction: monaco.languages.IndentAction.Indent },
+      action: { indentAction: languages.IndentAction.Indent },
     },
   ],
 };

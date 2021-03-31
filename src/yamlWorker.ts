@@ -6,8 +6,7 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import IWorkerContext = monaco.worker.IWorkerContext;
-
+import { worker } from 'monaco-editor';
 import * as ls from 'vscode-languageserver-types';
 import * as yamlService from 'yaml-language-server';
 
@@ -19,13 +18,13 @@ if (typeof fetch !== 'undefined') {
 }
 
 export class YAMLWorker {
-  private _ctx: IWorkerContext;
+  private _ctx: worker.IWorkerContext;
   private _languageService: yamlService.LanguageService;
   private _languageSettings: yamlService.LanguageSettings;
   private _languageId: string;
   private _isKubernetes: boolean;
 
-  constructor(ctx: IWorkerContext, createData: ICreateData) {
+  constructor(ctx: worker.IWorkerContext, createData: ICreateData) {
     const prefix = createData.prefix || '';
     const service = (url: string) =>
       defaultSchemaRequestService(`${prefix}${url}`);
@@ -119,7 +118,7 @@ export interface ICreateData {
 }
 
 export function create(
-  ctx: IWorkerContext,
+  ctx: worker.IWorkerContext,
   createData: ICreateData
 ): YAMLWorker {
   return new YAMLWorker(ctx, createData);
