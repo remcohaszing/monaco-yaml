@@ -9,12 +9,7 @@
     "lib": ["dom", "es2016"],
     "outDir": "./out/esm",
     "sourceMap": true,
-    "target": "es6",
-    "plugins": [
-      {
-        "name": "typescript-tslint-plugin"
-      }
-    ]
+    "target": "es6"
   },
   "exclude": ["node_modules", "out", "lib", "test"]
 }
