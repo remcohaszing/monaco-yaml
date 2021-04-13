@@ -15,7 +15,7 @@
     <code id="path"></code>
     <div
       id="container"
-      style="width:800px;height:600px;border:1px solid grey"
+      style="width: 800px; height: 600px; border: 1px solid grey;"
     ></div>
 
     <style>
@@ -54,7 +54,7 @@
         'vs/language/yaml/monaco.contribution',
         'prettier/standalone',
         'prettier/parser-yaml',
-      ], function() {
+      ], function () {
         const yaml = `p1: `;
         const modelUri = monaco.Uri.parse('a://b/foo.json');
         const editor = monaco.editor.create(
@@ -102,7 +102,9 @@
           ],
         });
 
-        require(['vs/editor/contrib/quickOpen/quickOpen'], async quickOpen => {
+        require(['vs/editor/contrib/quickOpen/quickOpen'], async (
+          quickOpen
+        ) => {
           const NEVER_CANCEL_TOKEN = {
             isCancellationRequested: false,
             onCancellationRequested: () => Event.NONE,
@@ -122,7 +124,7 @@
               if (symbol && symbol.children && symbol.children.length) {
                 target =
                   _recur(
-                    symbol.children.find(child =>
+                    symbol.children.find((child) =>
                       child.range.containsPosition(position)
                     )
                   ) || symbol;

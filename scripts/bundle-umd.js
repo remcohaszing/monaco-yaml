@@ -54,7 +54,7 @@ function bundleOne(moduleId, exclude) {
         },
       ],
     },
-    function() {
+    function () {
       const devFilePath = path.join(REPO_ROOT, 'lib/dev/' + moduleId + '.js');
       const minFilePath = path.join(REPO_ROOT, 'lib/min/' + moduleId + '.js');
       const fileContents = fs.readFileSync(devFilePath).toString();

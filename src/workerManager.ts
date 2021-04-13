@@ -40,13 +40,13 @@ export class WorkerManager {
   public getLanguageServiceWorker(...resources: Uri[]): Promise<YAMLWorker> {
     let _client: YAMLWorker;
     return this._getClient()
-      .then(client => {
+      .then((client) => {
         _client = client;
       })
-      .then(_ => {
+      .then((_) => {
         return this._worker.withSyncedResources(resources);
       })
-      .then(_ => _client);
+      .then((_) => _client);
   }
 
   private _stopWorker(): void {

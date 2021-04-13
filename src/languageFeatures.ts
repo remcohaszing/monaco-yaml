@@ -58,13 +58,13 @@ export class DiagnosticsAdapter {
 
     this._disposables.push(monaco.editor.onDidCreateModel(onModelAdd));
     this._disposables.push(
-      monaco.editor.onWillDisposeModel(model => {
+      monaco.editor.onWillDisposeModel((model) => {
         onModelRemoved(model);
         this._resetSchema(model.uri);
       })
     );
     this._disposables.push(
-      monaco.editor.onDidChangeModelLanguage(event => {
+      monaco.editor.onDidChangeModelLanguage((event) => {
         onModelRemoved(event.model);
         onModelAdd(event.model);
         this._resetSchema(event.model.uri);
@@ -72,8 +72,8 @@ export class DiagnosticsAdapter {
     );
 
     this._disposables.push(
-      defaults.onDidChange(_ => {
-        monaco.editor.getModels().forEach(model => {
+      defaults.onDidChange((_) => {
+        monaco.editor.getModels().forEach((model) => {
           if (model.getModeId() === this._languageId) {
             onModelRemoved(model);
             onModelAdd(model);
@@ -95,28 +95,28 @@ export class DiagnosticsAdapter {
   }
 
   public dispose(): void {
-    this._disposables.forEach(d => d && d.dispose());
+    this._disposables.forEach((d) => d && d.dispose());
     this._disposables = [];
   }
 
   private _resetSchema(resource: Uri): void {
-    this._worker().then(worker => {
+    this._worker().then((worker) => {
       worker.resetSchema(resource.toString());
     });
   }
 
   private _doValidate(resource: Uri, languageId: string): void {
     this._worker(resource)
-      .then(worker => {
-        return worker.doValidation(resource.toString()).then(diagnostics => {
-          const markers = diagnostics.map(d => toDiagnostics(resource, d));
+      .then((worker) => {
+        return worker.doValidation(resource.toString()).then((diagnostics) => {
+          const markers = diagnostics.map((d) => toDiagnostics(resource, d));
           const model = monaco.editor.getModel(resource);
           if (model.getModeId() === languageId) {
             monaco.editor.setModelMarkers(model, languageId, markers);
           }
         });
       })
-      .then(undefined, err => {
+      .then(undefined, (err) => {
         console.error(err);
       });
   }
@@ -308,10 +308,10 @@ export class CompletionAdapter
     const resource = model.uri;
 
     return this._worker(resource)
-      .then(worker => {
+      .then((worker) => {
         return worker.doComplete(resource.toString(), fromPosition(position));
       })
-      .then(info => {
+      .then((info) => {
         if (!info) {
           return;
         }
@@ -325,7 +325,7 @@ export class CompletionAdapter
         );
 
         const items: monaco.languages.CompletionItem[] = info.items.map(
-          entry => {
+          (entry) => {
             const item: monaco.languages.CompletionItem = {
               label: entry.label,
               insertText: entry.insertText || entry.label,
@@ -416,10 +416,10 @@ export class HoverAdapter implements monaco.languages.HoverProvider {
     const resource = model.uri;
 
     return this._worker(resource)
-      .then(worker => {
+      .then((worker) => {
         return worker.doHover(resource.toString(), fromPosition(position));
       })
-      .then(info => {
+      .then((info) => {
         if (!info) {
           return;
         }
@@ -488,12 +488,12 @@ export class DocumentSymbolAdapter
     const resource = model.uri;
 
     return this._worker(resource)
-      .then(worker => worker.findDocumentSymbols(resource.toString()))
-      .then(items => {
+      .then((worker) => worker.findDocumentSymbols(resource.toString()))
+      .then((items) => {
         if (!items) {
           return;
         }
-        return items.map(item => toDocumentSymbol(item));
+        return items.map((item) => toDocumentSymbol(item));
       });
   }
 }
@@ -507,7 +507,7 @@ function toDocumentSymbol(
     name: item.name,
     kind: toSymbolKind(item.kind),
     selectionRange: toRange(item.selectionRange),
-    children: item.children.map(child => toDocumentSymbol(child)),
+    children: item.children.map((child) => toDocumentSymbol(child)),
     tags: [],
   };
 }
@@ -533,10 +533,10 @@ export class DocumentFormattingEditProvider
   ): Thenable<monaco.editor.ISingleEditOperation[]> {
     const resource = model.uri;
 
-    return this._worker(resource).then(worker => {
+    return this._worker(resource).then((worker) => {
       return worker
         .format(resource.toString(), null, fromFormattingOptions(options))
-        .then(edits => {
+        .then((edits) => {
           if (!edits || edits.length === 0) {
             return;
           }
@@ -558,14 +558,14 @@ export class DocumentRangeFormattingEditProvider
   ): Thenable<monaco.editor.ISingleEditOperation[]> {
     const resource = model.uri;
 
-    return this._worker(resource).then(worker => {
+    return this._worker(resource).then((worker) => {
       return worker
         .format(
           resource.toString(),
           fromRange(range),
           fromFormattingOptions(options)
         )
-        .then(edits => {
+        .then((edits) => {
           if (!edits || edits.length === 0) {
             return;
           }
