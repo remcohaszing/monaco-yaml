@@ -4,7 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { languages, Emitter, IEvent } from 'monaco-editor';
+import {
+  languages,
+  Emitter,
+  IEvent,
+} from 'monaco-editor/esm/vs/editor/editor.api';
 import { setupMode } from './yamlMode';
 
 declare var require: <T>(

@@ -19,7 +19,7 @@ import {
   Position,
   Range,
   Uri,
-} from 'monaco-editor';
+} from 'monaco-editor/esm/vs/editor/editor.api';
 import { CustomFormatterOptions } from 'yaml-language-server';
 
 export type WorkerAccessor = (...more: Uri[]) => PromiseLike<YAMLWorker>;

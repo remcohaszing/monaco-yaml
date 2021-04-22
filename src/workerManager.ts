@@ -4,7 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { editor, Uri, IDisposable } from 'monaco-editor';
+import {
+  editor,
+  Uri,
+  IDisposable,
+} from 'monaco-editor/esm/vs/editor/editor.api';
 import { LanguageServiceDefaultsImpl } from './monaco.contribution';
 import { YAMLWorker } from './yamlWorker';
 

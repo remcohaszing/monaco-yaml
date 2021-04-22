@@ -33,7 +33,8 @@ function bundleOne(moduleId, exclude) {
       exclude: exclude,
       paths: {
         'vs/language/yaml': REPO_ROOT + '/out/amd',
-        'monaco-editor': REPO_ROOT + '/out/amd/fillers/monaco-editor-amd',
+        'monaco-editor/esm/vs/editor/editor.api':
+          REPO_ROOT + '/out/amd/fillers/monaco-editor-amd',
       },
       optimize: 'none',
       packages: [

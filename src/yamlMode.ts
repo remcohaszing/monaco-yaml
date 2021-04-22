@@ -4,7 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { languages, Uri, IDisposable } from 'monaco-editor';
+import {
+  languages,
+  Uri,
+  IDisposable,
+} from 'monaco-editor/esm/vs/editor/editor.api';
 import * as languageFeatures from './languageFeatures';
 import { LanguageServiceDefaultsImpl } from './monaco.contribution';
 import { WorkerManager } from './workerManager';

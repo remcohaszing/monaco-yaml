@@ -6,7 +6,7 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { worker } from 'monaco-editor';
+import { worker } from 'monaco-editor/esm/vs/editor/editor.api';
 import * as ls from 'vscode-languageserver-types';
 import * as yamlService from 'yaml-language-server';
 

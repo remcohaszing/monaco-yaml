@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IEvent } from 'monaco-editor';
+import { IEvent } from 'monaco-editor/esm/vs/editor/editor.api';
 
-declare module 'monaco-editor' {
+declare module 'monaco-editor/esm/vs/editor/editor.api' {
   namespace languages.yaml {
     export interface DiagnosticsOptions {
       /**
