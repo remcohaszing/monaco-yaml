@@ -4,14 +4,14 @@
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
     "watch": "tsc -p ./src --watch",
-    "compile": "rimraf ./out && yarn compile:umd && yarn compile:esm",
+    "compile": "rimraf ./out && npm run compile:umd && npm run compile:esm",
     "compile:umd": "tsc -p ./tsconfig.json",
     "compile:esm": "tsc -p ./tsconfig.esm.json",
-    "bundle": "rimraf ./lib && yarn bundle:umd && yarn bundle:esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
+    "bundle": "rimraf ./lib && npm run bundle:umd && npm run bundle:esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
     "bundle:umd": "node ./scripts/bundle-umd",
     "bundle:esm": "node ./scripts/bundle-esm",
-    "build": "yarn compile && yarn bundle",
-    "prepare": "husky install && yarn build",
+    "build": "npm run compile && npm run bundle",
+    "prepare": "husky install && npm run build",
     "lint": "prettier --check ."
   },
   "main": "./lib/esm/monaco.contribution.js",
@@ -19,6 +19,9 @@
   "typings": "./lib/monaco.d.ts",
   "files": [
     "lib"
+  ],
+  "workspaces": [
+    "examples/*"
   ],
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
