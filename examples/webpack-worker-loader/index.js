@@ -58,7 +58,7 @@ languages.yaml.yamlDefaults.setDiagnosticsOptions({
   ],
 });
 
-monaco.editor.create(document.getElementById('editor'), {
+editor.create(document.getElementById('editor'), {
   value: 'p1: ',
   language: 'yaml',
 });
