@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
+    "alwaysStrict": true,
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "umd",
+    "downlevelIteration": true,
+    "module": "esnext",
     "moduleResolution": "node",
     "lib": ["dom", "es2016"],
-    "outDir": "./out/amd",
+    "outDir": "./out/esm",
+    "sourceMap": true,
     "target": "es6",
     "types": []
   },
