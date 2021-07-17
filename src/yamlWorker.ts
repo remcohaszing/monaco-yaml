@@ -1,20 +1,11 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Red Hat, Inc. All rights reserved.
- *  Copyright (c) Adam Voss. All rights reserved.
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-'use strict';
-
 import { worker } from 'monaco-editor/esm/vs/editor/editor.api';
 import * as ls from 'vscode-languageserver-types';
 import * as yamlService from 'yaml-language-server';
 
-let defaultSchemaRequestService;
+let defaultSchemaRequestService: (url: string) => PromiseLike<string>;
+
 if (typeof fetch !== 'undefined') {
-  defaultSchemaRequestService = function (url) {
-    return fetch(url).then((response) => response.text());
-  };
+  defaultSchemaRequestService = (url) => fetch(url).then((response) => response.text());
 }
 
 export class YAMLWorker {
@@ -26,7 +17,7 @@ export class YAMLWorker {
 
   constructor(ctx: worker.IWorkerContext, createData: ICreateData) {
     const prefix = createData.prefix || '';
-    const service = (url: string) =>
+    const service = (url: string): PromiseLike<string> =>
       defaultSchemaRequestService(`${prefix}${url}`);
     this._ctx = ctx;
     this._languageSettings = createData.languageSettings;
@@ -34,7 +25,7 @@ export class YAMLWorker {
     this._languageService = yamlService.getLanguageService(
       createData.enableSchemaRequest && service,
       null,
-      []
+      [],
     );
     this._isKubernetes = createData.isKubernetes || false;
     this._languageService.configure({
@@ -44,7 +35,7 @@ export class YAMLWorker {
     });
   }
 
-  public doValidation(uri: string): PromiseLike<ls.Diagnostic[]> {
+  doValidation(uri: string): PromiseLike<ls.Diagnostic[]> {
     const document = this._getTextDocument(uri);
     if (document) {
       return this._languageService.doValidation(document, this._isKubernetes);
@@ -52,42 +43,35 @@ export class YAMLWorker {
     return Promise.resolve([]);
   }
 
-  public doComplete(
-    uri: string,
-    position: ls.Position
-  ): PromiseLike<ls.CompletionList> {
+  doComplete(uri: string, position: ls.Position): PromiseLike<ls.CompletionList> {
     const document = this._getTextDocument(uri);
-    return this._languageService.doComplete(
-      document,
-      position,
-      this._isKubernetes
-    );
+    return this._languageService.doComplete(document, position, this._isKubernetes);
   }
 
-  public doResolve(item: ls.CompletionItem): PromiseLike<ls.CompletionItem> {
+  doResolve(item: ls.CompletionItem): PromiseLike<ls.CompletionItem> {
     return this._languageService.doResolve(item);
   }
 
-  public doHover(uri: string, position: ls.Position): PromiseLike<ls.Hover> {
+  doHover(uri: string, position: ls.Position): PromiseLike<ls.Hover> {
     const document = this._getTextDocument(uri);
     return this._languageService.doHover(document, position);
   }
 
-  public format(
+  format(
     uri: string,
     range: ls.Range,
-    options: yamlService.CustomFormatterOptions
+    options: yamlService.CustomFormatterOptions,
   ): PromiseLike<ls.TextEdit[]> {
     const document = this._getTextDocument(uri);
     const textEdits = this._languageService.doFormat(document, options);
     return Promise.resolve(textEdits);
   }
 
-  public resetSchema(uri: string): PromiseLike<boolean> {
+  resetSchema(uri: string): PromiseLike<boolean> {
     return Promise.resolve(this._languageService.resetSchema(uri));
   }
 
-  public findDocumentSymbols(uri: string): PromiseLike<ls.DocumentSymbol[]> {
+  findDocumentSymbols(uri: string): PromiseLike<ls.DocumentSymbol[]> {
     const document = this._getTextDocument(uri);
     const symbols = this._languageService.findDocumentSymbols2(document);
     return Promise.resolve(symbols);
@@ -96,13 +80,8 @@ export class YAMLWorker {
   private _getTextDocument(uri: string): ls.TextDocument {
     const models = this._ctx.getMirrorModels();
     for (const model of models) {
-      if (model.uri.toString() === uri) {
-        return ls.TextDocument.create(
-          uri,
-          this._languageId,
-          model.version,
-          model.getValue()
-        );
+      if (String(model.uri) === uri) {
+        return ls.TextDocument.create(uri, this._languageId, model.version, model.getValue());
       }
     }
     return null;
@@ -117,9 +96,6 @@ export interface ICreateData {
   isKubernetes?: boolean;
 }
 
-export function create(
-  ctx: worker.IWorkerContext,
-  createData: ICreateData
-): YAMLWorker {
+export function create(ctx: worker.IWorkerContext, createData: ICreateData): YAMLWorker {
   return new YAMLWorker(ctx, createData);
 }

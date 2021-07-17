@@ -23,25 +23,31 @@ languages.yaml.yamlDefaults.setDiagnosticsOptions({
   completion: true,
   schemas: [
     {
-      uri: 'http://myserver/foo-schema.json', // id of the first schema
-      fileMatch: ['*'], // associate with our model
+      // Id of the first schema
+      uri: 'http://myserver/foo-schema.json',
+      // Associate with our model
+      fileMatch: ['*'],
       schema: {
-        id: 'http://myserver/foo-schema.json', // id of the first schema
+        // Id of the first schema
+        id: 'http://myserver/foo-schema.json',
         type: 'object',
         properties: {
           p1: {
             enum: ['v1', 'v2'],
           },
           p2: {
-            $ref: 'http://myserver/bar-schema.json', // reference the second schema
+            // Reference the second schema
+            $ref: 'http://myserver/bar-schema.json',
           },
         },
       },
     },
     {
-      uri: 'http://myserver/bar-schema.json', // id of the first schema
+      // Id of the first schema
+      uri: 'http://myserver/bar-schema.json',
       schema: {
-        id: 'http://myserver/bar-schema.json', // id of the first schema
+        // Id of the first schema
+        id: 'http://myserver/bar-schema.json',
         type: 'object',
         properties: {
           q1: {

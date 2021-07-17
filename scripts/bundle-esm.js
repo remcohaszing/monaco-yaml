@@ -1,12 +1,8 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+const { join } = require('path');
 
-const path = require('path');
 const helpers = require('monaco-plugin-helpers');
 
-const REPO_ROOT = path.join(__dirname, '../');
+const REPO_ROOT = join(__dirname, '../');
 
 helpers.packageESM({
   repoRoot: REPO_ROOT,
@@ -14,54 +10,46 @@ helpers.packageESM({
   esmDestination: 'lib/esm',
   entryPoints: ['monaco.contribution.js', 'yamlMode.js', 'yaml.worker.js'],
   resolveAlias: {
-    'vscode-nls': path.join(REPO_ROOT, 'out/esm/fillers/vscode-nls.js'),
-    'vscode-json-languageservice/lib/umd/services/jsonValidation': path.join(
+    'vscode-nls': join(REPO_ROOT, 'out/esm/fillers/vscode-nls.js'),
+    'vscode-json-languageservice/lib/umd/services/jsonValidation': join(
       REPO_ROOT,
-      'node_modules/vscode-json-languageservice/lib/esm/services/jsonValidation.js'
+      'node_modules/vscode-json-languageservice/lib/esm/services/jsonValidation.js',
     ),
-    'vscode-json-languageservice': path.join(
+    'vscode-json-languageservice': join(
       REPO_ROOT,
-      'node_modules/vscode-json-languageservice/lib/esm/jsonLanguageService.js'
+      'node_modules/vscode-json-languageservice/lib/esm/jsonLanguageService.js',
     ),
-    'vscode-json-languageservice/lib/umd/services/jsonHover': path.join(
+    'vscode-json-languageservice/lib/umd/services/jsonHover': join(
       REPO_ROOT,
-      'node_modules/vscode-json-languageservice/lib/esm/services/jsonHover.js'
+      'node_modules/vscode-json-languageservice/lib/esm/services/jsonHover.js',
     ),
-    'vscode-json-languageservice/lib/umd/services/jsonDocumentSymbols': path.join(
+    'vscode-json-languageservice/lib/umd/services/jsonDocumentSymbols': join(
       REPO_ROOT,
-      'node_modules/vscode-json-languageservice/lib/esm/services/jsonDocumentSymbols.js'
+      'node_modules/vscode-json-languageservice/lib/esm/services/jsonDocumentSymbols.js',
     ),
-    'vscode-json-languageservice/lib/umd/services/jsonSchemaService': path.join(
+    'vscode-json-languageservice/lib/umd/services/jsonSchemaService': join(
       REPO_ROOT,
-      'node_modules/vscode-json-languageservice/lib/esm/services/jsonSchemaService.js'
+      'node_modules/vscode-json-languageservice/lib/esm/services/jsonSchemaService.js',
     ),
 
-    'vscode-json-languageservice/lib/umd/services/jsonCompletion': path.join(
+    'vscode-json-languageservice/lib/umd/services/jsonCompletion': join(
       REPO_ROOT,
-      'node_modules/vscode-json-languageservice/lib/esm/services/jsonCompletion.js'
+      'node_modules/vscode-json-languageservice/lib/esm/services/jsonCompletion.js',
     ),
-    'vscode-json-languageservice/lib/umd/services/jsonDefinition': path.join(
+    'vscode-json-languageservice/lib/umd/services/jsonDefinition': join(
       REPO_ROOT,
-      'node_modules/vscode-json-languageservice/lib/esm/services/jsonDefinition.js'
+      'node_modules/vscode-json-languageservice/lib/esm/services/jsonDefinition.js',
     ),
-    'yaml-language-server': path.join(
+    'yaml-language-server': join(
       REPO_ROOT,
-      'node_modules/yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
+      'node_modules/yaml-language-server/lib/esm/languageservice/yamlLanguageService.js',
     ),
-    prettier: path.join(REPO_ROOT, 'node_modules/prettier/standalone.js'),
-    'prettier/parser-yaml': path.join(
-      REPO_ROOT,
-      'node_modules/prettier/parser-yaml.js'
-    ),
+    prettier: join(REPO_ROOT, 'node_modules/prettier/standalone.js'),
+    'prettier/parser-yaml': join(REPO_ROOT, 'node_modules/prettier/parser-yaml.js'),
   },
-  resolveSkip: [
-    'monaco-editor',
-    'monaco-editor-core',
-    'js-yaml',
-
-    'yaml-ast-parser-custom-tags',
-  ],
+  resolveSkip: ['monaco-editor', 'monaco-editor-core', 'js-yaml', 'yaml-ast-parser-custom-tags'],
   destinationFolderSimplification: {
+    // eslint-disable-next-line camelcase
     node_modules: '_deps',
     'jsonc-parser/lib/esm': 'jsonc-parser',
     'vscode-languageserver-types/lib/esm': 'vscode-languageserver-types',

@@ -1,5 +1,6 @@
+const { resolve } = require('path');
+
 const HtmlWebPackPlugin = require('html-webpack-plugin');
-const path = require('path');
 
 module.exports = {
   entry: {
@@ -10,7 +11,7 @@ module.exports = {
   output: {
     globalObject: 'this',
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: resolve(__dirname, 'dist'),
   },
   module: {
     rules: [
