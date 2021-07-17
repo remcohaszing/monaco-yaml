@@ -334,7 +334,11 @@ export class CompletionAdapter implements languages.CompletionItemProvider {
             range: wordRange,
           };
           if (entry.textEdit) {
-            item.range = toRange(entry.textEdit.range);
+            item.range = toRange(
+              'range' in entry.textEdit
+                ? entry.textEdit.range
+                : entry.textEdit.replace
+            );
             item.insertText = entry.textEdit.newText;
           }
           if (entry.additionalTextEdits) {
