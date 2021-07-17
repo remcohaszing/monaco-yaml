@@ -4,11 +4,13 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
+import {
+  editor,
+  Uri,
+  IDisposable,
+} from 'monaco-editor/esm/vs/editor/editor.api';
 import { LanguageServiceDefaultsImpl } from './monaco.contribution';
 import { YAMLWorker } from './yamlWorker';
-
-import IDisposable = monaco.IDisposable;
-import Uri = monaco.Uri;
 
 const STOP_WHEN_IDLE_FOR = 2 * 60 * 1000; // 2min
 
@@ -18,7 +20,7 @@ export class WorkerManager {
   private _lastUsedTime: number;
   private _configChangeListener: IDisposable;
 
-  private _worker: monaco.editor.MonacoWebWorker<YAMLWorker>;
+  private _worker: editor.MonacoWebWorker<YAMLWorker>;
   private _client: Promise<YAMLWorker>;
 
   constructor(defaults: LanguageServiceDefaultsImpl) {
@@ -71,7 +73,7 @@ export class WorkerManager {
     this._lastUsedTime = Date.now();
 
     if (!this._client) {
-      this._worker = monaco.editor.createWebWorker<YAMLWorker>({
+      this._worker = editor.createWebWorker<YAMLWorker>({
         // module that exports the create() method and returns a `YAMLWorker` instance
         moduleId: 'vs/language/yaml/yamlWorker',
 
