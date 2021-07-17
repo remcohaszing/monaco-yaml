@@ -4,12 +4,8 @@
   "description": "YAML plugin for the Monaco Editor",
   "scripts": {
     "watch": "tsc -p ./src --watch",
-    "compile": "rimraf ./out && npm run compile:umd && npm run compile:esm",
-    "compile:umd": "tsc -p ./tsconfig.json",
-    "compile:esm": "tsc -p ./tsconfig.esm.json",
-    "bundle": "rimraf ./lib && npm run bundle:umd && npm run bundle:esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
-    "bundle:umd": "node ./scripts/bundle-umd",
-    "bundle:esm": "node ./scripts/bundle-esm",
+    "compile": "rimraf ./out && tsc",
+    "bundle": "rimraf ./lib && node ./scripts/bundle-esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
     "build": "npm run compile && npm run bundle",
     "prepare": "husky install && npm run build",
     "lint": "prettier --check ."
@@ -44,13 +40,10 @@
     "husky": "^5.2.0",
     "lint-staged": "^10.5.4",
     "monaco-editor": "^0.21.3",
-    "monaco-languages": "^2.1.1",
     "monaco-plugin-helpers": "^1.0.3",
     "prettier": "2.0.5",
-    "requirejs": "^2.3.6",
     "rimraf": "^2.6.2",
     "typescript": "^4.2.3",
-    "uglify-es": "^3.3.9",
     "yaml-language-server": "^0.11.1"
   },
   "prettier": {
