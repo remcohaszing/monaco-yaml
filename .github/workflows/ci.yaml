@@ -12,15 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with: { node-version: 14 }
-      - run: yarn --frozen-lockfile
-      - run: yarn pack
+        with: { node-version: 16 }
+      - run: npm ci
+      - run: npm pack
 
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with: { node-version: 14 }
-      - run: yarn --frozen-lockfile
-      - run: yarn lint
+        with: { node-version: 16 }
+      - run: npm ci
+      - run: npm run lint
