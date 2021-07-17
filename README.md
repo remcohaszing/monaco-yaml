@@ -1,6 +1,7 @@
 # Monaco YAML
 
-YAML language plugin for the Monaco Editor. It provides the following features when editing YAML files:
+YAML language plugin for the Monaco Editor. It provides the following features when editing YAML
+files:
 
 - Code completion, based on JSON schemas or by looking at similar objects in the same file
 - Hovers, based on JSON schemas
@@ -10,8 +11,9 @@ YAML language plugin for the Monaco Editor. It provides the following features w
 - Syntax highlighting
 - Automatically load remote schema files (by enabling DiagnosticsOptions.enableSchemaRequest)
 
-Schemas can also be provided by configuration. See [here](https://github.com/Microsoft/monaco-json/blob/master/src/monaco.d.ts)
-for the API that the JSON plugin offers to configure the JSON language support.
+Schemas can also be provided by configuration. See
+[here](https://github.com/Microsoft/monaco-json/blob/master/src/monaco.d.ts) for the API that the
+JSON plugin offers to configure the JSON language support.
 
 ## Installation
 
@@ -38,8 +40,10 @@ languages.yaml.yamlDefaults.setDiagnosticsOptions({
   format: true,
   schemas: [
     {
-      uri: 'http://myserver/foo-schema.json', // id of the first schema
-      fileMatch: [modelUri.toString()], // associate with our model
+      // Id of the first schema
+      uri: 'http://myserver/foo-schema.json',
+      // Associate with our model
+      fileMatch: [String(modelUri)],
       schema: {
         type: 'object',
         properties: {
@@ -47,13 +51,15 @@ languages.yaml.yamlDefaults.setDiagnosticsOptions({
             enum: ['v1', 'v2'],
           },
           p2: {
-            $ref: 'http://myserver/bar-schema.json', // reference the second schema
+            // Reference the second schema
+            $ref: 'http://myserver/bar-schema.json',
           },
         },
       },
     },
     {
-      uri: 'http://myserver/bar-schema.json', // id of the first schema
+      // Id of the first schema
+      uri: 'http://myserver/bar-schema.json',
       schema: {
         type: 'object',
         properties: {
@@ -67,13 +73,15 @@ languages.yaml.yamlDefaults.setDiagnosticsOptions({
 });
 
 editor.create(document.createElement('editor'), {
-  // monaco-yaml features should just work if the editor language is set to 'yaml'.
+  // Monaco-yaml features should just work if the editor language is set to 'yaml'.
   language: 'yaml',
   model: editor.createModel('p1: \n', 'yaml', modelUri),
 });
 ```
 
-Also make sure to register the service worker. See the [examples](https://github.com/pengx17/monaco-yaml/tree/master/examples) directory for full fledged examples.
+Also make sure to register the service worker. See the
+[examples](https://github.com/pengx17/monaco-yaml/tree/master/examples) directory for full fledged
+examples.
 
 ## Development
 
@@ -81,8 +89,7 @@ Also make sure to register the service worker. See the [examples](https://github
 - `cd monaco-yaml`
 - `npm ci`
 
-A running example:
-![demo-image](test-demo.png)
+A running example: ![demo-image](test-demo.png)
 
 ## Credits
 

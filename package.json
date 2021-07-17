@@ -6,9 +6,9 @@
     "watch": "tsc -p ./src --watch",
     "compile": "rimraf ./out && tsc",
     "bundle": "rimraf ./lib && node ./scripts/bundle-esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
-    "build": "npm run compile && npm run bundle",
+    "prepack": "npm run compile && npm run bundle",
     "prepare": "husky install",
-    "lint": "prettier --check ."
+    "lint": "eslint . && prettier --check ."
   },
   "main": "./lib/esm/monaco.contribution.js",
   "module": "./lib/esm/monaco.contribution.js",
@@ -36,7 +36,14 @@
     "js-yaml": "^3.14.1",
     "yaml-ast-parser-custom-tags": "^0.0.43"
   },
+  "peerDependencies": {
+    "monaco-editor": ">=0.22"
+  },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/parser": "^4.28.3",
+    "eslint": "^7.30.0",
+    "eslint-config-remcohaszing": "^3.4.0",
     "husky": "^7.0.1",
     "lint-staged": "^10.5.4",
     "monaco-editor": "^0.26.1",
@@ -46,14 +53,12 @@
     "typescript": "^4.3.5",
     "yaml-language-server": "^0.11.1"
   },
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "es5",
-    "semi": true
-  },
   "lint-staged": {
-    "*.{css,json,md,html,ts,js,jsx,yaml}": [
+    "*.{css,json,md,html,yaml}": [
       "prettier --write"
+    ],
+    "*.{js,ts}": [
+      "eslint"
     ]
   }
 }
