@@ -1,4 +1,4 @@
-# Demo: Weback + Worker Loader + Monaco + Monaco YAML
+# Usage example with Webpack and worker-loader
 
 To run:
 
