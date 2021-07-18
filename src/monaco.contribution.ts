@@ -60,3 +60,12 @@ languages.register({
 languages.onLanguage('yaml', () => {
   setupMode(yamlDefaults);
 });
+
+/**
+ * Configure `monaco-yaml` diagnostics options.
+ *
+ * @param options - The options to set.
+ */
+export function setDiagnosticsOptions(options: languages.yaml.DiagnosticsOptions = {}): void {
+  languages.yaml.yamlDefaults.setDiagnosticsOptions(options);
+}

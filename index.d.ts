@@ -1,5 +1,5 @@
 import { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema';
-import { IEvent } from 'monaco-editor/esm/vs/editor/editor.api';
+import { IEvent, languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
 declare module 'monaco-editor/esm/vs/editor/editor.api' {
   namespace languages.yaml {
@@ -64,3 +64,10 @@ declare module 'monaco-editor/esm/vs/editor/editor.api' {
     export const yamlDefaults: LanguageServiceDefaults;
   }
 }
+
+/**
+ * Configure `monaco-yaml` diagnostics options.
+ *
+ * @param options - The options to set.
+ */
+export function setDiagnosticsOptions(options?: languages.yaml.DiagnosticsOptions): void;

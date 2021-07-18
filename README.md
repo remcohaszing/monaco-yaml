@@ -12,8 +12,8 @@ files:
 - Automatically load remote schema files (by enabling DiagnosticsOptions.enableSchemaRequest)
 
 Schemas can also be provided by configuration. See
-[here](https://github.com/Microsoft/monaco-json/blob/master/src/monaco.d.ts) for the API that the
-JSON plugin offers to configure the JSON language support.
+[here](https://github.com/Microsoft/monaco-json/blob/master/index.d.ts) for the API that the JSON
+plugin offers to configure the JSON language support.
 
 ## Installation
 
@@ -26,13 +26,13 @@ npm install monaco-yaml
 Import `monaco-yaml` and configure it before an editor instance is created.
 
 ```ts
-import { editor, languages, Uri } from 'monaco-editor';
-import 'monaco-yaml';
+import { editor, Uri } from 'monaco-editor';
+import { setDiagnosticsOptions } from 'monaco-yaml';
 
 // The uri is used for the schema file match.
 const modelUri = Uri.parse('a://b/foo.yaml');
 
-languages.yaml.yamlDefaults.setDiagnosticsOptions({
+setDiagnosticsOptions({
   enableSchemaRequest: true,
   hover: true,
   completion: true,
