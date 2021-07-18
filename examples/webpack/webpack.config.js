@@ -1,17 +1,13 @@
-const { resolve } = require('path');
-
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    main: './index.js',
+    main: './src/index.js',
     'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
     'yaml.worker': 'monaco-yaml/lib/esm/yaml.worker.js',
   },
   output: {
-    globalObject: 'this',
     filename: '[name].bundle.js',
-    path: resolve(__dirname, 'dist'),
   },
   module: {
     rules: [
@@ -25,13 +21,5 @@ module.exports = {
       },
     ],
   },
-  plugins: [
-    new HtmlWebPackPlugin({
-      template: './index.html',
-    }),
-  ],
-  node: {
-    fs: 'empty',
-    module: 'empty',
-  },
+  plugins: [new HtmlWebPackPlugin()],
 };
