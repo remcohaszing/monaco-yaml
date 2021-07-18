@@ -5,7 +5,7 @@ import './index.css';
 import 'monaco-editor';
 
 import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api';
-import 'monaco-yaml/lib/esm/monaco.contribution';
+import 'monaco-yaml';
 // NOTE: using loader syntax becuase Yaml worker imports editor.worker directly and that
 // import shouldn't go through loader syntax.
 import EditorWorker from 'worker-loader!monaco-editor/esm/vs/editor/editor.worker';
