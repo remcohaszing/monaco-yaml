@@ -5,16 +5,17 @@
   "scripts": {
     "watch": "tsc -p ./src --watch",
     "compile": "rimraf ./out && tsc",
-    "bundle": "rimraf ./lib && node ./scripts/bundle-esm && mcopy ./src/monaco.d.ts ./lib/monaco.d.ts",
+    "bundle": "rimraf ./lib && node ./scripts/bundle-esm",
     "prepack": "npm run compile && npm run bundle",
     "prepare": "husky install",
     "lint": "eslint . && prettier --check ."
   },
   "main": "./lib/esm/monaco.contribution.js",
   "module": "./lib/esm/monaco.contribution.js",
-  "typings": "./lib/monaco.d.ts",
+  "typings": "./index.d.ts",
   "files": [
-    "lib"
+    "lib",
+    "index.d.ts"
   ],
   "workspaces": [
     "examples/*"

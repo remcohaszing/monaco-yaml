@@ -4,8 +4,8 @@ import './index.css';
 // features you want to use, import them each individually. See this example: (https://github.com/microsoft/monaco-editor-samples/blob/master/browser-esm-webpack-small/index.js#L1-L91)
 import 'monaco-editor';
 
-import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api';
-import 'monaco-yaml';
+import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
+import { setDiagnosticsOptions } from 'monaco-yaml';
 // NOTE: using loader syntax becuase Yaml worker imports editor.worker directly and that
 // import shouldn't go through loader syntax.
 import EditorWorker from 'worker-loader!monaco-editor/esm/vs/editor/editor.worker';
@@ -20,7 +20,7 @@ window.MonacoEnvironment = {
   },
 };
 
-languages.yaml.yamlDefaults.setDiagnosticsOptions({
+setDiagnosticsOptions({
   validate: true,
   enableSchemaRequest: true,
   hover: true,

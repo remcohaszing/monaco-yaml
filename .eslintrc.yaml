@@ -9,6 +9,7 @@ rules:
 
   '@typescript-eslint/naming-convention': off
   '@typescript-eslint/no-parameter-properties': off
+  '@typescript-eslint/no-shadow': off
   '@typescript-eslint/prefer-optional-chain': off
 
   import/no-extraneous-dependencies: off
