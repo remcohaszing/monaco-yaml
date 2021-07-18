@@ -33,6 +33,7 @@
     "url": "https://github.com/pengx17/monaco-yaml/issues"
   },
   "dependencies": {
+    "@types/json-schema": "^7.0.8",
     "js-yaml": "^3.14.1",
     "yaml-ast-parser-custom-tags": "^0.0.43"
   },

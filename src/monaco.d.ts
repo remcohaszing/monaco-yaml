@@ -1,8 +1,19 @@
+import { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema';
 import { IEvent } from 'monaco-editor/esm/vs/editor/editor.api';
 
 declare module 'monaco-editor/esm/vs/editor/editor.api' {
   namespace languages.yaml {
     export interface DiagnosticsOptions {
+      /**
+       * If set, enable schema based autocompletion.
+       */
+      readonly completion?: boolean;
+
+      /**
+       * If set, enable hover typs based the JSON schema.
+       */
+      readonly hover?: boolean;
+
       /**
        * If set, the validator will be enabled and perform syntax validation as well as schema
        * based validation.
@@ -25,7 +36,7 @@ declare module 'monaco-editor/esm/vs/editor/editor.api' {
         /**
          * The schema for the given URI.
          */
-        readonly schema?: unknown;
+        readonly schema?: JSONSchema4 | JSONSchema6 | JSONSchema7;
       }[];
 
       /**
