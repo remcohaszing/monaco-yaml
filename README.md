@@ -1,19 +1,22 @@
 # Monaco YAML
 
+[![ci workflow](https://github.com/remcohaszing/monaco-yaml/actions/workflows/ci.yaml/badge.svg)](https://github.com/remcohaszing/monaco-yaml/actions/workflows/ci.yaml)
+[![npm version](https://img.shields.io/npm/v/monaco-yaml)](https://www.npmjs.com/package/monaco-yaml)
+[![prettier code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
+
 YAML language plugin for the Monaco Editor. It provides the following features when editing YAML
 files:
 
 - Code completion, based on JSON schemas or by looking at similar objects in the same file
 - Hovers, based on JSON schemas
 - Validation: Syntax errors and schema validation
-- Formatting
+- Formatting using Prettier
 - Document Symbols
-- Syntax highlighting
 - Automatically load remote schema files (by enabling DiagnosticsOptions.enableSchemaRequest)
 
 Schemas can also be provided by configuration. See
-[here](https://github.com/Microsoft/monaco-json/blob/master/index.d.ts) for the API that the JSON
-plugin offers to configure the JSON language support.
+[here](https://github.com/remcohaszing/monaco-yaml/blob/main/index.d.ts) for the API that the plugin
+offers to configure the YAML language support.
 
 ## Installation
 
@@ -79,22 +82,36 @@ editor.create(document.createElement('editor'), {
 });
 ```
 
-Also make sure to register the service worker. See the
-[examples](https://github.com/pengx17/monaco-yaml/tree/master/examples) directory for full fledged
-examples.
+Also make sure to register the service worker.
 
-## Development
-
-- `git clone https://github.com/pengx17/monaco-yaml`
-- `cd monaco-yaml`
-- `npm ci`
+## Examples
 
 A running example: ![demo-image](test-demo.png)
 
+Some usage examples can be found in the
+[examples](https://github.com/remcohaszing/monaco-yaml/tree/main/examples) directory.
+
+## Contributing
+
+Please see our [contributing guidelines](CONTRIBUTING.md)
+
 ## Credits
 
-- https://github.com/redhat-developer/yaml-language-server
+Originally [@kpdecker](https://github.com/kpdecker) forked this repository from
+[`monaco-json`](https://github.com/microsoft/monaco-json) by
+[@microsoft](https://github.com/microsoft) and rewrote it to work with
+[`yaml-language-server`](https://github.com/redhat-developer/yaml-language-server) instead. Later
+the repository maintenance was taken over by [@pengx17](https://github.com/pengx17). Eventually the
+repository was tranferred to the account of [@remcohaszing](https://github.com/remcohaszing), who is
+currently maintaining this repository with the help of [fleon](https://github.com/fleon) and
+[@yazaabed](https://github.com/yazaabed).
+
+The heavy processing is done in
+[`yaml-language-server`](https://github.com/redhat-developer/yaml-language-server), best known for
+being the backbone for [`vscode-yaml`](https://github.com/redhat-developer/vscode-yaml). This
+repository provides a thin layer to add functionality provided by `yaml-language-server` into
+`monaco-editor`.
 
 ## License
 
-[MIT](https://github.com/pengx17/monaco-yaml/blob/master/LICENSE.md)
+[MIT](https://github.com/remcohaszing/monaco-yaml/blob/main/LICENSE.md)

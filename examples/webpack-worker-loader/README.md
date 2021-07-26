@@ -1,8 +1,9 @@
-# Usage example with Webpack and worker-loader
+# Webpack worker-loader demo
 
-To run:
+This demo shows how to use `monaco-editor` and `monaco-yaml` with Webpack 4 and
+[`worker-loader`](https://github.com/webpack-contrib/worker-loader). To start it, simply run:
 
-```
+```sh
 npm start
 ```
 

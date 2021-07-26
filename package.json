@@ -22,16 +22,15 @@
   ],
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
-    "kpdecker",
-    "pengx17"
+    "Remco Haszing <remcohaszing@gmail.com> (https://github.com/remcohaszing)"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pengx17/monaco-yaml"
+    "url": "https://github.com/remcohaszing/monaco-yaml"
   },
   "bugs": {
-    "url": "https://github.com/pengx17/monaco-yaml/issues"
+    "url": "https://github.com/remcohaszing/monaco-yaml/issues"
   },
   "dependencies": {
     "@types/json-schema": "^7.0.8",
