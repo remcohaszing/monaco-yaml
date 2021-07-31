@@ -1,8 +1,9 @@
-# Demo: Weback + Monaco + Monaco YAML
+# Webpack entry points demo
 
-To run:
+This demo shows how to use `monaco-editor` and `monaco-yaml` with Webpack 4
+[entry points](https://webpack.js.org/concepts/entry-points). To start it, simply run:
 
-```
+```sh
 npm start
 ```
 

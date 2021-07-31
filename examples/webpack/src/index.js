@@ -4,7 +4,7 @@ import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 
 // NOTE: This will give you all editor featues. If you would prefer to limit to only the editor
-// features you want to use, import them each individually. See this example: (https://github.com/microsoft/monaco-editor-samples/blob/master/browser-esm-webpack-small/index.js#L1-L91)
+// features you want to use, import them each individually. See this example: (https://github.com/microsoft/monaco-editor-samples/blob/main/browser-esm-webpack-small/index.js#L1-L91)
 import 'monaco-editor';
 
 window.MonacoEnvironment = {
