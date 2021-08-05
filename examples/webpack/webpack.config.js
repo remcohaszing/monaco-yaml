@@ -1,13 +1,11 @@
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: {
-    main: './src/index.js',
-    'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
-    'yaml.worker': 'monaco-yaml/lib/esm/yaml.worker.js',
-  },
-  output: {
-    filename: '[name].bundle.js',
+  resolve: {
+    fallback: {
+      // Yaml-ast-parser-custom-tags imports buffer. This can be omitted safely.
+      buffer: false,
+    },
   },
   module: {
     rules: [
@@ -16,8 +14,9 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
       },
       {
+        // Monaco editor uses .ttf icons.
         test: /\.ttf$/,
-        loader: 'file-loader',
+        type: 'asset',
       },
     ],
   },
