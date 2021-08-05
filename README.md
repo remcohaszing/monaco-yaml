@@ -82,7 +82,7 @@ editor.create(document.createElement('editor'), {
 });
 ```
 
-Also make sure to register the service worker.
+Also make sure to register the web worker.
 
 ## Examples
 
