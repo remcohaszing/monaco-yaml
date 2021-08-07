@@ -1,4 +1,50 @@
+:root {
+  --background-color: hsl(0, 0%, 96%);
+  --primary-color: hsl(189, 100%, 63%);
+  --shadow-color: hsla(0, 0%, 27%, 0.239);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: hsl(0, 0%, 23%);
+    --shadow-color: hsl(0, 0%, 43%);
+  }
+}
+
+body {
+  background: var(--background-color);
+  display: flex;
+  flex-flow: column;
+  height: 100vh;
+  margin: 0;
+}
+
+h1 {
+  margin: 0 1rem;
+}
+
+nav {
+  align-items: center;
+  background-color: var(--primary-color);
+  box-shadow: 0px 5px 5px var(--shadow-color);
+  display: flex;
+  flex: 0 0 auto;
+  height: 3rem;
+  justify-content: space-between;
+}
+
+.nav-icon {
+  height: 2rem;
+  margin-right: 1rem;
+  vertical-align: middle;
+}
+
+.editor-wrapper {
+  flex: 1 1 auto;
+  padding: 1.5rem;
+}
+
 #editor {
-  width: 800px;
-  height: 600px;
+  height: 100%;
+  box-shadow: 0 0 10px var(--shadow-color);
 }

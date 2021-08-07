@@ -15,7 +15,7 @@ module.exports = {
       },
       {
         // Monaco editor uses .ttf icons.
-        test: /\.ttf$/,
+        test: /\.(svg|ttf)$/,
         type: 'asset',
       },
     ],

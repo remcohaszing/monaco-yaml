@@ -8,7 +8,7 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 import 'monaco-editor';
 
 window.MonacoEnvironment = {
-  getWorkerUrl(moduleId, label) {
+  getWorker(moduleId, label) {
     switch (label) {
       case 'css':
         return new Worker(new URL('monaco-editor/esm/vs/language/css/css.worker', import.meta.url));
@@ -70,6 +70,8 @@ setDiagnosticsOptions({
 });
 
 editor.create(document.getElementById('editor'), {
+  automaticLayout: true,
   value: 'p1: ',
   language: 'yaml',
+  theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs-light',
 });
