@@ -1,0 +1,3 @@
+[build]
+publish = 'examples/webpack/dist/'
+command = 'npm ci && npm run prepack && npm --workspace example run build'
