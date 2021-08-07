@@ -15,6 +15,7 @@ body {
   background: var(--background-color);
   display: flex;
   flex-flow: column;
+  font-family: sans-serif;
   height: 100vh;
   margin: 0;
 }
@@ -34,6 +35,10 @@ nav {
 }
 
 .nav-icon {
+  text-decoration: none;
+}
+
+.nav-icon > img {
   height: 2rem;
   margin-right: 1rem;
   vertical-align: middle;
