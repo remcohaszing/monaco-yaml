@@ -2,6 +2,7 @@
   "name": "monaco-yaml",
   "version": "3.0.0",
   "description": "YAML plugin for the Monaco Editor",
+  "homepage": "https://monaco-yaml.js.org",
   "scripts": {
     "watch": "tsc -p ./src --watch",
     "compile": "rimraf ./out && tsc",
