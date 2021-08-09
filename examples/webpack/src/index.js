@@ -54,7 +54,7 @@ setDiagnosticsOptions({
             markdownDescription: 'Even **markdown** _descriptions_ `are` ~~not~~ supported!',
           },
           enum: {
-            description: 'Pick your started',
+            description: 'Pick your starter',
             enum: ['Bulbasaur', 'Squirtle', 'Charmander', 'Pickachu'],
           },
           number: {
