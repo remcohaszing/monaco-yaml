@@ -23,39 +23,55 @@ window.MonacoEnvironment = {
 setDiagnosticsOptions({
   validate: true,
   enableSchemaRequest: true,
+  format: true,
   hover: true,
   completion: true,
   schemas: [
     {
       // Id of the first schema
-      uri: 'http://myserver/foo-schema.json',
+      uri: 'https://example.com/example-schema.json',
       // Associate with our model
       fileMatch: ['*'],
       schema: {
         // Id of the first schema
-        id: 'http://myserver/foo-schema.json',
+        id: 'https://example.com/example-schema.json',
         type: 'object',
         properties: {
-          p1: {
-            enum: ['v1', 'v2'],
+          property: {
+            description: 'I have a description',
           },
-          p2: {
-            // Reference the second schema
-            $ref: 'http://myserver/bar-schema.json',
+          titledProperty: {
+            title: 'I have a title',
+            description: 'I also have a description',
           },
-        },
-      },
-    },
-    {
-      // Id of the first schema
-      uri: 'http://myserver/bar-schema.json',
-      schema: {
-        // Id of the first schema
-        id: 'http://myserver/bar-schema.json',
-        type: 'object',
-        properties: {
-          q1: {
-            enum: ['x1', 'x2'],
+          markdown: {
+            markdownDescription: 'Even **markdown** _descriptions_ `are` ~~not~~ supported!',
+          },
+          enum: {
+            description: 'Pick your starter',
+            enum: ['Bulbasaur', 'Squirtle', 'Charmander', 'Pikachu'],
+          },
+          number: {
+            description: 'Numbers work!',
+            minimum: 42,
+            maximum: 1337,
+          },
+          boolean: {
+            description: 'Are boolean supported?',
+            type: 'boolean',
+          },
+          string: {
+            type: 'string',
+          },
+          reference: {
+            description: 'JSON schemas can be referenced, even recursively',
+            $ref: 'https://example.com/example-schema.json',
+          },
+          array: {
+            description: 'It also works in arrays',
+            items: {
+              $ref: 'https://example.com/example-schema.json',
+            },
           },
         },
       },
@@ -63,9 +79,58 @@ setDiagnosticsOptions({
   ],
 });
 
+const value = `
+# Property descriptions are displayed when hovering over properties using your cursor
+property: This property has a JSON schema description
+
+
+# Titles work too!
+titledProperty: Titles work too!
+
+
+# Even markdown descriptions work
+markdown: hover me to get a markdown based description 😮
+
+
+# Enums can be autocompleted by placing the cursor after the colon and pressing Ctrl+Space
+enum:
+
+
+# Of course numbers are supported!
+number: 12
+
+
+# As well as booleans!
+boolean: true
+
+
+# And strings
+string: I am a string
+
+
+# This property is using the JSON schema recursively
+reference:
+  boolean: Not a boolean
+
+
+# Also works in arrays
+array:
+  - string: 12
+    enum: Mewtwo
+
+
+formatting:       Formatting is supported too! Under the hood this is powered by Prettier. Just press Ctrl+Shift+I or right click and press Format to format this document.
+
+
+
+
+
+
+`.replace(/:$/m, ': ');
+
 editor.create(document.getElementById('editor'), {
   automaticLayout: true,
-  value: 'p1: ',
+  value,
   language: 'yaml',
   theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs-light',
 });
