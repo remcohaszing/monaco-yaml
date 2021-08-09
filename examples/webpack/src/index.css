@@ -1,5 +1,6 @@
 :root {
   --background-color: hsl(0, 0%, 96%);
+  --editor-background: hsl(60, 100%, 100%);
   --primary-color: hsl(189, 100%, 63%);
   --shadow-color: hsla(0, 0%, 27%, 0.239);
 }
@@ -7,6 +8,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background-color: hsl(0, 0%, 23%);
+    --editor-background: hsl(0, 0%, 12%);
     --shadow-color: hsl(0, 0%, 43%);
   }
 }
@@ -50,6 +52,7 @@ nav {
 }
 
 #editor {
+  background: var(--editor-background);
   height: 100%;
   box-shadow: 0 0 10px var(--shadow-color);
 }
