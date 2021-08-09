@@ -55,7 +55,7 @@ setDiagnosticsOptions({
           },
           enum: {
             description: 'Pick your starter',
-            enum: ['Bulbasaur', 'Squirtle', 'Charmander', 'Pickachu'],
+            enum: ['Bulbasaur', 'Squirtle', 'Charmander', 'Pikachu'],
           },
           number: {
             description: 'Numbers work!',
