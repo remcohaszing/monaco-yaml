@@ -10,7 +10,7 @@ import {
   Uri,
 } from 'monaco-editor/esm/vs/editor/editor.api';
 import * as ls from 'vscode-languageserver-types';
-import { CustomFormatterOptions } from 'yaml-language-server';
+import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
 
 import { LanguageServiceDefaultsImpl } from './monaco.contribution';
 import { YAMLWorker } from './yamlWorker';
