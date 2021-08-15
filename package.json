@@ -4,10 +4,7 @@
   "description": "YAML plugin for the Monaco Editor",
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
-    "watch": "tsc -p ./src --watch",
-    "compile": "rimraf ./out && tsc",
-    "bundle": "rimraf ./lib && node ./scripts/bundle-esm",
-    "prepack": "npm run compile && npm run bundle",
+    "prepack": "node build.js",
     "prepare": "husky install",
     "lint": "eslint . && prettier --check ."
   },
@@ -36,6 +33,7 @@
   "dependencies": {
     "@types/json-schema": "^7.0.9",
     "js-yaml": "^3.14.1",
+    "prettier": "2.0.5",
     "yaml-ast-parser-custom-tags": "^0.0.43"
   },
   "peerDependencies": {
@@ -44,14 +42,12 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
+    "esbuild": "^0.12.20",
     "eslint": "^7.32.0",
     "eslint-config-remcohaszing": "^3.5.0",
     "husky": "^7.0.1",
     "lint-staged": "^11.1.1",
     "monaco-editor": "^0.26.1",
-    "monaco-plugin-helpers": "^1.0.3",
-    "prettier": "2.0.5",
-    "rimraf": "^3.0.2",
     "typescript": "^4.3.5",
     "yaml-language-server": "^0.11.1"
   },
