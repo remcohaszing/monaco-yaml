@@ -107,7 +107,7 @@ Originally [@kpdecker](https://github.com/kpdecker) forked this repository from
 [`yaml-language-server`](https://github.com/redhat-developer/yaml-language-server) instead. Later
 the repository maintenance was taken over by [@pengx17](https://github.com/pengx17). Eventually the
 repository was tranferred to the account of [@remcohaszing](https://github.com/remcohaszing), who is
-currently maintaining this repository with the help of [fleon](https://github.com/fleon) and
+currently maintaining this repository with the help of [@fleon](https://github.com/fleon) and
 [@yazaabed](https://github.com/yazaabed).
 
 The heavy processing is done in
