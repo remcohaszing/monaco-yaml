@@ -33,6 +33,14 @@
   "bugs": {
     "url": "https://github.com/remcohaszing/monaco-yaml/issues"
   },
+  "keywords": [
+    "editor",
+    "frontend",
+    "front-end",
+    "monaco",
+    "monaco-editor",
+    "yaml"
+  ],
   "dependencies": {
     "@types/json-schema": "^7.0.9",
     "js-yaml": "^3.14.1",
