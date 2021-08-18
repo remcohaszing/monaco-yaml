@@ -19,7 +19,7 @@ export type WorkerAccessor = (...more: Uri[]) => PromiseLike<YAMLWorker>;
 
 // --- diagnostics --- ---
 
-function toSeverity(lsSeverity: number): MarkerSeverity {
+function toSeverity(lsSeverity: ls.DiagnosticSeverity): MarkerSeverity {
   switch (lsSeverity) {
     case ls.DiagnosticSeverity.Error:
       return MarkerSeverity.Error;
@@ -176,7 +176,7 @@ function toRange(range: ls.Range): Range {
   );
 }
 
-function toCompletionItemKind(kind: number): languages.CompletionItemKind {
+function toCompletionItemKind(kind: languages.CompletionItemKind): languages.CompletionItemKind {
   const mItemKind = languages.CompletionItemKind;
 
   switch (kind) {
