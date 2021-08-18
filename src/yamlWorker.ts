@@ -57,11 +57,7 @@ export class YAMLWorker {
     return this._languageService.doHover(document, position);
   }
 
-  format(
-    uri: string,
-    range: ls.Range,
-    options: yamlService.CustomFormatterOptions,
-  ): PromiseLike<ls.TextEdit[]> {
+  format(uri: string, options: yamlService.CustomFormatterOptions): PromiseLike<ls.TextEdit[]> {
     const document = this._getTextDocument(uri);
     const textEdits = this._languageService.doFormat(document, options);
     return Promise.resolve(textEdits);

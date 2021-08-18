@@ -432,7 +432,7 @@ export class DocumentFormattingEditProvider implements languages.DocumentFormatt
     const resource = model.uri;
 
     return this._worker(resource).then((worker) =>
-      worker.format(String(resource), null, fromFormattingOptions(options)).then((edits) => {
+      worker.format(String(resource), fromFormattingOptions(options)).then((edits) => {
         if (!edits || edits.length === 0) {
           return;
         }
