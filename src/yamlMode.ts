@@ -1,8 +1,14 @@
 import { IDisposable, languages, Uri } from 'monaco-editor/esm/vs/editor/editor.api';
 
-import * as languageFeatures from './languageFeatures';
-import { LanguageServiceDefaultsImpl } from './monaco.contribution';
-import { WorkerManager } from './workerManager';
+import {
+  createCompletionItemProvider,
+  createDiagnosticsAdapter,
+  createDocumentFormattingEditProvider,
+  createDocumentSymbolProvider,
+  createHoverProvider,
+  WorkerAccessor,
+} from './languageFeatures';
+import { createWorkerManager } from './workerManager';
 import { YAMLWorker } from './yamlWorker';
 
 const richEditConfiguration: languages.LanguageConfiguration = {
@@ -37,32 +43,26 @@ const richEditConfiguration: languages.LanguageConfiguration = {
   ],
 };
 
-export function setupMode(defaults: LanguageServiceDefaultsImpl): void {
+export function setupMode(defaults: languages.yaml.LanguageServiceDefaults): void {
   const disposables: IDisposable[] = [];
 
-  const client = new WorkerManager(defaults);
+  const client = createWorkerManager(defaults);
   disposables.push(client);
 
-  const worker: languageFeatures.WorkerAccessor = (...uris: Uri[]): Promise<YAMLWorker> =>
+  const worker: WorkerAccessor = (...uris: Uri[]): Promise<YAMLWorker> =>
     client.getLanguageServiceWorker(...uris);
 
   const { languageId } = defaults;
 
   disposables.push(
-    languages.registerCompletionItemProvider(
-      languageId,
-      new languageFeatures.CompletionAdapter(worker),
-    ),
-    languages.registerHoverProvider(languageId, new languageFeatures.HoverAdapter(worker)),
-    languages.registerDocumentSymbolProvider(
-      languageId,
-      new languageFeatures.DocumentSymbolAdapter(worker),
-    ),
+    languages.registerCompletionItemProvider(languageId, createCompletionItemProvider(worker)),
+    languages.registerHoverProvider(languageId, createHoverProvider(worker)),
+    languages.registerDocumentSymbolProvider(languageId, createDocumentSymbolProvider(worker)),
     languages.registerDocumentFormattingEditProvider(
       languageId,
-      new languageFeatures.DocumentFormattingEditProvider(worker),
+      createDocumentFormattingEditProvider(worker),
     ),
-    new languageFeatures.DiagnosticsAdapter(languageId, worker, defaults),
+    createDiagnosticsAdapter(languageId, worker, defaults),
     languages.setLanguageConfiguration(languageId, richEditConfiguration),
   );
 }

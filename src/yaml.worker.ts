@@ -1,8 +1,7 @@
-import * as worker from 'monaco-editor/esm/vs/editor/editor.worker';
+import { initialize } from 'monaco-editor/esm/vs/editor/editor.worker';
 
-import { YAMLWorker } from './yamlWorker';
+import { createYAMLWorker } from './yamlWorker';
 
 self.onmessage = () => {
-  // Ignore the first message
-  worker.initialize((ctx, createData) => new YAMLWorker(ctx, createData));
+  initialize((ctx, createData) => Object.create(createYAMLWorker(ctx, createData)));
 };

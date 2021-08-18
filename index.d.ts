@@ -57,6 +57,7 @@ declare module 'monaco-editor/esm/vs/editor/editor.api' {
 
     export interface LanguageServiceDefaults {
       readonly onDidChange: IEvent<LanguageServiceDefaults>;
+      readonly languageId: string;
       readonly diagnosticsOptions: DiagnosticsOptions;
       setDiagnosticsOptions: (options: DiagnosticsOptions) => void;
     }
