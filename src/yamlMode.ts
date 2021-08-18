@@ -62,10 +62,6 @@ export function setupMode(defaults: LanguageServiceDefaultsImpl): void {
       languageId,
       new languageFeatures.DocumentFormattingEditProvider(worker),
     ),
-    languages.registerDocumentRangeFormattingEditProvider(
-      languageId,
-      new languageFeatures.DocumentRangeFormattingEditProvider(worker),
-    ),
     new languageFeatures.DiagnosticsAdapter(languageId, worker, defaults),
     languages.setLanguageConfiguration(languageId, richEditConfiguration),
   );

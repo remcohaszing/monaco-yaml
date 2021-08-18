@@ -2,7 +2,6 @@ import {
   editor,
   IDisposable,
   IMarkdownString,
-  IRange,
   languages,
   MarkerSeverity,
   Position,
@@ -152,18 +151,6 @@ function fromPosition(position: Position): ls.Position {
   return { character: position.column - 1, line: position.lineNumber - 1 };
 }
 
-function fromRange(range: IRange): ls.Range {
-  if (!range) {
-    return;
-  }
-  return {
-    start: {
-      line: range.startLineNumber - 1,
-      character: range.startColumn - 1,
-    },
-    end: { line: range.endLineNumber - 1, character: range.endColumn - 1 },
-  };
-}
 function toRange(range: ls.Range): Range {
   if (!range) {
     return;
@@ -451,30 +438,6 @@ export class DocumentFormattingEditProvider implements languages.DocumentFormatt
         }
         return edits.map(toTextEdit);
       }),
-    );
-  }
-}
-
-export class DocumentRangeFormattingEditProvider
-  implements languages.DocumentRangeFormattingEditProvider {
-  constructor(private _worker: WorkerAccessor) {}
-
-  provideDocumentRangeFormattingEdits(
-    model: editor.IReadOnlyModel,
-    range: Range,
-    options: languages.FormattingOptions,
-  ): PromiseLike<editor.ISingleEditOperation[]> {
-    const resource = model.uri;
-
-    return this._worker(resource).then((worker) =>
-      worker
-        .format(String(resource), fromRange(range), fromFormattingOptions(options))
-        .then((edits) => {
-          if (!edits || edits.length === 0) {
-            return;
-          }
-          return edits.map(toTextEdit);
-        }),
     );
   }
 }
