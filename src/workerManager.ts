@@ -69,14 +69,10 @@ export function createWorkerManager(
       stopWorker();
     },
 
-    getLanguageServiceWorker(...resources) {
-      let _client: YAMLWorker;
-      return getClient()
-        .then((client) => {
-          _client = client;
-        })
-        .then(() => worker.withSyncedResources(resources))
-        .then(() => _client);
+    async getLanguageServiceWorker(...resources) {
+      const client = await getClient();
+      await worker.withSyncedResources(resources);
+      return client;
     },
   };
 }
