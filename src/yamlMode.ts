@@ -65,12 +65,4 @@ export function setupMode(defaults: LanguageServiceDefaultsImpl): void {
     new languageFeatures.DiagnosticsAdapter(languageId, worker, defaults),
     languages.setLanguageConfiguration(languageId, richEditConfiguration),
   );
-
-  // Color adapter should be necessary most of the time:
-  // disposables.push(
-  //   languages.registerColorProvider(
-  //     languageId,
-  //     new languageFeatures.DocumentColorAdapter(worker)
-  //   )
-  // );
 }
