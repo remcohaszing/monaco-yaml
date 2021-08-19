@@ -11,7 +11,6 @@ import {
 import * as ls from 'vscode-languageserver-types';
 import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
 
-import { LanguageServiceDefaultsImpl } from './monaco.contribution';
 import { YAMLWorker } from './yamlWorker';
 
 export type WorkerAccessor = (...more: Uri[]) => PromiseLike<YAMLWorker>;
@@ -48,85 +47,22 @@ function toDiagnostics(resource: Uri, diag: ls.Diagnostic): editor.IMarkerData {
   };
 }
 
-export class DiagnosticsAdapter {
-  private _disposables: IDisposable[] = [];
-  private _listener: Record<string, IDisposable> = Object.create(null);
+export function createDiagnosticsAdapter(
+  languageId: string,
+  getWorker: WorkerAccessor,
+  defaults: languages.yaml.LanguageServiceDefaults,
+): IDisposable {
+  let disposables: IDisposable[] = [];
+  const listeners: Record<string, IDisposable> = Object.create(null);
 
-  constructor(
-    private _languageId: string,
-    private _worker: WorkerAccessor,
-    defaults: LanguageServiceDefaultsImpl,
-  ) {
-    const onModelAdd = (model: editor.IModel): void => {
-      const modeId = model.getModeId();
-      if (modeId !== this._languageId) {
-        return;
-      }
-
-      let handle: number;
-      this._listener[String(toString)] = model.onDidChangeContent(() => {
-        clearTimeout(handle);
-        handle = setTimeout(() => this._doValidate(model.uri, modeId), 500);
-      });
-
-      this._doValidate(model.uri, modeId);
-    };
-
-    const onModelRemoved = (model: editor.IModel): void => {
-      editor.setModelMarkers(model, this._languageId, []);
-      const uriStr = String(model.uri);
-      const listener = this._listener[uriStr];
-      if (listener) {
-        listener.dispose();
-        delete this._listener[uriStr];
-      }
-    };
-
-    this._disposables.push(
-      editor.onDidCreateModel(onModelAdd),
-      editor.onWillDisposeModel((model) => {
-        onModelRemoved(model);
-        this._resetSchema(model.uri);
-      }),
-      editor.onDidChangeModelLanguage((event) => {
-        onModelRemoved(event.model);
-        onModelAdd(event.model);
-        this._resetSchema(event.model.uri);
-      }),
-      defaults.onDidChange(() => {
-        editor.getModels().forEach((model) => {
-          if (model.getModeId() === this._languageId) {
-            onModelRemoved(model);
-            onModelAdd(model);
-          }
-        });
-      }),
-      {
-        dispose: () => {
-          editor.getModels().forEach(onModelRemoved);
-          for (const disposable of Object.values(this._listener)) {
-            disposable.dispose();
-          }
-        },
-      },
-    );
-
-    editor.getModels().forEach(onModelAdd);
-  }
-
-  dispose(): void {
-    this._disposables.forEach((d) => d && d.dispose());
-    this._disposables = [];
-  }
-
-  private _resetSchema(resource: Uri): void {
-    this._worker().then((worker) => {
+  const resetSchema = (resource: Uri): void => {
+    getWorker().then((worker) => {
       worker.resetSchema(String(resource));
     });
-  }
+  };
 
-  private _doValidate(resource: Uri, languageId: string): void {
-    this._worker(resource)
+  const doValidate = (resource: Uri, languageId: string): void => {
+    getWorker(resource)
       .then((worker) =>
         worker.doValidation(String(resource)).then((diagnostics) => {
           const markers = diagnostics.map((d) => toDiagnostics(resource, d));
@@ -139,7 +75,70 @@ export class DiagnosticsAdapter {
       .then(undefined, (err) => {
         console.error(err);
       });
-  }
+  };
+
+  const onModelAdd = (model: editor.IModel): void => {
+    const modeId = model.getModeId();
+    if (modeId !== languageId) {
+      return;
+    }
+
+    let handle: number;
+    listeners[String(toString)] = model.onDidChangeContent(() => {
+      clearTimeout(handle);
+      handle = setTimeout(() => doValidate(model.uri, modeId), 500);
+    });
+
+    doValidate(model.uri, modeId);
+  };
+
+  const onModelRemoved = (model: editor.IModel): void => {
+    editor.setModelMarkers(model, languageId, []);
+    const uriStr = String(model.uri);
+    const listener = listeners[uriStr];
+    if (listener) {
+      listener.dispose();
+      delete listeners[uriStr];
+    }
+  };
+
+  disposables.push(
+    editor.onDidCreateModel(onModelAdd),
+    editor.onWillDisposeModel((model) => {
+      onModelRemoved(model);
+      resetSchema(model.uri);
+    }),
+    editor.onDidChangeModelLanguage((event) => {
+      onModelRemoved(event.model);
+      onModelAdd(event.model);
+      resetSchema(event.model.uri);
+    }),
+    defaults.onDidChange(() => {
+      editor.getModels().forEach((model) => {
+        if (model.getModeId() === languageId) {
+          onModelRemoved(model);
+          onModelAdd(model);
+        }
+      });
+    }),
+    {
+      dispose: () => {
+        editor.getModels().forEach(onModelRemoved);
+        for (const disposable of Object.values(listeners)) {
+          disposable.dispose();
+        }
+      },
+    },
+  );
+
+  editor.getModels().forEach(onModelAdd);
+
+  return {
+    dispose() {
+      disposables.forEach((d) => d && d.dispose());
+      disposables = [];
+    },
+  };
 }
 
 // --- completion ------
@@ -218,64 +217,66 @@ function toTextEdit(textEdit: ls.TextEdit): editor.ISingleEditOperation {
   };
 }
 
-export class CompletionAdapter implements languages.CompletionItemProvider {
-  triggetCharacters = [' ', ':'];
+export function createCompletionItemProvider(
+  getWorker: WorkerAccessor,
+): languages.CompletionItemProvider {
+  return {
+    triggerCharacters: [' ', ':'],
 
-  constructor(private _worker: WorkerAccessor) {}
+    provideCompletionItems(
+      model: editor.IReadOnlyModel,
+      position: Position,
+    ): PromiseLike<languages.CompletionList> {
+      const resource = model.uri;
 
-  provideCompletionItems(
-    model: editor.IReadOnlyModel,
-    position: Position,
-  ): PromiseLike<languages.CompletionList> {
-    const resource = model.uri;
+      return getWorker(resource)
+        .then((worker) => worker.doComplete(String(resource), fromPosition(position)))
+        .then((info) => {
+          if (!info) {
+            return;
+          }
 
-    return this._worker(resource)
-      .then((worker) => worker.doComplete(String(resource), fromPosition(position)))
-      .then((info) => {
-        if (!info) {
-          return;
-        }
+          const wordInfo = model.getWordUntilPosition(position);
+          const wordRange = new Range(
+            position.lineNumber,
+            wordInfo.startColumn,
+            position.lineNumber,
+            wordInfo.endColumn,
+          );
 
-        const wordInfo = model.getWordUntilPosition(position);
-        const wordRange = new Range(
-          position.lineNumber,
-          wordInfo.startColumn,
-          position.lineNumber,
-          wordInfo.endColumn,
-        );
+          const items = info.items.map((entry) => {
+            const item: languages.CompletionItem = {
+              label: entry.label,
+              insertText: entry.insertText || entry.label,
+              sortText: entry.sortText,
+              filterText: entry.filterText,
+              documentation: entry.documentation,
+              detail: entry.detail,
+              kind: toCompletionItemKind(entry.kind),
+              range: wordRange,
+            };
+            if (entry.textEdit) {
+              item.range = toRange(
+                'range' in entry.textEdit ? entry.textEdit.range : entry.textEdit.replace,
+              );
+              item.insertText = entry.textEdit.newText;
+            }
+            if (entry.additionalTextEdits) {
+              item.additionalTextEdits = entry.additionalTextEdits.map(toTextEdit);
+            }
+            if (entry.insertTextFormat === ls.InsertTextFormat.Snippet) {
+              item.insertTextRules = languages.CompletionItemInsertTextRule.InsertAsSnippet;
+            }
+            return item;
+          });
 
-        const items: languages.CompletionItem[] = info.items.map((entry) => {
-          const item: languages.CompletionItem = {
-            label: entry.label,
-            insertText: entry.insertText || entry.label,
-            sortText: entry.sortText,
-            filterText: entry.filterText,
-            documentation: entry.documentation,
-            detail: entry.detail,
-            kind: toCompletionItemKind(entry.kind),
-            range: wordRange,
+          return {
+            isIncomplete: info.isIncomplete,
+            suggestions: items,
           };
-          if (entry.textEdit) {
-            item.range = toRange(
-              'range' in entry.textEdit ? entry.textEdit.range : entry.textEdit.replace,
-            );
-            item.insertText = entry.textEdit.newText;
-          }
-          if (entry.additionalTextEdits) {
-            item.additionalTextEdits = entry.additionalTextEdits.map(toTextEdit);
-          }
-          if (entry.insertTextFormat === ls.InsertTextFormat.Snippet) {
-            item.insertTextRules = languages.CompletionItemInsertTextRule.InsertAsSnippet;
-          }
-          return item;
         });
-
-        return {
-          isIncomplete: info.isIncomplete,
-          suggestions: items,
-        };
-      });
-  }
+    },
+  };
 }
 
 function isMarkupContent(thing: unknown): thing is ls.MarkupContent {
@@ -316,24 +317,24 @@ function toMarkedStringArray(
 
 // --- hover ------
 
-export class HoverAdapter implements languages.HoverProvider {
-  constructor(private _worker: WorkerAccessor) {}
+export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverProvider {
+  return {
+    provideHover(model, position) {
+      const resource = model.uri;
 
-  provideHover(model: editor.IReadOnlyModel, position: Position): PromiseLike<languages.Hover> {
-    const resource = model.uri;
-
-    return this._worker(resource)
-      .then((worker) => worker.doHover(String(resource), fromPosition(position)))
-      .then((info) => {
-        if (!info) {
-          return;
-        }
-        return {
-          range: toRange(info.range),
-          contents: toMarkedStringArray(info.contents),
-        } as languages.Hover;
-      });
-  }
+      return getWorker(resource)
+        .then((worker) => worker.doHover(String(resource), fromPosition(position)))
+        .then((info) => {
+          if (!info) {
+            return;
+          }
+          return {
+            range: toRange(info.range),
+            contents: toMarkedStringArray(info.contents),
+          } as languages.Hover;
+        });
+    },
+  };
 }
 
 // --- document symbols ------
@@ -395,21 +396,23 @@ function toDocumentSymbol(item: ls.DocumentSymbol): languages.DocumentSymbol {
   };
 }
 
-export class DocumentSymbolAdapter implements languages.DocumentSymbolProvider {
-  constructor(private _worker: WorkerAccessor) {}
+export function createDocumentSymbolProvider(
+  getWorker: WorkerAccessor,
+): languages.DocumentSymbolProvider {
+  return {
+    provideDocumentSymbols(model) {
+      const resource = model.uri;
 
-  provideDocumentSymbols(model: editor.IReadOnlyModel): PromiseLike<languages.DocumentSymbol[]> {
-    const resource = model.uri;
-
-    return this._worker(resource)
-      .then((worker) => worker.findDocumentSymbols(String(resource)))
-      .then((items) => {
-        if (!items) {
-          return;
-        }
-        return items.map((item) => toDocumentSymbol(item));
-      });
-  }
+      return getWorker(resource)
+        .then((worker) => worker.findDocumentSymbols(String(resource)))
+        .then((items) => {
+          if (!items) {
+            return;
+          }
+          return items.map((item) => toDocumentSymbol(item));
+        });
+    },
+  };
 }
 
 function fromFormattingOptions(
@@ -422,22 +425,21 @@ function fromFormattingOptions(
   };
 }
 
-export class DocumentFormattingEditProvider implements languages.DocumentFormattingEditProvider {
-  constructor(private _worker: WorkerAccessor) {}
+export function createDocumentFormattingEditProvider(
+  getWorker: WorkerAccessor,
+): languages.DocumentFormattingEditProvider {
+  return {
+    provideDocumentFormattingEdits(model, options) {
+      const resource = model.uri;
 
-  provideDocumentFormattingEdits(
-    model: editor.IReadOnlyModel,
-    options: languages.FormattingOptions,
-  ): PromiseLike<editor.ISingleEditOperation[]> {
-    const resource = model.uri;
-
-    return this._worker(resource).then((worker) =>
-      worker.format(String(resource), fromFormattingOptions(options)).then((edits) => {
-        if (!edits || edits.length === 0) {
-          return;
-        }
-        return edits.map(toTextEdit);
-      }),
-    );
-  }
+      return getWorker(resource).then((worker) =>
+        worker.format(String(resource), fromFormattingOptions(options)).then((edits) => {
+          if (!edits || edits.length === 0) {
+            return;
+          }
+          return edits.map(toTextEdit);
+        }),
+      );
+    },
+  };
 }
