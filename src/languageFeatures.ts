@@ -55,26 +55,19 @@ export function createDiagnosticsAdapter(
   let disposables: IDisposable[] = [];
   const listeners: Record<string, IDisposable> = Object.create(null);
 
-  const resetSchema = (resource: Uri): void => {
-    getWorker().then((worker) => {
-      worker.resetSchema(String(resource));
-    });
+  const resetSchema = async (resource: Uri): Promise<void> => {
+    const worker = await getWorker();
+    worker.resetSchema(String(resource));
   };
 
-  const doValidate = (resource: Uri, languageId: string): void => {
-    getWorker(resource)
-      .then((worker) =>
-        worker.doValidation(String(resource)).then((diagnostics) => {
-          const markers = diagnostics.map((d) => toDiagnostics(resource, d));
-          const model = editor.getModel(resource);
-          if (model.getModeId() === languageId) {
-            editor.setModelMarkers(model, languageId, markers);
-          }
-        }),
-      )
-      .then(undefined, (err) => {
-        console.error(err);
-      });
+  const doValidate = async (resource: Uri, languageId: string): Promise<void> => {
+    const worker = await getWorker(resource);
+    const diagnostics = await worker.doValidation(String(resource));
+    const markers = diagnostics.map((d) => toDiagnostics(resource, d));
+    const model = editor.getModel(resource);
+    if (model.getModeId() === languageId) {
+      editor.setModelMarkers(model, languageId, markers);
+    }
   };
 
   const onModelAdd = (model: editor.IModel): void => {
@@ -223,58 +216,53 @@ export function createCompletionItemProvider(
   return {
     triggerCharacters: [' ', ':'],
 
-    provideCompletionItems(
-      model: editor.IReadOnlyModel,
-      position: Position,
-    ): PromiseLike<languages.CompletionList> {
+    async provideCompletionItems(model, position) {
       const resource = model.uri;
 
-      return getWorker(resource)
-        .then((worker) => worker.doComplete(String(resource), fromPosition(position)))
-        .then((info) => {
-          if (!info) {
-            return;
-          }
+      const worker = await getWorker(resource);
+      const info = await worker.doComplete(String(resource), fromPosition(position));
+      if (!info) {
+        return;
+      }
 
-          const wordInfo = model.getWordUntilPosition(position);
-          const wordRange = new Range(
-            position.lineNumber,
-            wordInfo.startColumn,
-            position.lineNumber,
-            wordInfo.endColumn,
+      const wordInfo = model.getWordUntilPosition(position);
+      const wordRange = new Range(
+        position.lineNumber,
+        wordInfo.startColumn,
+        position.lineNumber,
+        wordInfo.endColumn,
+      );
+
+      const items = info.items.map((entry) => {
+        const item: languages.CompletionItem = {
+          label: entry.label,
+          insertText: entry.insertText || entry.label,
+          sortText: entry.sortText,
+          filterText: entry.filterText,
+          documentation: entry.documentation,
+          detail: entry.detail,
+          kind: toCompletionItemKind(entry.kind),
+          range: wordRange,
+        };
+        if (entry.textEdit) {
+          item.range = toRange(
+            'range' in entry.textEdit ? entry.textEdit.range : entry.textEdit.replace,
           );
+          item.insertText = entry.textEdit.newText;
+        }
+        if (entry.additionalTextEdits) {
+          item.additionalTextEdits = entry.additionalTextEdits.map(toTextEdit);
+        }
+        if (entry.insertTextFormat === ls.InsertTextFormat.Snippet) {
+          item.insertTextRules = languages.CompletionItemInsertTextRule.InsertAsSnippet;
+        }
+        return item;
+      });
 
-          const items = info.items.map((entry) => {
-            const item: languages.CompletionItem = {
-              label: entry.label,
-              insertText: entry.insertText || entry.label,
-              sortText: entry.sortText,
-              filterText: entry.filterText,
-              documentation: entry.documentation,
-              detail: entry.detail,
-              kind: toCompletionItemKind(entry.kind),
-              range: wordRange,
-            };
-            if (entry.textEdit) {
-              item.range = toRange(
-                'range' in entry.textEdit ? entry.textEdit.range : entry.textEdit.replace,
-              );
-              item.insertText = entry.textEdit.newText;
-            }
-            if (entry.additionalTextEdits) {
-              item.additionalTextEdits = entry.additionalTextEdits.map(toTextEdit);
-            }
-            if (entry.insertTextFormat === ls.InsertTextFormat.Snippet) {
-              item.insertTextRules = languages.CompletionItemInsertTextRule.InsertAsSnippet;
-            }
-            return item;
-          });
-
-          return {
-            isIncomplete: info.isIncomplete,
-            suggestions: items,
-          };
-        });
+      return {
+        incomplete: info.isIncomplete,
+        suggestions: items,
+      };
     },
   };
 }
@@ -319,20 +307,18 @@ function toMarkedStringArray(
 
 export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverProvider {
   return {
-    provideHover(model, position) {
+    async provideHover(model, position) {
       const resource = model.uri;
 
-      return getWorker(resource)
-        .then((worker) => worker.doHover(String(resource), fromPosition(position)))
-        .then((info) => {
-          if (!info) {
-            return;
-          }
-          return {
-            range: toRange(info.range),
-            contents: toMarkedStringArray(info.contents),
-          } as languages.Hover;
-        });
+      const worker = await getWorker(resource);
+      const info = await worker.doHover(String(resource), fromPosition(position));
+      if (!info) {
+        return;
+      }
+      return {
+        range: toRange(info.range),
+        contents: toMarkedStringArray(info.contents),
+      };
     },
   };
 }
@@ -400,17 +386,15 @@ export function createDocumentSymbolProvider(
   getWorker: WorkerAccessor,
 ): languages.DocumentSymbolProvider {
   return {
-    provideDocumentSymbols(model) {
+    async provideDocumentSymbols(model) {
       const resource = model.uri;
 
-      return getWorker(resource)
-        .then((worker) => worker.findDocumentSymbols(String(resource)))
-        .then((items) => {
-          if (!items) {
-            return;
-          }
-          return items.map((item) => toDocumentSymbol(item));
-        });
+      const worker = await getWorker(resource);
+      const items = await worker.findDocumentSymbols(String(resource));
+      if (!items) {
+        return;
+      }
+      return items.map((item) => toDocumentSymbol(item));
     },
   };
 }
@@ -429,17 +413,15 @@ export function createDocumentFormattingEditProvider(
   getWorker: WorkerAccessor,
 ): languages.DocumentFormattingEditProvider {
   return {
-    provideDocumentFormattingEdits(model, options) {
+    async provideDocumentFormattingEdits(model, options) {
       const resource = model.uri;
 
-      return getWorker(resource).then((worker) =>
-        worker.format(String(resource), fromFormattingOptions(options)).then((edits) => {
-          if (!edits || edits.length === 0) {
-            return;
-          }
-          return edits.map(toTextEdit);
-        }),
-      );
+      const worker = await getWorker(resource);
+      const edits = await worker.format(String(resource), fromFormattingOptions(options));
+      if (!edits || edits.length === 0) {
+        return;
+      }
+      return edits.map(toTextEdit);
     },
   };
 }
