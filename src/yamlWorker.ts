@@ -1,4 +1,5 @@
 import { worker } from 'monaco-editor/esm/vs/editor/editor.api';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as ls from 'vscode-languageserver-types';
 import {
   CustomFormatterOptions,
@@ -6,7 +7,7 @@ import {
   LanguageSettings,
 } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
 
-let defaultSchemaRequestService: (url: string) => PromiseLike<string>;
+let defaultSchemaRequestService: (url: string) => Promise<string>;
 
 if (typeof fetch !== 'undefined') {
   defaultSchemaRequestService = (url) => fetch(url).then((response) => response.text());
@@ -36,20 +37,19 @@ export function createYAMLWorker(
     prefix = '',
   }: ICreateData,
 ): YAMLWorker {
-  const service = (url: string): PromiseLike<string> =>
-    defaultSchemaRequestService(`${prefix}${url}`);
-  const languageService = getLanguageService(enableSchemaRequest && service, null, []);
+  const service = (url: string): Promise<string> => defaultSchemaRequestService(`${prefix}${url}`);
+  const languageService = getLanguageService(enableSchemaRequest && service, null, null, null);
   languageService.configure({
     ...languageSettings,
     hover: true,
     isKubernetes,
   });
 
-  const getTextDocument = (uri: string): ls.TextDocument => {
+  const getTextDocument = (uri: string): TextDocument => {
     const models = ctx.getMirrorModels();
     for (const model of models) {
       if (String(model.uri) === uri) {
-        return ls.TextDocument.create(uri, languageId, model.version, model.getValue());
+        return TextDocument.create(uri, languageId, model.version, model.getValue());
       }
     }
     return null;
@@ -86,7 +86,7 @@ export function createYAMLWorker(
 
     findDocumentSymbols(uri) {
       const document = getTextDocument(uri);
-      const symbols = languageService.findDocumentSymbols2(document);
+      const symbols = languageService.findDocumentSymbols2(document, {});
       return Promise.resolve(symbols);
     },
   };
