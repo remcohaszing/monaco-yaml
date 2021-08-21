@@ -1,15 +1,19 @@
 :root {
   --background-color: hsl(0, 0%, 96%);
   --editor-background: hsl(60, 100%, 100%);
+  --foreground-color: hsl(0, 0%, 0%);
   --primary-color: hsl(189, 100%, 63%);
   --shadow-color: hsla(0, 0%, 27%, 0.239);
+  --warning-color: hsl(49, 100%, 40%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background-color: hsl(0, 0%, 23%);
     --editor-background: hsl(0, 0%, 12%);
+    --foreground-color: hsl(0, 0%, 100%);
     --shadow-color: hsl(0, 0%, 43%);
+    --warning-color: hsl(49, 100%, 40%);
   }
 }
 
@@ -47,12 +51,40 @@ nav {
 }
 
 .editor-wrapper {
+  background: var(--editor-background);
+  box-shadow: 0 0 10px var(--shadow-color);
+  display: flex;
   flex: 1 1 auto;
-  padding: 1.5rem;
+  flex-flow: column;
+  margin: 1.5rem;
 }
 
 #editor {
-  background: var(--editor-background);
-  height: 100%;
-  box-shadow: 0 0 10px var(--shadow-color);
+  flex: 1 1 auto;
+}
+
+#problems {
+  border-top: 1px solid var(--shadow-color);
+  flex: 0 0 20vh;
+  color: var(--foreground-color);
+  overflow-y: scroll;
+}
+
+.problem {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  padding: 0.25rem;
+}
+
+.problem:hover {
+  background-color: var(--shadow-color);
+}
+
+.problem-text {
+  margin-left: 0.5rem;
+}
+
+.problem .codicon-warning {
+  color: var(--warning-color);
 }

@@ -1,11 +1,17 @@
 import './index.css';
 
-import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
+import { editor, Environment } from 'monaco-editor/esm/vs/editor/editor.api';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 
 // NOTE: This will give you all editor featues. If you would prefer to limit to only the editor
 // features you want to use, import them each individually. See this example: (https://github.com/microsoft/monaco-editor-samples/blob/main/browser-esm-webpack-small/index.js#L1-L91)
 import 'monaco-editor';
+
+declare global {
+  interface Window {
+    MonacoEnvironment: Environment;
+  }
+}
 
 window.MonacoEnvironment = {
   getWorker(moduleId, label) {
@@ -128,9 +134,37 @@ formatting:       Formatting is supported too! Under the hood this is powered by
 
 `.replace(/:$/m, ': ');
 
-editor.create(document.getElementById('editor'), {
+const ed = editor.create(document.getElementById('editor'), {
   automaticLayout: true,
   value,
   language: 'yaml',
   theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs-light',
+});
+
+editor.onDidChangeMarkers(([resource]) => {
+  const problems = document.getElementById('problems');
+  const markers = editor.getModelMarkers({ resource });
+  while (problems.lastChild) {
+    problems.lastChild.remove();
+  }
+  for (const marker of markers) {
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('role', 'button');
+    const codicon = document.createElement('div');
+    const text = document.createElement('div');
+    wrapper.classList.add('problem');
+    codicon.classList.add('codicon', 'codicon-warning');
+    text.classList.add('problem-text');
+    text.textContent = marker.message;
+    wrapper.append(codicon, text);
+    wrapper.addEventListener(
+      'click',
+      () => {
+        ed.setPosition({ lineNumber: marker.startLineNumber, column: marker.startColumn });
+        ed.focus();
+      },
+      false,
+    );
+    problems.append(wrapper);
+  }
 });

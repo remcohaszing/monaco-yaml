@@ -7,6 +7,7 @@ module.exports = {
     filename: '[contenthash].js',
   },
   resolve: {
+    extensions: ['.mjs', '.js', '.ts'],
     fallback: {
       // Yaml-ast-parser-custom-tags imports buffer. This can be omitted safely.
       buffer: false,
@@ -22,6 +23,11 @@ module.exports = {
         // Monaco editor uses .ttf icons.
         test: /\.(svg|ttf)$/,
         type: 'asset',
+      },
+      {
+        test: /\.ts$/,
+        loader: 'ts-loader',
+        options: { transpileOnly: true },
       },
     ],
   },
