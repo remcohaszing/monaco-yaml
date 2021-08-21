@@ -17,8 +17,6 @@ export interface YAMLWorker {
 
   doComplete: (uri: string, position: ls.Position) => PromiseLike<ls.CompletionList>;
 
-  doResolve: (item: ls.CompletionItem) => PromiseLike<ls.CompletionItem>;
-
   doHover: (uri: string, position: ls.Position) => PromiseLike<ls.Hover>;
 
   format: (uri: string, options: CustomFormatterOptions) => PromiseLike<ls.TextEdit[]>;
@@ -69,10 +67,6 @@ export function createYAMLWorker(
     doComplete(uri, position) {
       const document = getTextDocument(uri);
       return languageService.doComplete(document, position, isKubernetes);
-    },
-
-    doResolve(item) {
-      return languageService.doResolve(item);
     },
 
     doHover(uri, position) {
