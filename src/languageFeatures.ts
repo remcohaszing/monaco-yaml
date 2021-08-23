@@ -76,7 +76,7 @@ export function createDiagnosticsAdapter(
       return;
     }
 
-    let handle: number;
+    let handle: ReturnType<typeof setTimeout>;
     listeners[String(toString)] = model.onDidChangeContent(() => {
       clearTimeout(handle);
       handle = setTimeout(() => doValidate(model.uri, modeId), 500);
