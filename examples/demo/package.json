@@ -1,12 +1,12 @@
 {
-  "name": "webpack-example",
+  "name": "demo",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "webpack serve --open --mode development",
     "build": "webpack --mode production"
   },
-  "devDependencies": {
+  "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
     "css-loader": "^6.2.0",
     "css-minimizer-webpack-plugin": "^3.0.2",
