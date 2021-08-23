@@ -5,8 +5,7 @@
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
     "prepack": "node build.js",
-    "prepare": "husky install",
-    "lint": "eslint . && prettier --check ."
+    "prepare": "husky install"
   },
   "main": "./lib/esm/monaco.contribution.js",
   "module": "./lib/esm/monaco.contribution.js",
