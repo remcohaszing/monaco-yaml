@@ -59,6 +59,30 @@ nav {
   margin: 1.5rem;
 }
 
+#breadcrumbs {
+  border-bottom: 1px solid var(--shadow-color);
+  color: var(--foreground-color);
+  flex: 0 0 1rem;
+}
+
+.breadcrumb {
+  cursor: pointer;
+}
+
+#breadcrumbs::before,
+.breadcrumb:not(:last-child)::after {
+  content: '›';
+  margin: 0 0.2rem;
+}
+
+.breadcrumb.array::before {
+  content: '[]';
+}
+
+.breadcrumb.object::before {
+  content: '{}';
+}
+
 #editor {
   flex: 1 1 auto;
 }
