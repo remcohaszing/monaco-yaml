@@ -425,3 +425,26 @@ export function createDocumentFormattingEditProvider(
     },
   };
 }
+
+function toLink(link: ls.DocumentLink): languages.ILink {
+  return {
+    range: toRange(link.range),
+    tooltip: link.tooltip,
+    url: link.target,
+  };
+}
+
+export function createLinkProvider(getWorker: WorkerAccessor): languages.LinkProvider {
+  return {
+    async provideLinks(model) {
+      const resource = model.uri;
+
+      const worker = await getWorker(resource);
+      const links = await worker.findLinks(String(resource));
+
+      return {
+        links: links.map(toLink),
+      };
+    },
+  };
+}
