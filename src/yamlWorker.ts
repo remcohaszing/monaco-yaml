@@ -1,4 +1,5 @@
 import { worker } from 'monaco-editor/esm/vs/editor/editor.api';
+import { Promisable } from 'type-fest';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as ls from 'vscode-languageserver-types';
 import {
@@ -14,19 +15,19 @@ if (typeof fetch !== 'undefined') {
 }
 
 export interface YAMLWorker {
-  doValidation: (uri: string) => PromiseLike<ls.Diagnostic[]>;
+  doValidation: (uri: string) => Promisable<ls.Diagnostic[]>;
 
-  doComplete: (uri: string, position: ls.Position) => PromiseLike<ls.CompletionList>;
+  doComplete: (uri: string, position: ls.Position) => Promisable<ls.CompletionList>;
 
-  doHover: (uri: string, position: ls.Position) => PromiseLike<ls.Hover>;
+  doHover: (uri: string, position: ls.Position) => Promisable<ls.Hover>;
 
-  format: (uri: string, options: CustomFormatterOptions) => PromiseLike<ls.TextEdit[]>;
+  format: (uri: string, options: CustomFormatterOptions) => Promisable<ls.TextEdit[]>;
 
-  resetSchema: (uri: string) => PromiseLike<boolean>;
+  resetSchema: (uri: string) => Promisable<boolean>;
 
-  findDocumentSymbols: (uri: string) => PromiseLike<ls.DocumentSymbol[]>;
+  findDocumentSymbols: (uri: string) => Promisable<ls.DocumentSymbol[]>;
 
-  findLinks: (uri: string) => PromiseLike<ls.DocumentLink[]>;
+  findLinks: (uri: string) => Promisable<ls.DocumentLink[]>;
 }
 
 export function createYAMLWorker(
@@ -63,7 +64,7 @@ export function createYAMLWorker(
       if (document) {
         return languageService.doValidation(document, isKubernetes);
       }
-      return Promise.resolve([]);
+      return [];
     },
 
     doComplete(uri, position) {
@@ -78,18 +79,16 @@ export function createYAMLWorker(
 
     format(uri, options) {
       const document = getTextDocument(uri);
-      const textEdits = languageService.doFormat(document, options);
-      return Promise.resolve(textEdits);
+      return languageService.doFormat(document, options);
     },
 
     resetSchema(uri) {
-      return Promise.resolve(languageService.resetSchema(uri));
+      return languageService.resetSchema(uri);
     },
 
     findDocumentSymbols(uri) {
       const document = getTextDocument(uri);
-      const symbols = languageService.findDocumentSymbols2(document, {});
-      return Promise.resolve(symbols);
+      return languageService.findDocumentSymbols2(document, {});
     },
 
     findLinks(uri) {
