@@ -15,6 +15,7 @@ files:
 - Formatting using Prettier
 - Document Symbols
 - Automatically load remote schema files (by enabling DiagnosticsOptions.enableSchemaRequest)
+- Links from JSON references.
 
 Schemas can also be provided by configuration. See
 [here](https://github.com/remcohaszing/monaco-yaml/blob/main/index.d.ts) for the API that the plugin

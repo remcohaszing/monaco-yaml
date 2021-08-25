@@ -6,6 +6,7 @@ import {
   createDocumentFormattingEditProvider,
   createDocumentSymbolProvider,
   createHoverProvider,
+  createLinkProvider,
   WorkerAccessor,
 } from './languageFeatures';
 import { createWorkerManager } from './workerManager';
@@ -62,6 +63,7 @@ export function setupMode(defaults: languages.yaml.LanguageServiceDefaults): voi
       languageId,
       createDocumentFormattingEditProvider(worker),
     ),
+    languages.registerLinkProvider(languageId, createLinkProvider(worker)),
     createDiagnosticsAdapter(languageId, worker, defaults),
     languages.setLanguageConfiguration(languageId, richEditConfiguration),
   );

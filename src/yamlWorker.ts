@@ -26,6 +26,8 @@ export interface YAMLWorker {
   resetSchema: (uri: string) => Promisable<boolean>;
 
   findDocumentSymbols: (uri: string) => Promisable<ls.DocumentSymbol[]>;
+
+  findLinks: (uri: string) => Promisable<ls.DocumentLink[]>;
 }
 
 export function createYAMLWorker(
@@ -87,6 +89,11 @@ export function createYAMLWorker(
     findDocumentSymbols(uri) {
       const document = getTextDocument(uri);
       return languageService.findDocumentSymbols2(document, {});
+    },
+
+    findLinks(uri) {
+      const document = getTextDocument(uri);
+      return Promise.resolve(languageService.findLinks(document));
     },
   };
 }
