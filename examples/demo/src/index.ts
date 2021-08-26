@@ -1,6 +1,14 @@
 import './index.css';
 
-import { editor, Environment } from 'monaco-editor/esm/vs/editor/editor.api';
+import { CancellationToken } from 'monaco-editor/esm/vs/base/common/cancellation';
+import { getDocumentSymbols } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/documentSymbols';
+import {
+  editor,
+  Environment,
+  languages,
+  Position,
+  Range,
+} from 'monaco-editor/esm/vs/editor/editor.api';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 
 // NOTE: This will give you all editor featues. If you would prefer to limit to only the editor
@@ -123,6 +131,9 @@ reference:
 array:
   - string: 12
     enum: Mewtwo
+    reference:
+      reference:
+        boolean: true
 
 
 # JSON referenses can be clicked for navigation
@@ -146,6 +157,45 @@ const ed = editor.create(document.getElementById('editor'), {
   theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs-light',
 });
 
+function* iterateSymbols(
+  symbols: languages.DocumentSymbol[],
+  position: Position,
+): Iterable<languages.DocumentSymbol> {
+  for (const symbol of symbols) {
+    if (Range.containsPosition(symbol.range, position)) {
+      yield symbol;
+      yield* iterateSymbols(symbol.children, position);
+    }
+  }
+}
+
+ed.onDidChangeCursorPosition(async (event) => {
+  const breadcrumbs = document.getElementById('breadcrumbs');
+  const symbols = await getDocumentSymbols(ed.getModel(), false, CancellationToken.None);
+  while (breadcrumbs.lastChild) {
+    breadcrumbs.lastChild.remove();
+  }
+  for (const symbol of iterateSymbols(symbols, event.position)) {
+    const breadcrumb = document.createElement('span');
+    breadcrumb.setAttribute('role', 'button');
+    breadcrumb.classList.add('breadcrumb');
+    breadcrumb.textContent = symbol.name;
+    if (symbol.kind === languages.SymbolKind.Array) {
+      breadcrumb.classList.add('array');
+    } else if (symbol.kind === languages.SymbolKind.Module) {
+      breadcrumb.classList.add('object');
+    }
+    breadcrumb.addEventListener('click', () => {
+      ed.setPosition({
+        lineNumber: symbol.range.startLineNumber,
+        column: symbol.range.startColumn,
+      });
+      ed.focus();
+    });
+    breadcrumbs.append(breadcrumb);
+  }
+});
+
 editor.onDidChangeMarkers(([resource]) => {
   const problems = document.getElementById('problems');
   const markers = editor.getModelMarkers({ resource });
@@ -162,14 +212,10 @@ editor.onDidChangeMarkers(([resource]) => {
     text.classList.add('problem-text');
     text.textContent = marker.message;
     wrapper.append(codicon, text);
-    wrapper.addEventListener(
-      'click',
-      () => {
-        ed.setPosition({ lineNumber: marker.startLineNumber, column: marker.startColumn });
-        ed.focus();
-      },
-      false,
-    );
+    wrapper.addEventListener('click', () => {
+      ed.setPosition({ lineNumber: marker.startLineNumber, column: marker.startColumn });
+      ed.focus();
+    });
     problems.append(wrapper);
   }
 });
