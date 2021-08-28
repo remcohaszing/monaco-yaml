@@ -59,6 +59,14 @@ nav {
   margin: 1.5rem;
 }
 
+#schema-selection {
+  background-color: var(--editor-background);
+  border: none;
+  border-bottom: 1px solid var(--shadow-color);
+  color: var(--foreground-color);
+  width: 100%;
+}
+
 #breadcrumbs {
   border-bottom: 1px solid var(--shadow-color);
   color: var(--foreground-color);
