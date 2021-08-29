@@ -1,5 +1,6 @@
 import './index.css';
 
+import { JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schema-catalog';
 import { CancellationToken } from 'monaco-editor/esm/vs/base/common/cancellation';
 import { getDocumentSymbols } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/documentSymbols';
 import {
@@ -8,12 +9,15 @@ import {
   languages,
   Position,
   Range,
+  Uri,
 } from 'monaco-editor/esm/vs/editor/editor.api';
-import { setDiagnosticsOptions } from 'monaco-yaml';
+import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
 // NOTE: This will give you all editor featues. If you would prefer to limit to only the editor
 // features you want to use, import them each individually. See this example: (https://github.com/microsoft/monaco-editor-samples/blob/main/browser-esm-webpack-small/index.js#L1-L91)
 import 'monaco-editor';
+
+import defaultSchemaUri from './schema.json';
 
 declare global {
   interface Window {
@@ -34,63 +38,18 @@ window.MonacoEnvironment = {
   },
 };
 
+const defaultSchema: SchemasSettings = {
+  uri: defaultSchemaUri,
+  fileMatch: ['monaco-yaml.yaml'],
+};
+
 setDiagnosticsOptions({
   validate: true,
   enableSchemaRequest: true,
   format: true,
   hover: true,
   completion: true,
-  schemas: [
-    {
-      // Id of the first schema
-      uri: 'https://example.com/example-schema.json',
-      // Associate with our model
-      fileMatch: ['*'],
-      schema: {
-        // Id of the first schema
-        id: 'https://example.com/example-schema.json',
-        type: 'object',
-        properties: {
-          property: {
-            description: 'I have a description',
-          },
-          titledProperty: {
-            title: 'I have a title',
-            description: 'I also have a description',
-          },
-          markdown: {
-            markdownDescription: 'Even **markdown** _descriptions_ `are` ~~not~~ supported!',
-          },
-          enum: {
-            description: 'Pick your starter',
-            enum: ['Bulbasaur', 'Squirtle', 'Charmander', 'Pikachu'],
-          },
-          number: {
-            description: 'Numbers work!',
-            minimum: 42,
-            maximum: 1337,
-          },
-          boolean: {
-            description: 'Are boolean supported?',
-            type: 'boolean',
-          },
-          string: {
-            type: 'string',
-          },
-          reference: {
-            description: 'JSON schemas can be referenced, even recursively',
-            $ref: 'https://example.com/example-schema.json',
-          },
-          array: {
-            description: 'It also works in arrays',
-            items: {
-              $ref: 'https://example.com/example-schema.json',
-            },
-          },
-        },
-      },
-    },
-  ],
+  schemas: [defaultSchema],
 });
 
 const value = `
@@ -152,9 +111,48 @@ formatting:       Formatting is supported too! Under the hood this is powered by
 
 const ed = editor.create(document.getElementById('editor'), {
   automaticLayout: true,
-  value,
-  language: 'yaml',
+  model: editor.createModel(value, 'yaml', Uri.parse('monaco-yaml.yaml')),
   theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs-light',
+});
+
+const select = document.getElementById('schema-selection') as HTMLSelectElement;
+
+fetch('https://www.schemastore.org/api/json/catalog.json').then(async (response) => {
+  if (!response.ok) {
+    return;
+  }
+  const catalog: JSONSchemaForSchemaStoreOrgCatalogFiles = await response.json();
+  const schemas = [defaultSchema];
+  catalog.schemas.sort((a, b) => a.name.localeCompare(b.name));
+  for (const { fileMatch, name, url } of catalog.schemas) {
+    const match =
+      typeof name === 'string' && fileMatch?.find((filename) => /\.ya?ml$/i.test(filename));
+    if (!match) {
+      continue;
+    }
+    const option = document.createElement('option');
+    option.value = match;
+
+    option.textContent = name;
+    select.append(option);
+    schemas.push({
+      fileMatch: [match],
+      uri: url,
+    });
+  }
+
+  setDiagnosticsOptions({
+    validate: true,
+    enableSchemaRequest: true,
+    format: true,
+    hover: true,
+    completion: true,
+    schemas,
+  });
+});
+
+select.addEventListener('change', () => {
+  ed.setModel(editor.createModel(ed.getValue(), 'yaml', Uri.parse(select.value)));
 });
 
 function* iterateSymbols(

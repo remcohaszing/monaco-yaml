@@ -1,6 +1,29 @@
 import { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema';
 import { IEvent, languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
+export interface SchemasSettings {
+  /**
+   * A `Uri` file match which will trigger the schema validation. This may be a glob or an exact
+   * path.
+   *
+   * @example '.gitlab-ci.yml'
+   * @example 'file://**\/.github/actions/*.yaml'
+   */
+  fileMatch: string[];
+
+  /**
+   * The JSON schema which will be used for validation. If not specified, it will be downloaded from
+   * `uri`.
+   */
+  schema?: JSONSchema4 | JSONSchema6 | JSONSchema7;
+
+  /**
+   * The source URI of the JSON schema. The JSON schema will be downloaded from here if no schema
+   * was supplied. It will also be displayed as the source in hover tooltips.
+   */
+  uri: string;
+}
+
 declare module 'monaco-editor/esm/vs/editor/editor.api' {
   namespace languages.yaml {
     export interface DiagnosticsOptions {
@@ -23,21 +46,7 @@ declare module 'monaco-editor/esm/vs/editor/editor.api' {
       /**
        * A list of known schemas and/or associations of schemas to file names.
        */
-      readonly schemas?: {
-        /**
-         * The URI of the schema, which is also the identifier of the schema.
-         */
-        readonly uri: string;
-        /**
-         * A list of file names that are associated to the schema. The '*' wildcard can be used.
-         * For example '*.schema.json', 'package.json'
-         */
-        readonly fileMatch?: string[];
-        /**
-         * The schema for the given URI.
-         */
-        readonly schema?: JSONSchema4 | JSONSchema6 | JSONSchema7;
-      }[];
+      readonly schemas?: SchemasSettings[];
 
       /**
        * If set, the schema service would load schema content on-demand with 'fetch' if available

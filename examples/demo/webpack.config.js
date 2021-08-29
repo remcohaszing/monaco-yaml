@@ -22,7 +22,11 @@ module.exports = {
       {
         // Monaco editor uses .ttf icons.
         test: /\.(svg|ttf)$/,
-        type: 'asset',
+        type: 'asset/resource',
+      },
+      {
+        test: /schema\.json$/,
+        type: 'asset/resource',
       },
       {
         test: /\.ts$/,
