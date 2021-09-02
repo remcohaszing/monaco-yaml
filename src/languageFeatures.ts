@@ -113,7 +113,9 @@ export function createDiagnosticsAdapter(
     }
   });
 
-  editor.getModels().forEach(onModelAdd);
+  for (const model of editor.getModels()) {
+    onModelAdd(model);
+  }
 }
 
 // --- completion ------

@@ -7,18 +7,18 @@
     "build": "webpack --mode production"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.4",
+    "@fortawesome/fontawesome-free": "^5.0.0",
     "@schemastore/schema-catalog": "^0.0.5",
-    "css-loader": "^6.2.0",
-    "css-minimizer-webpack-plugin": "^3.0.2",
-    "html-webpack-plugin": "^5.3.2",
-    "mini-css-extract-plugin": "^2.2.0",
+    "css-loader": "^6.0.0",
+    "css-minimizer-webpack-plugin": "^3.0.0",
+    "html-webpack-plugin": "^5.0.0",
+    "mini-css-extract-plugin": "^2.0.0",
     "monaco-editor": "^0.27.0",
     "monaco-yaml": "file:../..",
-    "ts-loader": "^9.2.5",
-    "typescript": "^4.3.5",
-    "webpack": "^5.48.0",
-    "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^3.11.2"
+    "ts-loader": "^9.0.0",
+    "typescript": "^4.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0",
+    "webpack-dev-server": "^4.0.0"
   }
 }
