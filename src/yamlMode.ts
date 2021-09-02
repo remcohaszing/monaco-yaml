@@ -1,4 +1,4 @@
-import { IDisposable, languages, Uri } from 'monaco-editor/esm/vs/editor/editor.api';
+import { languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
 import {
   createCompletionItemProvider,
@@ -7,10 +7,8 @@ import {
   createDocumentSymbolProvider,
   createHoverProvider,
   createLinkProvider,
-  WorkerAccessor,
 } from './languageFeatures';
 import { createWorkerManager } from './workerManager';
-import { YAMLWorker } from './yamlWorker';
 
 const richEditConfiguration: languages.LanguageConfiguration = {
   comments: {
@@ -45,26 +43,18 @@ const richEditConfiguration: languages.LanguageConfiguration = {
 };
 
 export function setupMode(defaults: languages.yaml.LanguageServiceDefaults): void {
-  const disposables: IDisposable[] = [];
-
-  const client = createWorkerManager(defaults);
-  disposables.push(client);
-
-  const worker: WorkerAccessor = (...uris: Uri[]): Promise<YAMLWorker> =>
-    client.getLanguageServiceWorker(...uris);
+  const worker = createWorkerManager(defaults);
 
   const { languageId } = defaults;
 
-  disposables.push(
-    languages.registerCompletionItemProvider(languageId, createCompletionItemProvider(worker)),
-    languages.registerHoverProvider(languageId, createHoverProvider(worker)),
-    languages.registerDocumentSymbolProvider(languageId, createDocumentSymbolProvider(worker)),
-    languages.registerDocumentFormattingEditProvider(
-      languageId,
-      createDocumentFormattingEditProvider(worker),
-    ),
-    languages.registerLinkProvider(languageId, createLinkProvider(worker)),
-    createDiagnosticsAdapter(languageId, worker, defaults),
-    languages.setLanguageConfiguration(languageId, richEditConfiguration),
+  languages.registerCompletionItemProvider(languageId, createCompletionItemProvider(worker));
+  languages.registerHoverProvider(languageId, createHoverProvider(worker));
+  languages.registerDocumentSymbolProvider(languageId, createDocumentSymbolProvider(worker));
+  languages.registerDocumentFormattingEditProvider(
+    languageId,
+    createDocumentFormattingEditProvider(worker),
   );
+  languages.registerLinkProvider(languageId, createLinkProvider(worker));
+  createDiagnosticsAdapter(languageId, worker, defaults);
+  languages.setLanguageConfiguration(languageId, richEditConfiguration);
 }

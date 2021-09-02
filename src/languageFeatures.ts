@@ -51,8 +51,7 @@ export function createDiagnosticsAdapter(
   languageId: string,
   getWorker: WorkerAccessor,
   defaults: languages.yaml.LanguageServiceDefaults,
-): IDisposable {
-  let disposables: IDisposable[] = [];
+): void {
   const listeners: Record<string, IDisposable> = Object.create(null);
 
   const resetSchema = async (resource: Uri): Promise<void> => {
@@ -95,43 +94,26 @@ export function createDiagnosticsAdapter(
     }
   };
 
-  disposables.push(
-    editor.onDidCreateModel(onModelAdd),
-    editor.onWillDisposeModel((model) => {
-      onModelRemoved(model);
-      resetSchema(model.uri);
-    }),
-    editor.onDidChangeModelLanguage((event) => {
-      onModelRemoved(event.model);
-      onModelAdd(event.model);
-      resetSchema(event.model.uri);
-    }),
-    defaults.onDidChange(() => {
-      editor.getModels().forEach((model) => {
-        if (model.getModeId() === languageId) {
-          onModelRemoved(model);
-          onModelAdd(model);
-        }
-      });
-    }),
-    {
-      dispose: () => {
-        editor.getModels().forEach(onModelRemoved);
-        for (const disposable of Object.values(listeners)) {
-          disposable.dispose();
-        }
-      },
-    },
-  );
+  editor.onDidCreateModel(onModelAdd);
+  editor.onWillDisposeModel((model) => {
+    onModelRemoved(model);
+    resetSchema(model.uri);
+  });
+  editor.onDidChangeModelLanguage((event) => {
+    onModelRemoved(event.model);
+    onModelAdd(event.model);
+    resetSchema(event.model.uri);
+  });
+  defaults.onDidChange(() => {
+    for (const model of editor.getModels()) {
+      if (model.getModeId() === languageId) {
+        onModelRemoved(model);
+        onModelAdd(model);
+      }
+    }
+  });
 
   editor.getModels().forEach(onModelAdd);
-
-  return {
-    dispose() {
-      disposables.forEach((d) => d && d.dispose());
-      disposables = [];
-    },
-  };
 }
 
 // --- completion ------
