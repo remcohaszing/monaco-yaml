@@ -31,7 +31,7 @@ npm install monaco-yaml
 
 Import `monaco-yaml` and configure it before an editor instance is created.
 
-```ts
+```typescript
 import { editor, Uri } from 'monaco-editor';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 

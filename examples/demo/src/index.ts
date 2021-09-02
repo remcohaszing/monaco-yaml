@@ -121,7 +121,7 @@ fetch('https://www.schemastore.org/api/json/catalog.json').then(async (response)
   if (!response.ok) {
     return;
   }
-  const catalog: JSONSchemaForSchemaStoreOrgCatalogFiles = await response.json();
+  const catalog = (await response.json()) as JSONSchemaForSchemaStoreOrgCatalogFiles;
   const schemas = [defaultSchema];
   catalog.schemas.sort((a, b) => a.name.localeCompare(b.name));
   for (const { fileMatch, name, url } of catalog.schemas) {
