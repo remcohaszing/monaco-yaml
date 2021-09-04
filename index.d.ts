@@ -61,6 +61,11 @@ declare module 'monaco-editor/esm/vs/editor/editor.api' {
        */
       readonly isKubernetes?: boolean;
 
+      /**
+       * A list of custom tags.
+       */
+      readonly customTags?: Array<string>
+
       readonly format?: boolean;
     }
 

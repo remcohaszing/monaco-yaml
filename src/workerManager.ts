@@ -42,6 +42,7 @@ export function createWorkerManager(
           enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
           prefix: defaults.diagnosticsOptions.prefix,
           isKubernetes: defaults.diagnosticsOptions.isKubernetes,
+          customTags: defaults.diagnosticsOptions.customTags,
         },
       });
 
