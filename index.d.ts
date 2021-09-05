@@ -64,7 +64,7 @@ declare module 'monaco-editor/esm/vs/editor/editor.api' {
       /**
        * A list of custom tags.
        */
-      readonly customTags?: Array<string>
+      readonly customTags?: string[];
 
       readonly format?: boolean;
     }
