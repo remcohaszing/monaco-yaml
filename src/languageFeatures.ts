@@ -32,9 +32,7 @@ function toSeverity(lsSeverity: ls.DiagnosticSeverity): MarkerSeverity {
   }
 }
 
-function toDiagnostics(resource: Uri, diag: ls.Diagnostic): editor.IMarkerData {
-  const code = typeof diag.code === 'number' ? String(diag.code) : (diag.code as string);
-
+function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
   return {
     severity: toSeverity(diag.severity),
     startLineNumber: diag.range.start.line + 1,
@@ -42,7 +40,7 @@ function toDiagnostics(resource: Uri, diag: ls.Diagnostic): editor.IMarkerData {
     endLineNumber: diag.range.end.line + 1,
     endColumn: diag.range.end.character + 1,
     message: diag.message,
-    code,
+    code: String(diag.code),
     source: diag.source,
   };
 }
@@ -52,7 +50,7 @@ export function createDiagnosticsAdapter(
   getWorker: WorkerAccessor,
   defaults: languages.yaml.LanguageServiceDefaults,
 ): void {
-  const listeners: Record<string, IDisposable> = Object.create(null);
+  const listeners = new Map<string, IDisposable>();
 
   const resetSchema = async (resource: Uri): Promise<void> => {
     const worker = await getWorker();
@@ -62,7 +60,7 @@ export function createDiagnosticsAdapter(
   const doValidate = async (resource: Uri, languageId: string): Promise<void> => {
     const worker = await getWorker(resource);
     const diagnostics = await worker.doValidation(String(resource));
-    const markers = diagnostics.map((d) => toDiagnostics(resource, d));
+    const markers = diagnostics.map(toDiagnostics);
     const model = editor.getModel(resource);
     if (model.getModeId() === languageId) {
       editor.setModelMarkers(model, languageId, markers);
@@ -76,10 +74,13 @@ export function createDiagnosticsAdapter(
     }
 
     let handle: ReturnType<typeof setTimeout>;
-    listeners[String(toString)] = model.onDidChangeContent(() => {
-      clearTimeout(handle);
-      handle = setTimeout(() => doValidate(model.uri, modeId), 500);
-    });
+    listeners.set(
+      String(model.uri),
+      model.onDidChangeContent(() => {
+        clearTimeout(handle);
+        handle = setTimeout(() => doValidate(model.uri, modeId), 500);
+      }),
+    );
 
     doValidate(model.uri, modeId);
   };
@@ -87,10 +88,10 @@ export function createDiagnosticsAdapter(
   const onModelRemoved = (model: editor.IModel): void => {
     editor.setModelMarkers(model, languageId, []);
     const uriStr = String(model.uri);
-    const listener = listeners[uriStr];
+    const listener = listeners.get(uriStr);
     if (listener) {
       listener.dispose();
-      delete listeners[uriStr];
+      listeners.delete(uriStr);
     }
   };
 
@@ -361,7 +362,7 @@ function toDocumentSymbol(item: ls.DocumentSymbol): languages.DocumentSymbol {
     name: item.name,
     kind: toSymbolKind(item.kind),
     selectionRange: toRange(item.selectionRange),
-    children: item.children.map((child) => toDocumentSymbol(child)),
+    children: item.children.map(toDocumentSymbol),
     tags: [],
   };
 }
@@ -378,7 +379,7 @@ export function createDocumentSymbolProvider(
       if (!items) {
         return;
       }
-      return items.map((item) => toDocumentSymbol(item));
+      return items.map(toDocumentSymbol);
     },
   };
 }

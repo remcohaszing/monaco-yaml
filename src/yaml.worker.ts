@@ -1,7 +1,7 @@
 import { initialize } from 'monaco-editor/esm/vs/editor/editor.worker';
 
-import { createYAMLWorker } from './yamlWorker';
+import { createYAMLWorker, ICreateData } from './yamlWorker';
 
 self.onmessage = () => {
-  initialize((ctx, createData) => Object.create(createYAMLWorker(ctx, createData)));
+  initialize((ctx, createData: ICreateData) => Object.create(createYAMLWorker(ctx, createData)));
 };

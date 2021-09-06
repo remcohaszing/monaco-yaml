@@ -1,24 +1,18 @@
-extends: remcohaszing
+extends:
+  - remcohaszing
+  - remcohaszing/typechecking
 rules:
-  class-methods-use-this: off
-  max-classes-per-file: off
-  no-console: off
   no-restricted-globals: off
-  no-underscore-dangle: off
-  no-useless-constructor: off
 
-  '@typescript-eslint/naming-convention': off
-  '@typescript-eslint/no-parameter-properties': off
+  '@typescript-eslint/no-misused-promises': off
   '@typescript-eslint/no-shadow': off
-  '@typescript-eslint/prefer-optional-chain': off
+  '@typescript-eslint/no-unnecessary-condition': off
 
   import/no-extraneous-dependencies: off
   import/no-unresolved: off
-  import/no-webpack-loader-syntax: off
 
   jsdoc/require-jsdoc: off
 
   node/no-extraneous-import: off
-  node/no-unpublished-import: off
   node/no-unsupported-features/es-syntax: off
   node/no-unsupported-features/node-builtins: off
