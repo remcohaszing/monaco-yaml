@@ -13,17 +13,26 @@ export function createWorkerManager(
   let client: Promise<YAMLWorker>;
   let lastUsedTime = 0;
 
+  const stopWorker = (): void => {
+    if (worker) {
+      worker.dispose();
+      worker = undefined;
+    }
+    client = undefined;
+  };
+
   setInterval(() => {
     if (!worker) {
       return;
     }
     const timePassedSinceLastUsed = Date.now() - lastUsedTime;
     if (timePassedSinceLastUsed > STOP_WHEN_IDLE_FOR) {
-      worker.dispose();
-      worker = undefined;
-      client = undefined;
+      stopWorker();
     }
   }, 30 * 1000);
+
+  // This is necessary to have updated language options take effect (e.g. schema changes)
+  defaults.onDidChange(() => stopWorker());
 
   const getClient = (): Promise<YAMLWorker> => {
     lastUsedTime = Date.now();
