@@ -62,7 +62,9 @@ export function createDiagnosticsAdapter(
     const diagnostics = await worker.doValidation(String(resource));
     const markers = diagnostics.map(toDiagnostics);
     const model = editor.getModel(resource);
-    if (model.getModeId() === languageId) {
+    // Return value from getModel can be null if model not found
+    // (e.g. if user navigates away from editor)
+    if (model && model.getModeId() === languageId) {
       editor.setModelMarkers(model, languageId, markers);
     }
   };
