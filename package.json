@@ -1,6 +1,6 @@
 {
   "name": "monaco-yaml",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "YAML plugin for the Monaco Editor",
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
