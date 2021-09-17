@@ -1,0 +1,14 @@
+{
+  "name": "minimal-vite",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "monaco-editor": "^0.27.0",
+    "monaco-yaml": "file:../..",
+    "vite": "^2.0.8"
+  }
+}
