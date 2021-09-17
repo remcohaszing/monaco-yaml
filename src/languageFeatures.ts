@@ -1,7 +1,6 @@
 import {
   editor,
   IDisposable,
-  IMarkdownString,
   languages,
   MarkerSeverity,
   Position,
@@ -254,42 +253,6 @@ export function createCompletionItemProvider(
   };
 }
 
-function isMarkupContent(thing: unknown): thing is ls.MarkupContent {
-  return thing && typeof thing === 'object' && typeof (thing as ls.MarkupContent).kind === 'string';
-}
-
-function toMarkdownString(entry: ls.MarkedString | ls.MarkupContent): IMarkdownString {
-  if (typeof entry === 'string') {
-    return {
-      value: entry,
-    };
-  }
-  if (isMarkupContent(entry)) {
-    if (entry.kind === 'plaintext') {
-      return {
-        value: entry.value.replace(/[!#()*+.[\\\]_`{}-]/g, '\\$&'),
-      };
-    }
-    return {
-      value: entry.value,
-    };
-  }
-
-  return { value: `\`\`\`${entry.language}\n${entry.value}\n\`\`\`\n` };
-}
-
-function toMarkedStringArray(
-  contents: ls.MarkedString | ls.MarkedString[] | ls.MarkupContent,
-): IMarkdownString[] {
-  if (!contents) {
-    return;
-  }
-  if (Array.isArray(contents)) {
-    return contents.map(toMarkdownString);
-  }
-  return [toMarkdownString(contents)];
-}
-
 // --- hover ------
 
 export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverProvider {
@@ -304,7 +267,7 @@ export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverP
       }
       return {
         range: toRange(info.range),
-        contents: toMarkedStringArray(info.contents),
+        contents: [{ value: (info.contents as ls.MarkupContent).value }],
       };
     },
   };
