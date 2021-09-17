@@ -152,7 +152,10 @@ fetch('https://www.schemastore.org/api/json/catalog.json').then(async (response)
 });
 
 select.addEventListener('change', () => {
-  ed.setModel(editor.createModel(ed.getValue(), 'yaml', Uri.parse(select.value)));
+  const oldModel = ed.getModel();
+  const newModel = editor.createModel(oldModel.getValue(), 'yaml', Uri.parse(select.value));
+  ed.setModel(newModel);
+  oldModel.dispose();
 });
 
 function* iterateSymbols(
