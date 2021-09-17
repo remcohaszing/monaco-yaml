@@ -1,11 +1,11 @@
 import { Emitter, languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
+import { languageId } from './constants';
 import { setupMode } from './yamlMode';
 
 // --- YAML configuration and defaults ---------
 
 export function createLanguageServiceDefaults(
-  languageId: string,
   initialDiagnosticsOptions: languages.yaml.DiagnosticsOptions,
 ): languages.yaml.LanguageServiceDefaults {
   const onDidChange = new Emitter<languages.yaml.LanguageServiceDefaults>();
@@ -39,7 +39,7 @@ const diagnosticDefault: languages.yaml.DiagnosticsOptions = {
   enableSchemaRequest: false,
 };
 
-const yamlDefaults = createLanguageServiceDefaults('yaml', diagnosticDefault);
+const yamlDefaults = createLanguageServiceDefaults(diagnosticDefault);
 
 // Export API
 function createAPI(): typeof languages.yaml {
@@ -52,7 +52,7 @@ languages.yaml = createAPI();
 // --- Registration to monaco editor ---
 
 languages.register({
-  id: 'yaml',
+  id: languageId,
   extensions: ['.yaml', '.yml'],
   aliases: ['YAML', 'yaml', 'YML', 'yml'],
   mimetypes: ['application/x-yaml'],

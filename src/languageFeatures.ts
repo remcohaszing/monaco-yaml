@@ -11,6 +11,7 @@ import {
 import * as ls from 'vscode-languageserver-types';
 import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
 
+import { languageId } from './constants';
 import { YAMLWorker } from './yamlWorker';
 
 export type WorkerAccessor = (...more: Uri[]) => PromiseLike<YAMLWorker>;
@@ -46,7 +47,6 @@ function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
 }
 
 export function createDiagnosticsAdapter(
-  languageId: string,
   getWorker: WorkerAccessor,
   defaults: languages.yaml.LanguageServiceDefaults,
 ): void {
@@ -57,7 +57,7 @@ export function createDiagnosticsAdapter(
     worker.resetSchema(String(resource));
   };
 
-  const doValidate = async (resource: Uri, languageId: string): Promise<void> => {
+  const doValidate = async (resource: Uri): Promise<void> => {
     const worker = await getWorker(resource);
     const diagnostics = await worker.doValidation(String(resource));
     const markers = diagnostics.map(toDiagnostics);
@@ -70,8 +70,7 @@ export function createDiagnosticsAdapter(
   };
 
   const onModelAdd = (model: editor.IModel): void => {
-    const modeId = model.getModeId();
-    if (modeId !== languageId) {
+    if (model.getModeId() !== languageId) {
       return;
     }
 
@@ -80,11 +79,11 @@ export function createDiagnosticsAdapter(
       String(model.uri),
       model.onDidChangeContent(() => {
         clearTimeout(handle);
-        handle = setTimeout(() => doValidate(model.uri, modeId), 500);
+        handle = setTimeout(() => doValidate(model.uri), 500);
       }),
     );
 
-    doValidate(model.uri, modeId);
+    doValidate(model.uri);
   };
 
   const onModelRemoved = (model: editor.IModel): void => {
