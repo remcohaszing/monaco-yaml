@@ -1,5 +1,6 @@
 import { languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
+import { languageId } from './constants';
 import {
   createCompletionItemProvider,
   createDiagnosticsAdapter,
@@ -45,8 +46,6 @@ const richEditConfiguration: languages.LanguageConfiguration = {
 export function setupMode(defaults: languages.yaml.LanguageServiceDefaults): void {
   const worker = createWorkerManager(defaults);
 
-  const { languageId } = defaults;
-
   languages.registerCompletionItemProvider(languageId, createCompletionItemProvider(worker));
   languages.registerHoverProvider(languageId, createHoverProvider(worker));
   languages.registerDocumentSymbolProvider(languageId, createDocumentSymbolProvider(worker));
@@ -55,6 +54,6 @@ export function setupMode(defaults: languages.yaml.LanguageServiceDefaults): voi
     createDocumentFormattingEditProvider(worker),
   );
   languages.registerLinkProvider(languageId, createLinkProvider(worker));
-  createDiagnosticsAdapter(languageId, worker, defaults);
+  createDiagnosticsAdapter(worker, defaults);
   languages.setLanguageConfiguration(languageId, richEditConfiguration);
 }
