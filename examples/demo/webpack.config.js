@@ -6,6 +6,7 @@ module.exports = {
   output: {
     filename: '[contenthash].js',
   },
+  devtool: 'source-map',
   resolve: {
     extensions: ['.mjs', '.js', '.ts'],
     fallback: {
