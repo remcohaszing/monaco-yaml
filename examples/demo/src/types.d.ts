@@ -6,7 +6,6 @@ declare module 'monaco-editor/esm/vs/base/common/cancellation' {
 
 declare module 'monaco-editor/esm/vs/editor/contrib/documentSymbols/documentSymbols' {
   import { ITextModel, languages } from 'monaco-editor';
-  // eslint-disable-next-line import/order
   import { CancellationToken } from 'monaco-editor/esm/vs/base/common/cancellation';
 
   export function getDocumentSymbols(
