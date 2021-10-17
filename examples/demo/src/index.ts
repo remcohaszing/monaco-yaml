@@ -44,11 +44,6 @@ const defaultSchema: SchemasSettings = {
 };
 
 setDiagnosticsOptions({
-  validate: true,
-  enableSchemaRequest: true,
-  format: true,
-  hover: true,
-  completion: true,
   schemas: [defaultSchema],
 });
 

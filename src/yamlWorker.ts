@@ -34,15 +34,11 @@ export interface YAMLWorker {
 
 export function createYAMLWorker(
   ctx: worker.IWorkerContext,
-  { enableSchemaRequest, isKubernetes = false, languageSettings, prefix = '' }: ICreateData,
+  { enableSchemaRequest, languageSettings, prefix = '' }: ICreateData,
 ): YAMLWorker {
   const service = (url: string): Promise<string> => defaultSchemaRequestService(`${prefix}${url}`);
   const languageService = getLanguageService(enableSchemaRequest && service, null, null, null);
-  languageService.configure({
-    ...languageSettings,
-    hover: true,
-    isKubernetes,
-  });
+  languageService.configure(languageSettings);
 
   const getTextDocument = (uri: string): TextDocument => {
     const models = ctx.getMirrorModels();
@@ -58,14 +54,14 @@ export function createYAMLWorker(
     doValidation(uri) {
       const document = getTextDocument(uri);
       if (document) {
-        return languageService.doValidation(document, isKubernetes);
+        return languageService.doValidation(document, languageSettings.isKubernetes);
       }
       return [];
     },
 
     doComplete(uri, position) {
       const document = getTextDocument(uri);
-      return languageService.doComplete(document, position, isKubernetes);
+      return languageService.doComplete(document, position, languageSettings.isKubernetes);
     },
 
     doHover(uri, position) {
