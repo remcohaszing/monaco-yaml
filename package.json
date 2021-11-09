@@ -47,7 +47,7 @@
     "yaml-language-server-parser": "^0.1.0"
   },
   "peerDependencies": {
-    "monaco-editor": ">=0.22"
+    "monaco-editor": ">=0.30"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.0.0",
@@ -57,7 +57,7 @@
     "eslint-config-remcohaszing": "^3.0.0",
     "husky": "^7.0.0",
     "lint-staged": "^11.0.0",
-    "monaco-editor": "^0.27.0",
+    "monaco-editor": "^0.30.0",
     "type-fest": "^2.0.0",
     "typescript": "^4.0.0",
     "yaml-language-server": "^0.22.0"
