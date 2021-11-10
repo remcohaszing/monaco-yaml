@@ -63,13 +63,13 @@ export function createDiagnosticsAdapter(
     const model = editor.getModel(resource);
     // Return value from getModel can be null if model not found
     // (e.g. if user navigates away from editor)
-    if (model && model.getModeId() === languageId) {
+    if (model && model.getLanguageId() === languageId) {
       editor.setModelMarkers(model, languageId, markers);
     }
   };
 
   const onModelAdd = (model: editor.IModel): void => {
-    if (model.getModeId() !== languageId) {
+    if (model.getLanguageId() !== languageId) {
       return;
     }
 
@@ -107,7 +107,7 @@ export function createDiagnosticsAdapter(
   });
   defaults.onDidChange(() => {
     for (const model of editor.getModels()) {
-      if (model.getModeId() === languageId) {
+      if (model.getLanguageId() === languageId) {
         onModelRemoved(model);
         onModelAdd(model);
       }
