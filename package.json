@@ -50,8 +50,7 @@
     "monaco-editor": ">=0.30"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.0.0",
-    "@typescript-eslint/parser": "^4.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
     "esbuild": "^0.13.0",
     "eslint": "^7.0.0",
     "eslint-config-remcohaszing": "^3.0.0",

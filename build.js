@@ -34,7 +34,7 @@ fs.rm(join(__dirname, 'lib'), { force: true, recursive: true })
             }));
             // The yaml language service only imports re-exports of vscode-languageserver-types from
             // vscode-languageserver.
-            onResolve({ filter: /^vscode-languageserver-types$/ }, () => ({
+            onResolve({ filter: /^vscode-languageserver-(protocol|types)$/ }, () => ({
               path: 'vscode-languageserver-types/lib/esm/main.js',
               external: true,
             }));
