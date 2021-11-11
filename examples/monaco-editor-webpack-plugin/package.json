@@ -1,0 +1,20 @@
+{
+  "name": "monaco-editor-webpack-plugin-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "webpack serve --open --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "monaco-editor": "^0.30.0",
+    "monaco-yaml": "file:../..",
+    "css-loader": "^6.0.0",
+    "style-loader": "^3.0.0",
+    "monaco-editor-webpack-plugin": "^6.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0",
+    "webpack-dev-server": "^4.0.0"
+  }
+}
