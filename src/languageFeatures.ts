@@ -1,7 +1,6 @@
 import {
   editor,
   IDisposable,
-  IMarkdownString,
   languages,
   MarkerSeverity,
   Position,
@@ -11,6 +10,7 @@ import {
 import * as ls from 'vscode-languageserver-types';
 import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
 
+import { languageId } from './constants';
 import { YAMLWorker } from './yamlWorker';
 
 export type WorkerAccessor = (...more: Uri[]) => PromiseLike<YAMLWorker>;
@@ -46,7 +46,6 @@ function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
 }
 
 export function createDiagnosticsAdapter(
-  languageId: string,
   getWorker: WorkerAccessor,
   defaults: languages.yaml.LanguageServiceDefaults,
 ): void {
@@ -57,21 +56,20 @@ export function createDiagnosticsAdapter(
     worker.resetSchema(String(resource));
   };
 
-  const doValidate = async (resource: Uri, languageId: string): Promise<void> => {
+  const doValidate = async (resource: Uri): Promise<void> => {
     const worker = await getWorker(resource);
     const diagnostics = await worker.doValidation(String(resource));
     const markers = diagnostics.map(toDiagnostics);
     const model = editor.getModel(resource);
     // Return value from getModel can be null if model not found
     // (e.g. if user navigates away from editor)
-    if (model && model.getModeId() === languageId) {
+    if (model && model.getLanguageId() === languageId) {
       editor.setModelMarkers(model, languageId, markers);
     }
   };
 
   const onModelAdd = (model: editor.IModel): void => {
-    const modeId = model.getModeId();
-    if (modeId !== languageId) {
+    if (model.getLanguageId() !== languageId) {
       return;
     }
 
@@ -80,11 +78,11 @@ export function createDiagnosticsAdapter(
       String(model.uri),
       model.onDidChangeContent(() => {
         clearTimeout(handle);
-        handle = setTimeout(() => doValidate(model.uri, modeId), 500);
+        handle = setTimeout(() => doValidate(model.uri), 500);
       }),
     );
 
-    doValidate(model.uri, modeId);
+    doValidate(model.uri);
   };
 
   const onModelRemoved = (model: editor.IModel): void => {
@@ -109,7 +107,7 @@ export function createDiagnosticsAdapter(
   });
   defaults.onDidChange(() => {
     for (const model of editor.getModels()) {
-      if (model.getModeId() === languageId) {
+      if (model.getLanguageId() === languageId) {
         onModelRemoved(model);
         onModelAdd(model);
       }
@@ -254,42 +252,6 @@ export function createCompletionItemProvider(
   };
 }
 
-function isMarkupContent(thing: unknown): thing is ls.MarkupContent {
-  return thing && typeof thing === 'object' && typeof (thing as ls.MarkupContent).kind === 'string';
-}
-
-function toMarkdownString(entry: ls.MarkedString | ls.MarkupContent): IMarkdownString {
-  if (typeof entry === 'string') {
-    return {
-      value: entry,
-    };
-  }
-  if (isMarkupContent(entry)) {
-    if (entry.kind === 'plaintext') {
-      return {
-        value: entry.value.replace(/[!#()*+.[\\\]_`{}-]/g, '\\$&'),
-      };
-    }
-    return {
-      value: entry.value,
-    };
-  }
-
-  return { value: `\`\`\`${entry.language}\n${entry.value}\n\`\`\`\n` };
-}
-
-function toMarkedStringArray(
-  contents: ls.MarkedString | ls.MarkedString[] | ls.MarkupContent,
-): IMarkdownString[] {
-  if (!contents) {
-    return;
-  }
-  if (Array.isArray(contents)) {
-    return contents.map(toMarkdownString);
-  }
-  return [toMarkdownString(contents)];
-}
-
 // --- hover ------
 
 export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverProvider {
@@ -304,7 +266,7 @@ export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverP
       }
       return {
         range: toRange(info.range),
-        contents: toMarkedStringArray(info.contents),
+        contents: [{ value: (info.contents as ls.MarkupContent).value }],
       };
     },
   };

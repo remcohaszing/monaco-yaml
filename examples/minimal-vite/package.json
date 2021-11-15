@@ -7,8 +7,8 @@
     "build": "vite build"
   },
   "dependencies": {
-    "monaco-editor": "^0.27.0",
+    "monaco-editor": "^0.30.0",
     "monaco-yaml": "file:../..",
-    "vite": "^2.0.8"
+    "vite": "^2.0.0"
   }
 }

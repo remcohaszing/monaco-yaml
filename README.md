@@ -85,7 +85,43 @@ editor.create(document.createElement('editor'), {
 });
 ```
 
-Also make sure to register the web worker.
+Also make sure to register the web worker. When using Webpack 5, this looks like the code below.
+Other bundlers may use a different syntax, but the idea is the same. Languages you don’t used can be
+omitted.
+
+```js
+window.MonacoEnvironment = {
+  getWorker(moduleId, label) {
+    switch (label) {
+      case 'editorWorkerService':
+        return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url));
+      case 'css':
+      case 'less':
+      case 'scss':
+        return new Worker(new URL('monaco-editor/esm/vs/language/css/css.worker', import.meta.url));
+      case 'handlebars':
+      case 'html':
+      case 'razor':
+        return new Worker(
+          new URL('monaco-editor/esm/vs/language/html/html.worker', import.meta.url),
+        );
+      case 'json':
+        return new Worker(
+          new URL('monaco-editor/esm/vs/language/json/json.worker', import.meta.url),
+        );
+      case 'javascript':
+      case 'typescript':
+        return new Worker(
+          new URL('monaco-editor/esm/vs/language/typescript/ts.worker', import.meta.url),
+        );
+      case 'yaml':
+        return new Worker(new URL('monaco-yaml/lib/esm/yaml.worker', import.meta.url));
+      default:
+        throw new Error(`Unknown label ${label}`);
+    }
+  },
+};
+```
 
 ## Examples
 
@@ -95,6 +131,66 @@ A running example: ![demo-image](test-demo.png)
 
 Some usage examples can be found in the
 [examples](https://github.com/remcohaszing/monaco-yaml/tree/main/examples) directory.
+
+## FAQ
+
+### Does this work with the Monaco UMD bundle?
+
+No. Only ESM is supported.
+
+### Does this work with Monaco Editor from a CDN?
+
+No, because these use a UMD bundle, which isn’t supported.
+
+### Does this work with `@monaco-editor/loader` or `@monaco-editor/react`?
+
+No. These packages pull in the Monaco UMD bundle from a CDN. Because UMD isn’t supported, neither
+are these packages.
+
+### Is the web worker necessary?
+
+Yes. The web worker provides the core functionality of `monaco-yaml`.
+
+### Does it work without a bundler?
+
+No. `monaco-yaml` uses dependencies from `node_modules`, so they can be deduped and your bundle size
+is decreased. This comes at the cost of not being able to use it without a bundler.
+
+### How do I integrate `monaco-yaml` with a framework? (Angular, React, Vue, etc.)
+
+`monaco-yaml` only uses the Monaco Editor. It’s not tied to a framework, all that’s needed is a DOM
+node to attach the Monaco Editor to. See the
+[Monaco Editor examples](https://github.com/microsoft/monaco-editor/tree/main/monaco-editor-samples)
+for examples on how to integrate Monaco Editor in your project, then configure `monaco-yaml` as
+described above.
+
+### Does `monaco-yaml` work with `create-react-app`?
+
+Yes, but you’ll have to eject. See
+[#92 (comment)](https://github.com/remcohaszing/monaco-yaml/issues/92#issuecomment-905836058) for
+details.
+
+### Why isn’t `monaco-yaml` working? Official Monaco language extensions do work.
+
+This is most likely due to the fact that `monaco-yaml` is using a different instance of the
+`monaco-editor` package than you are. This is something you’ll want to avoid regardless of
+`monaco-editor`, because it means your bundle is significantly larger than it needs to be. This is
+likely caused by one of the following issues:
+
+- A code splitting misconfiguration
+
+  To solve this, try inspecting your bundle using for example
+  [webpack-bundle-analyzer](https://github.com/webpack-contrib/webpack-bundle-analyzer). If
+  `monaco-editor` is in there twice, this is the issue. It’s up to you to solve this, as it’s
+  project-specific.
+
+- You’re using a package which imports `monaco-editor` for you, but it’s using a different version.
+
+  You can find out why the `monaco-editor` is installed using `npm ls monaco-editor` or
+  `yarn why monaco-editor`. It should exist only once, but it’s ok if it’s deduped.
+
+  You may be able to solve this by deleting your `node_modules` folder and `package-lock.json` or
+  `yarn.lock`, then running `npm install` or `yarn install` respectively.
 
 ## Contributing
 

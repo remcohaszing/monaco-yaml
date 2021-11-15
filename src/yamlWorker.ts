@@ -8,6 +8,8 @@ import {
   LanguageSettings,
 } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
 
+import { languageId } from './constants';
+
 let defaultSchemaRequestService: (url: string) => Promise<string>;
 
 if (typeof fetch !== 'undefined') {
@@ -32,13 +34,7 @@ export interface YAMLWorker {
 
 export function createYAMLWorker(
   ctx: worker.IWorkerContext,
-  {
-    enableSchemaRequest,
-    isKubernetes = false,
-    languageId,
-    languageSettings,
-    prefix = '',
-  }: ICreateData,
+  { enableSchemaRequest, isKubernetes = false, languageSettings, prefix = '' }: ICreateData,
 ): YAMLWorker {
   const service = (url: string): Promise<string> => defaultSchemaRequestService(`${prefix}${url}`);
   const languageService = getLanguageService(enableSchemaRequest && service, null, null, null);
@@ -99,7 +95,6 @@ export function createYAMLWorker(
 }
 
 export interface ICreateData {
-  languageId: string;
   languageSettings: LanguageSettings;
   enableSchemaRequest: boolean;
   prefix?: string;
