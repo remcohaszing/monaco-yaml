@@ -1,5 +1,5 @@
 {
-  "name": "minimal-vite",
+  "name": "vite-example",
   "version": "1.0.0",
   "private": true,
   "scripts": {
