@@ -3,6 +3,7 @@ import { languages } from 'monaco-editor/esm/vs/editor/editor.api';
 import { languageId } from './constants';
 import {
   createCompletionItemProvider,
+  createDefinitionProvider,
   createDiagnosticsAdapter,
   createDocumentFormattingEditProvider,
   createDocumentSymbolProvider,
@@ -48,6 +49,7 @@ export function setupMode(defaults: languages.yaml.LanguageServiceDefaults): voi
 
   languages.registerCompletionItemProvider(languageId, createCompletionItemProvider(worker));
   languages.registerHoverProvider(languageId, createHoverProvider(worker));
+  languages.registerDefinitionProvider(languageId, createDefinitionProvider(worker));
   languages.registerDocumentSymbolProvider(languageId, createDocumentSymbolProvider(worker));
   languages.registerDocumentFormattingEditProvider(
     languageId,

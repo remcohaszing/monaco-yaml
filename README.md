@@ -16,6 +16,7 @@ files:
 - Document Symbols
 - Automatically load remote schema files (by enabling DiagnosticsOptions.enableSchemaRequest)
 - Links from JSON references.
+- Links and hover effects from YAML anchors.
 
 Schemas can also be provided by configuration. See
 [here](https://github.com/remcohaszing/monaco-yaml/blob/main/index.d.ts) for the API that the plugin

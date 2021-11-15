@@ -39,28 +39,27 @@
   ],
   "dependencies": {
     "@types/json-schema": "^7.0.0",
-    "js-yaml": "^4.0.0",
+    "jsonc-parser": "^3.0.0",
     "path-browserify": "^1.0.0",
     "prettier": "2.0.5",
     "vscode-languageserver-textdocument": "^1.0.0",
     "vscode-languageserver-types": "^3.0.0",
-    "yaml-language-server-parser": "^0.1.0"
+    "yaml": "2.0.0-8"
   },
   "peerDependencies": {
     "monaco-editor": ">=0.30"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.0.0",
-    "@typescript-eslint/parser": "^4.0.0",
-    "esbuild": "^0.12.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "esbuild": "^0.13.0",
     "eslint": "^7.0.0",
     "eslint-config-remcohaszing": "^3.0.0",
     "husky": "^7.0.0",
-    "lint-staged": "^11.0.0",
+    "lint-staged": "^12.0.0",
     "monaco-editor": "^0.30.0",
     "type-fest": "^2.0.0",
     "typescript": "^4.0.0",
-    "yaml-language-server": "^0.22.0"
+    "yaml-language-server": "^1.0.0"
   },
   "resolutions": {},
   "lint-staged": {

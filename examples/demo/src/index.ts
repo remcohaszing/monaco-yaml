@@ -44,11 +44,6 @@ const defaultSchema: SchemasSettings = {
 };
 
 setDiagnosticsOptions({
-  validate: true,
-  enableSchemaRequest: true,
-  format: true,
-  hover: true,
-  completion: true,
   schemas: [defaultSchema],
 });
 
@@ -98,6 +93,14 @@ array:
 # JSON referenses can be clicked for navigation
 pointer:
   $ref: '#/array'
+
+
+# This anchor can be referenced
+anchorRef: &anchor can be clicked as well
+
+
+# Press control while hovering over the anchor
+anchorPointer: *anchor
 
 
 formatting:       Formatting is supported too! Under the hood this is powered by Prettier. Just press Ctrl+Shift+I or right click and press Format to format this document.

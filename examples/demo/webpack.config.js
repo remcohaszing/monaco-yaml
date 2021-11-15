@@ -9,10 +9,6 @@ module.exports = {
   devtool: 'source-map',
   resolve: {
     extensions: ['.mjs', '.js', '.ts'],
-    fallback: {
-      // Yaml-ast-parser-custom-tags imports buffer. This can be omitted safely.
-      buffer: false,
-    },
   },
   module: {
     rules: [

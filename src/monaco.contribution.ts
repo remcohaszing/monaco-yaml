@@ -5,6 +5,18 @@ import { setupMode } from './yamlMode';
 
 // --- YAML configuration and defaults ---------
 
+const diagnosticDefault: languages.yaml.DiagnosticsOptions = {
+  completion: true,
+  customTags: [],
+  enableSchemaRequest: false,
+  format: true,
+  isKubernetes: false,
+  hover: true,
+  schemas: [],
+  validate: true,
+  yamlVersion: '1.2',
+};
+
 export function createLanguageServiceDefaults(
   initialDiagnosticsOptions: languages.yaml.DiagnosticsOptions,
 ): languages.yaml.LanguageServiceDefaults {
@@ -25,19 +37,13 @@ export function createLanguageServiceDefaults(
     },
 
     setDiagnosticsOptions(options) {
-      diagnosticsOptions = options || {};
+      diagnosticsOptions = { ...diagnosticDefault, ...options };
       onDidChange.fire(languageServiceDefaults);
     },
   };
 
   return languageServiceDefaults;
 }
-
-const diagnosticDefault: languages.yaml.DiagnosticsOptions = {
-  validate: true,
-  schemas: [],
-  enableSchemaRequest: false,
-};
 
 const yamlDefaults = createLanguageServiceDefaults(diagnosticDefault);
 
