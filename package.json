@@ -7,12 +7,11 @@
     "prepack": "node build.js",
     "prepare": "husky install"
   },
-  "main": "./lib/esm/monaco.contribution.js",
-  "module": "./lib/esm/monaco.contribution.js",
   "typings": "./index.d.ts",
   "files": [
-    "lib",
-    "index.d.ts"
+    "index.js",
+    "index.d.ts",
+    "yaml.worker.js"
   ],
   "workspaces": [
     "examples/*"
