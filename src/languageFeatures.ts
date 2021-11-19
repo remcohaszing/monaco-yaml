@@ -140,7 +140,7 @@ function toRange(range: ls.Range): Range {
   );
 }
 
-function toCompletionItemKind(kind: languages.CompletionItemKind): languages.CompletionItemKind {
+function toCompletionItemKind(kind: ls.CompletionItemKind): languages.CompletionItemKind {
   const mItemKind = languages.CompletionItemKind;
 
   switch (kind) {
