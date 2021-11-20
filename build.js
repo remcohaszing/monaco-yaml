@@ -22,20 +22,8 @@ fs.rm(join(__dirname, 'lib'), { force: true, recursive: true })
           setup({ onResolve }) {
             // The yaml language service only imports re-exports of vscode-languageserver-types from
             // vscode-languageserver.
-            onResolve({ filter: /^vscode-languageserver-textdocument$/ }, () => ({
-              path: 'vscode-languageserver-textdocument/lib/esm/main.js',
-              external: true,
-            }));
-            // The yaml language service only imports re-exports of vscode-languageserver-types from
-            // vscode-languageserver.
-            onResolve({ filter: /^vscode-languageserver(\/node)?$/ }, () => ({
-              path: 'vscode-languageserver-types/lib/esm/main.js',
-              external: true,
-            }));
-            // The yaml language service only imports re-exports of vscode-languageserver-types from
-            // vscode-languageserver.
-            onResolve({ filter: /^vscode-languageserver-(protocol|types)$/ }, () => ({
-              path: 'vscode-languageserver-types/lib/esm/main.js',
+            onResolve({ filter: /^vscode-languageserver(\/node|-protocol)?$/ }, () => ({
+              path: 'vscode-languageserver-types',
               external: true,
             }));
             // The yaml language service uses path. We can stub it using path-browserify.
@@ -45,8 +33,8 @@ fs.rm(join(__dirname, 'lib'), { force: true, recursive: true })
             }));
             // The main prettier entry point contains all of Prettier.
             // The standalone bundle is smaller and works fine for us.
-            onResolve({ filter: /^prettier$/ }, () => ({
-              path: 'prettier/standalone',
+            onResolve({ filter: /^prettier/ }, ({ path }) => ({
+              path: path === 'prettier' ? 'prettier/standalone.js' : `${path}.js`,
               external: true,
             }));
             // This tiny filler implementation serves all our needs.

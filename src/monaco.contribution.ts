@@ -1,4 +1,4 @@
-import { Emitter, languages } from 'monaco-editor/esm/vs/editor/editor.api';
+import { Emitter, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 
 import { languageId } from './constants';
 import { setupMode } from './yamlMode';
