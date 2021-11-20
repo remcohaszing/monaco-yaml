@@ -71,14 +71,6 @@ declare module 'monaco-editor/esm/vs/editor/editor.api' {
       readonly isKubernetes?: boolean;
 
       /**
-       * If specified, this prefix will be added to all on demand schema requests
-       *
-       * @default undefined
-       * @deprecated
-       */
-      readonly prefix?: string;
-
-      /**
        * A list of known schemas and/or associations of schemas to file names.
        *
        * @default []
