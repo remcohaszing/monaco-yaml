@@ -341,7 +341,7 @@ function toSymbolKind(kind: ls.SymbolKind): languages.SymbolKind {
 
 function toDocumentSymbol(item: ls.DocumentSymbol): languages.DocumentSymbol {
   return {
-    detail: '',
+    detail: item.detail || '',
     range: toRange(item.range),
     name: item.name,
     kind: toSymbolKind(item.kind),
