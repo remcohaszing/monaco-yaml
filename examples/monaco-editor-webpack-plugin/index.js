@@ -4,7 +4,6 @@ boolean: true
 `;
 
 async function create() {
-  // eslint-disable-next-line import/extensions
   const monaco = await import('./main.js');
 
   monaco.editor.create(document.querySelector('.editor'), {

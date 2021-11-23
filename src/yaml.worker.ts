@@ -1,4 +1,4 @@
-import { initialize } from 'monaco-editor/esm/vs/editor/editor.worker';
+import { initialize } from 'monaco-editor/esm/vs/editor/editor.worker.js';
 
 import { createYAMLWorker, ICreateData } from './yamlWorker';
 

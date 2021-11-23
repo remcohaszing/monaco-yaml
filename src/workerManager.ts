@@ -1,4 +1,4 @@
-import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api';
+import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 
 import { WorkerAccessor } from './languageFeatures';
 import { YAMLWorker } from './yamlWorker';
@@ -48,7 +48,6 @@ export function createWorkerManager(
         createData: {
           languageSettings: defaults.diagnosticsOptions,
           enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
-          prefix: defaults.diagnosticsOptions.prefix,
           isKubernetes: defaults.diagnosticsOptions.isKubernetes,
           customTags: defaults.diagnosticsOptions.customTags,
         },

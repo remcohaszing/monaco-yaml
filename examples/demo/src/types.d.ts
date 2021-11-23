@@ -15,7 +15,7 @@ declare module 'monaco-editor/esm/vs/editor/contrib/documentSymbols/documentSymb
   ): Promise<languages.DocumentSymbol[]>;
 }
 
-declare module 'monaco-editor/esm/vs/editor/editor.worker' {
+declare module 'monaco-editor/esm/vs/editor/editor.worker.js' {
   import { worker } from 'monaco-editor/esm/vs/editor/editor.api';
 
   export function initialize(

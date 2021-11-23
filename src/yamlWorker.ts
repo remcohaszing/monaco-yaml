@@ -1,4 +1,4 @@
-import { worker } from 'monaco-editor/esm/vs/editor/editor.api';
+import { worker } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { Promisable } from 'type-fest';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as ls from 'vscode-languageserver-types';
@@ -6,14 +6,16 @@ import {
   CustomFormatterOptions,
   getLanguageService,
   LanguageSettings,
-} from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
+} from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
 import { languageId } from './constants';
 
-let defaultSchemaRequestService: (url: string) => Promise<string>;
-
-if (typeof fetch !== 'undefined') {
-  defaultSchemaRequestService = (url) => fetch(url).then((response) => response.text());
+async function schemaRequestService(uri: string): Promise<string> {
+  const response = await fetch(uri);
+  if (response.ok) {
+    return response.text();
+  }
+  throw new Error(`Schema request failed for ${uri}`);
 }
 
 export interface YAMLWorker {
@@ -36,10 +38,14 @@ export interface YAMLWorker {
 
 export function createYAMLWorker(
   ctx: worker.IWorkerContext,
-  { enableSchemaRequest, languageSettings, prefix = '' }: ICreateData,
+  { enableSchemaRequest, languageSettings }: ICreateData,
 ): YAMLWorker {
-  const service = (url: string): Promise<string> => defaultSchemaRequestService(`${prefix}${url}`);
-  const languageService = getLanguageService(enableSchemaRequest && service, null, null, null);
+  const languageService = getLanguageService(
+    enableSchemaRequest ? schemaRequestService : null,
+    null,
+    null,
+    null,
+  );
   languageService.configure(languageSettings);
 
   const getTextDocument = (uri: string): TextDocument => {
@@ -100,6 +106,5 @@ export function createYAMLWorker(
 export interface ICreateData {
   languageSettings: LanguageSettings;
   enableSchemaRequest: boolean;
-  prefix?: string;
   isKubernetes?: boolean;
 }

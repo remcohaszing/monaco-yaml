@@ -6,9 +6,9 @@ import {
   Position,
   Range,
   Uri,
-} from 'monaco-editor/esm/vs/editor/editor.api';
+} from 'monaco-editor/esm/vs/editor/editor.api.js';
 import * as ls from 'vscode-languageserver-types';
-import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
+import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
 import { languageId } from './constants';
 import { YAMLWorker } from './yamlWorker';
@@ -140,7 +140,7 @@ function toRange(range: ls.Range): Range {
   );
 }
 
-function toCompletionItemKind(kind: languages.CompletionItemKind): languages.CompletionItemKind {
+function toCompletionItemKind(kind: ls.CompletionItemKind): languages.CompletionItemKind {
   const mItemKind = languages.CompletionItemKind;
 
   switch (kind) {
@@ -341,7 +341,7 @@ function toSymbolKind(kind: ls.SymbolKind): languages.SymbolKind {
 
 function toDocumentSymbol(item: ls.DocumentSymbol): languages.DocumentSymbol {
   return {
-    detail: '',
+    detail: item.detail || '',
     range: toRange(item.range),
     name: item.name,
     kind: toSymbolKind(item.kind),
