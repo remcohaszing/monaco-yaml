@@ -184,6 +184,7 @@ ed.onDidChangeCursorPosition(async (event) => {
     breadcrumb.setAttribute('role', 'button');
     breadcrumb.classList.add('breadcrumb');
     breadcrumb.textContent = symbol.name;
+    breadcrumb.title = symbol.detail;
     if (symbol.kind === languages.SymbolKind.Array) {
       breadcrumb.classList.add('array');
     } else if (symbol.kind === languages.SymbolKind.Module) {
