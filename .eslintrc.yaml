@@ -8,6 +8,7 @@ rules:
   '@typescript-eslint/no-shadow': off
   '@typescript-eslint/no-unnecessary-condition': off
 
+  import/extensions: off
   import/no-extraneous-dependencies: off
   import/no-unresolved: off
 

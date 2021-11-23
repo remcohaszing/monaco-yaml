@@ -1,4 +1,4 @@
-import { worker } from 'monaco-editor/esm/vs/editor/editor.api';
+import { worker } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { Promisable } from 'type-fest';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as ls from 'vscode-languageserver-types';
@@ -6,7 +6,7 @@ import {
   CustomFormatterOptions,
   getLanguageService,
   LanguageSettings,
-} from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService';
+} from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
 import { languageId } from './constants';
 

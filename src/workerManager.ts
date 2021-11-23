@@ -1,4 +1,4 @@
-import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api';
+import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 
 import { WorkerAccessor } from './languageFeatures';
 import { YAMLWorker } from './yamlWorker';
