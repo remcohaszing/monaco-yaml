@@ -1,8 +1,6 @@
-# Demo
+# Vite Example
 
-This demo is deployed to [monaco-yaml.js.org](https://monaco-yaml.js.org). It shows how
-`monaco-editor` and `monaco-yaml` can be used with
-[Webpack 5](https://webpack.js.org/concepts/entry-points).
+This minimal example shows how `monaco-yaml` can be used with [Vite](https://vitejs.dev).
 
 ## Prerequisites
 
@@ -25,7 +23,7 @@ npm run prepack
 To start it, simply run:
 
 ```sh
-npm --workspace demo start
+npm --workspace vite-example start
 ```
 
-The demo will open in your browser.
+The demo will be available on http://localhost:3000.
