@@ -48,7 +48,6 @@ export function createWorkerManager(
         createData: {
           languageSettings: defaults.diagnosticsOptions,
           enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
-          prefix: defaults.diagnosticsOptions.prefix,
           isKubernetes: defaults.diagnosticsOptions.isKubernetes,
           customTags: defaults.diagnosticsOptions.customTags,
         },
