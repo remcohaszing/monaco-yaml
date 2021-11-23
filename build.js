@@ -3,7 +3,7 @@ const { build } = require('esbuild');
 const { dependencies, peerDependencies } = require('./package.json');
 
 build({
-  entryPoints: ['src/monaco.contribution.ts', 'src/yaml.worker.ts'],
+  entryPoints: ['src/index.ts', 'src/yaml.worker.ts'],
   bundle: true,
   external: Object.keys({ ...dependencies, ...peerDependencies }),
   logLevel: 'info',
