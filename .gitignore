@@ -1,5 +1,7 @@
 dist/
 node_modules/
-/lib/
+/index.js
+/yaml.worker.js
 *.log
+*.map
 *.tgz

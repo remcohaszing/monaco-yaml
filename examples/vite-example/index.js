@@ -1,7 +1,7 @@
 import { editor, Uri } from 'monaco-editor';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { setDiagnosticsOptions } from 'monaco-yaml';
-import YamlWorker from 'monaco-yaml/lib/esm/yaml.worker?worker';
+import YamlWorker from 'monaco-yaml/yaml.worker?worker';
 
 window.MonacoEnvironment = {
   getWorker(moduleId, label) {
