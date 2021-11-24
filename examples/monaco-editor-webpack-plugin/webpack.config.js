@@ -14,12 +14,6 @@ export default {
     outputModule: true,
   },
   devtool: 'source-map',
-  resolve: {
-    fallback: {
-      // Yaml-ast-parser-custom-tags imports buffer. This can be omitted safely.
-      buffer: false,
-    },
-  },
   module: {
     rules: [
       {
@@ -38,13 +32,10 @@ export default {
       customLanguages: [
         {
           label: 'yaml',
-          entry: [
-            'monaco-yaml/lib/esm/monaco.contribution',
-            'vs/basic-languages/yaml/yaml.contribution',
-          ],
+          entry: ['monaco-yaml', 'vs/basic-languages/yaml/yaml.contribution'],
           worker: {
-            id: 'monaco-yaml/lib/esm/yamlWorker',
-            entry: 'monaco-yaml/lib/esm/yaml.worker',
+            id: 'monaco-yaml/yamlWorker',
+            entry: 'monaco-yaml/yaml.worker',
           },
         },
       ],
