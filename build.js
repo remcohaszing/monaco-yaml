@@ -15,6 +15,11 @@ build({
     {
       name: 'alias',
       setup({ onResolve }) {
+        // The file monaco-yaml/lib/esm/schemaSelectionHandlers.js imports code from the language
+        // server part that we don’t want.
+        onResolve({ filter: /\/schemaSelectionHandlers$/ }, () => ({
+          path: require.resolve('./src/fillers/schemaSelectionHandlers.ts'),
+        }));
         // The yaml language service only imports re-exports of vscode-languageserver-types from
         // vscode-languageserver.
         onResolve({ filter: /^vscode-languageserver(\/node|-protocol)?$/ }, () => ({
