@@ -45,6 +45,7 @@ export function createYAMLWorker(
     null,
     null,
     null,
+    null,
   );
   languageService.configure(languageSettings);
 
