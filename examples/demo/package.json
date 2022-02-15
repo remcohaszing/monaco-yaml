@@ -13,7 +13,7 @@
     "css-minimizer-webpack-plugin": "^3.0.0",
     "html-webpack-plugin": "^5.0.0",
     "mini-css-extract-plugin": "^2.0.0",
-    "monaco-editor": "^0.30.0",
+    "monaco-editor": "^0.31.0",
     "monaco-yaml": "file:../..",
     "ts-loader": "^9.0.0",
     "typescript": "^4.0.0",
