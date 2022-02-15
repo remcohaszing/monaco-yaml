@@ -3,6 +3,7 @@ import {
   IDisposable,
   languages,
   MarkerSeverity,
+  MarkerTag,
   Position,
   Range,
   Uri,
@@ -32,6 +33,16 @@ function toSeverity(lsSeverity: ls.DiagnosticSeverity): MarkerSeverity {
   }
 }
 
+function toMarkerDataTag(tag: ls.DiagnosticTag): MarkerTag {
+  switch (tag) {
+    case ls.DiagnosticTag.Deprecated:
+      return MarkerTag.Deprecated;
+    case ls.DiagnosticTag.Unnecessary:
+      return MarkerTag.Unnecessary;
+    default:
+  }
+}
+
 function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
   return {
     severity: toSeverity(diag.severity),
@@ -42,6 +53,7 @@ function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
     message: diag.message,
     code: String(diag.code),
     source: diag.source,
+    tags: diag.tags?.map(toMarkerDataTag),
   };
 }
 

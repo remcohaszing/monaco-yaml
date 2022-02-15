@@ -64,6 +64,10 @@ markdown: hover me to get a markdown based description 😮
 enum:
 
 
+# Unused anchors will be reported
+unused anchor: &unused anchor
+
+
 # Of course numbers are supported!
 number: 12
 

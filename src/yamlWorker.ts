@@ -99,7 +99,7 @@ export function createYAMLWorker(
 
     findLinks(uri) {
       const document = getTextDocument(uri);
-      return Promise.resolve(languageService.findLinks(document));
+      return languageService.findLinks(document);
     },
   };
 }
