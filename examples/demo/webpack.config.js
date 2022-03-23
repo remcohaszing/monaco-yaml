@@ -1,8 +1,8 @@
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import HtmlWebPackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-module.exports = {
+export default {
   output: {
     filename: '[contenthash].js',
   },
