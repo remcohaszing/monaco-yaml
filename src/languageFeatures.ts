@@ -1,6 +1,7 @@
 import {
   editor,
   IDisposable,
+  IRange,
   languages,
   MarkerSeverity,
   MarkerTag,
@@ -150,6 +151,22 @@ function toRange(range: ls.Range): Range {
     range.end.line + 1,
     range.end.character + 1,
   );
+}
+
+function fromRange(range: IRange): ls.Range {
+  return {
+    start: { line: range.startLineNumber - 1, character: range.startColumn - 1 },
+    end: { line: range.endLineNumber - 1, character: range.endColumn - 1 },
+  };
+}
+
+function fromMarkerData(marker: editor.IMarkerData): ls.Diagnostic {
+  return {
+    message: marker.message,
+    range: fromRange(marker),
+    code: typeof marker.code === 'object' ? marker.code.value : marker.code,
+    source: marker.source,
+  };
 }
 
 function toCompletionItemKind(kind: ls.CompletionItemKind): languages.CompletionItemKind {
@@ -425,6 +442,58 @@ export function createLinkProvider(getWorker: WorkerAccessor): languages.LinkPro
 
       return {
         links: links.map(toLink),
+      };
+    },
+  };
+}
+
+function toWorkspaceEdit(edit: ls.WorkspaceEdit): languages.WorkspaceEdit {
+  const edits: languages.WorkspaceTextEdit[] = [];
+
+  for (const [uri, textEdits] of Object.entries(edit.changes)) {
+    for (const textEdit of textEdits) {
+      edits.push({
+        resource: Uri.parse(uri),
+        edit: {
+          text: textEdit.newText,
+          range: toRange(textEdit.range),
+        },
+      });
+    }
+  }
+
+  return {
+    edits,
+  };
+}
+
+function toCodeAction(codeAction: ls.CodeAction): languages.CodeAction {
+  return {
+    title: codeAction.title,
+    diagnostics: codeAction.diagnostics.map(toDiagnostics),
+    disabled: codeAction.disabled?.reason,
+    edit: toWorkspaceEdit(codeAction.edit),
+    kind: codeAction.kind,
+    isPreferred: codeAction.isPreferred,
+  };
+}
+
+export function createCodeActionProvider(getWorker: WorkerAccessor): languages.CodeActionProvider {
+  return {
+    async provideCodeActions(model, range, context) {
+      const resource = model.uri;
+
+      const worker = await getWorker(resource);
+      const codeActions = await worker.getCodeAction(
+        String(resource),
+        fromRange(range),
+        context.markers.map(fromMarkerData),
+      );
+      return {
+        actions: codeActions.map(toCodeAction),
+        dispose() {
+          // This is required by the TypeScript interface, but it’s not implemented.
+        },
       };
     },
   };

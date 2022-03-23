@@ -2,6 +2,7 @@ import { languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 
 import { languageId } from './constants';
 import {
+  createCodeActionProvider,
   createCompletionItemProvider,
   createDefinitionProvider,
   createDiagnosticsAdapter,
@@ -56,6 +57,7 @@ export function setupMode(defaults: languages.yaml.LanguageServiceDefaults): voi
     createDocumentFormattingEditProvider(worker),
   );
   languages.registerLinkProvider(languageId, createLinkProvider(worker));
+  languages.registerCodeActionProvider(languageId, createCodeActionProvider(worker));
   createDiagnosticsAdapter(worker, defaults);
   languages.setLanguageConfiguration(languageId, richEditConfiguration);
 }

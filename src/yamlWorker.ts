@@ -34,6 +34,12 @@ export interface YAMLWorker {
   findDocumentSymbols: (uri: string) => Promisable<ls.DocumentSymbol[]>;
 
   findLinks: (uri: string) => Promisable<ls.DocumentLink[]>;
+
+  getCodeAction: (
+    uri: string,
+    range: ls.Range,
+    diagnostics: ls.Diagnostic[],
+  ) => Promisable<ls.CodeAction[]>;
 }
 
 export function createYAMLWorker(
@@ -100,6 +106,15 @@ export function createYAMLWorker(
     findLinks(uri) {
       const document = getTextDocument(uri);
       return languageService.findLinks(document);
+    },
+
+    getCodeAction(uri, range, diagnostics) {
+      const document = getTextDocument(uri);
+      return languageService.getCodeAction(document, {
+        range,
+        textDocument: { uri },
+        context: { diagnostics },
+      });
     },
   };
 }
