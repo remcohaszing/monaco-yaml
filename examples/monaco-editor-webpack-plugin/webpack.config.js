@@ -1,19 +1,7 @@
+import HtmlWebPackPlugin from 'html-webpack-plugin';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 export default {
-  entry: './editor.js',
-  output: {
-    filename: '[name].js',
-    library: {
-      type: 'module',
-    },
-    clean: true,
-  },
-  target: 'es2020',
-  experiments: {
-    outputModule: true,
-  },
-  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -27,12 +15,13 @@ export default {
     ],
   },
   plugins: [
+    new HtmlWebPackPlugin(),
     new MonacoWebpackPlugin({
-      languages: [],
+      languages: ['yaml'],
       customLanguages: [
         {
           label: 'yaml',
-          entry: ['monaco-yaml', 'vs/basic-languages/yaml/yaml.contribution'],
+          entry: 'monaco-yaml',
           worker: {
             id: 'monaco-yaml/yamlWorker',
             entry: 'monaco-yaml/yaml.worker',
@@ -41,9 +30,4 @@ export default {
       ],
     }),
   ],
-  devServer: {
-    static: {
-      directory: './',
-    },
-  },
 };
