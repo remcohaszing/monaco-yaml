@@ -11,6 +11,7 @@ import {
   createHoverProvider,
   createLinkProvider,
 } from './languageFeatures';
+import { LanguageServiceDefaults } from './types';
 import { createWorkerManager } from './workerManager';
 
 const richEditConfiguration: languages.LanguageConfiguration = {
@@ -45,7 +46,7 @@ const richEditConfiguration: languages.LanguageConfiguration = {
   ],
 };
 
-export function setupMode(defaults: languages.yaml.LanguageServiceDefaults): void {
+export function setupMode(defaults: LanguageServiceDefaults): void {
   const worker = createWorkerManager(defaults);
 
   languages.registerCompletionItemProvider(languageId, createCompletionItemProvider(worker));

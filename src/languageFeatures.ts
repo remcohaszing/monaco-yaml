@@ -13,6 +13,7 @@ import * as ls from 'vscode-languageserver-types';
 import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
 import { languageId } from './constants';
+import { LanguageServiceDefaults } from './types';
 import { YAMLWorker } from './yamlWorker';
 
 export type WorkerAccessor = (...more: Uri[]) => PromiseLike<YAMLWorker>;
@@ -60,7 +61,7 @@ function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
 
 export function createDiagnosticsAdapter(
   getWorker: WorkerAccessor,
-  defaults: languages.yaml.LanguageServiceDefaults,
+  defaults: LanguageServiceDefaults,
 ): void {
   const listeners = new Map<string, IDisposable>();
 
