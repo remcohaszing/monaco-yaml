@@ -4,9 +4,10 @@
   "description": "YAML plugin for the Monaco Editor",
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
-    "prepack": "node build.js",
+    "prepack": "node build.cjs",
     "prepare": "husky install"
   },
+  "type": "module",
   "typings": "./index.d.ts",
   "files": [
     "index.js",
