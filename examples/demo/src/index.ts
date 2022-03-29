@@ -7,6 +7,7 @@ import {
   editor,
   Environment,
   languages,
+  MarkerSeverity,
   Position,
   Range,
   Uri,
@@ -212,12 +213,18 @@ editor.onDidChangeMarkers(([resource]) => {
     problems.lastChild.remove();
   }
   for (const marker of markers) {
+    if (marker.severity === MarkerSeverity.Hint) {
+      continue;
+    }
     const wrapper = document.createElement('div');
     wrapper.setAttribute('role', 'button');
     const codicon = document.createElement('div');
     const text = document.createElement('div');
     wrapper.classList.add('problem');
-    codicon.classList.add('codicon', 'codicon-warning');
+    codicon.classList.add(
+      'codicon',
+      marker.severity === MarkerSeverity.Warning ? 'codicon-warning' : 'codicon-error',
+    );
     text.classList.add('problem-text');
     text.textContent = marker.message;
     wrapper.append(codicon, text);
