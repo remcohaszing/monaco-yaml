@@ -11,8 +11,10 @@
   "typings": "./index.d.ts",
   "files": [
     "index.js",
+    "index.js.map",
     "index.d.ts",
-    "yaml.worker.js"
+    "yaml.worker.js",
+    "yaml.worker.js.map"
   ],
   "workspaces": [
     "examples/*"
