@@ -181,16 +181,18 @@ Uncaught (in promise) Error: Unexpected usage
   at webWorker.js
 ```
 
-As a workaround, create a file named `yaml.worker.js` in your own project with the following contents:
+As a workaround, create a file named `yaml.worker.js` in your own project with the following
+contents:
 
 ```js
-import 'monaco-yaml/yaml.worker.js'
+import 'monaco-yaml/yaml.worker.js';
 ```
 
-Then in your Monaco environment `getWorker` function, reference this file instead of referencing `monaco-yaml/yaml.worker.js` directly:
+Then in your Monaco environment `getWorker` function, reference this file instead of referencing
+`monaco-yaml/yaml.worker.js` directly:
 
 ```js
-import YamlWorker from './yaml.worker.js'
+import YamlWorker from './yaml.worker.js';
 
 window.MonacoEnvironment = {
   getWorker(moduleId, label) {
@@ -201,8 +203,8 @@ window.MonacoEnvironment = {
       default:
         throw new Error(`Unknown label ${label}`);
     }
-  }
-}
+  },
+};
 ```
 
 ### Why isn’t `monaco-yaml` working? Official Monaco language extensions do work.
