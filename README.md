@@ -192,7 +192,7 @@ Then in your Monaco environment `getWorker` function, reference this file instea
 `monaco-yaml/yaml.worker.js` directly:
 
 ```js
-import YamlWorker from './yaml.worker.js';
+import YamlWorker from './yaml.worker.js?worker';
 
 window.MonacoEnvironment = {
   getWorker(moduleId, label) {
