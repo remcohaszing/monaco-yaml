@@ -1,7 +1,6 @@
 import { Emitter, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { DiagnosticsOptions } from 'monaco-yaml';
 
-import { languageId } from './constants';
 import { LanguageServiceDefaults } from './types';
 import { setupMode } from './yamlMode';
 
@@ -44,15 +43,6 @@ export function createLanguageServiceDefaults(
 }
 
 const yamlDefaults = createLanguageServiceDefaults(diagnosticDefault);
-
-// --- Registration to monaco editor ---
-
-languages.register({
-  id: languageId,
-  extensions: ['.yaml', '.yml'],
-  aliases: ['YAML', 'yaml', 'YML', 'yml'],
-  mimetypes: ['application/x-yaml'],
-});
 
 languages.onLanguage('yaml', () => {
   setupMode(yamlDefaults);

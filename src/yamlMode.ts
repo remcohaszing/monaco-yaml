@@ -14,38 +14,6 @@ import {
 import { LanguageServiceDefaults } from './types';
 import { createWorkerManager } from './workerManager';
 
-const richEditConfiguration: languages.LanguageConfiguration = {
-  comments: {
-    lineComment: '#',
-  },
-  brackets: [
-    ['{', '}'],
-    ['[', ']'],
-    ['(', ')'],
-  ],
-  autoClosingPairs: [
-    { open: '{', close: '}' },
-    { open: '[', close: ']' },
-    { open: '(', close: ')' },
-    { open: '"', close: '"' },
-    { open: "'", close: "'" },
-  ],
-  surroundingPairs: [
-    { open: '{', close: '}' },
-    { open: '[', close: ']' },
-    { open: '(', close: ')' },
-    { open: '"', close: '"' },
-    { open: "'", close: "'" },
-  ],
-
-  onEnterRules: [
-    {
-      beforeText: /:\s*$/,
-      action: { indentAction: languages.IndentAction.Indent },
-    },
-  ],
-};
-
 export function setupMode(defaults: LanguageServiceDefaults): void {
   const worker = createWorkerManager(defaults);
 
@@ -60,5 +28,4 @@ export function setupMode(defaults: LanguageServiceDefaults): void {
   languages.registerLinkProvider(languageId, createLinkProvider(worker));
   languages.registerCodeActionProvider(languageId, createCodeActionProvider(worker));
   createDiagnosticsAdapter(worker, defaults);
-  languages.setLanguageConfiguration(languageId, richEditConfiguration);
 }
