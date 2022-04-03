@@ -1,14 +1,14 @@
-import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { editor } from 'monaco-editor/esm/vs/editor/editor.api.js';
 
+import { languageId } from './constants';
 import { WorkerAccessor } from './languageFeatures';
+import { LanguageServiceDefaults } from './types';
 import { YAMLWorker } from './yamlWorker';
 
 // 2min
 const STOP_WHEN_IDLE_FOR = 2 * 60 * 1000;
 
-export function createWorkerManager(
-  defaults: languages.yaml.LanguageServiceDefaults,
-): WorkerAccessor {
+export function createWorkerManager(defaults: LanguageServiceDefaults): WorkerAccessor {
   let worker: editor.MonacoWebWorker<YAMLWorker>;
   let client: Promise<YAMLWorker>;
   let lastUsedTime = 0;
@@ -42,7 +42,7 @@ export function createWorkerManager(
         // Module that exports the create() method and returns a `YAMLWorker` instance
         moduleId: 'vs/language/yaml/yamlWorker',
 
-        label: defaults.languageId,
+        label: languageId,
 
         // Passed in to the create() method
         createData: {

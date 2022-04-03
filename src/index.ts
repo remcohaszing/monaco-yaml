@@ -1,11 +1,13 @@
 import { Emitter, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { DiagnosticsOptions } from 'monaco-yaml';
 
 import { languageId } from './constants';
+import { LanguageServiceDefaults } from './types';
 import { setupMode } from './yamlMode';
 
 // --- YAML configuration and defaults ---------
 
-const diagnosticDefault: languages.yaml.DiagnosticsOptions = {
+const diagnosticDefault: DiagnosticsOptions = {
   completion: true,
   customTags: [],
   enableSchemaRequest: false,
@@ -18,18 +20,14 @@ const diagnosticDefault: languages.yaml.DiagnosticsOptions = {
 };
 
 export function createLanguageServiceDefaults(
-  initialDiagnosticsOptions: languages.yaml.DiagnosticsOptions,
-): languages.yaml.LanguageServiceDefaults {
-  const onDidChange = new Emitter<languages.yaml.LanguageServiceDefaults>();
+  initialDiagnosticsOptions: DiagnosticsOptions,
+): LanguageServiceDefaults {
+  const onDidChange = new Emitter<LanguageServiceDefaults>();
   let diagnosticsOptions = initialDiagnosticsOptions;
 
-  const languageServiceDefaults: languages.yaml.LanguageServiceDefaults = {
+  const languageServiceDefaults: LanguageServiceDefaults = {
     get onDidChange() {
       return onDidChange.event;
-    },
-
-    get languageId() {
-      return languageId;
     },
 
     get diagnosticsOptions() {
@@ -46,14 +44,6 @@ export function createLanguageServiceDefaults(
 }
 
 const yamlDefaults = createLanguageServiceDefaults(diagnosticDefault);
-
-// Export API
-function createAPI(): typeof languages.yaml {
-  return {
-    yamlDefaults,
-  };
-}
-languages.yaml = createAPI();
 
 // --- Registration to monaco editor ---
 
@@ -73,6 +63,6 @@ languages.onLanguage('yaml', () => {
  *
  * @param options - The options to set.
  */
-export function setDiagnosticsOptions(options: languages.yaml.DiagnosticsOptions = {}): void {
-  languages.yaml.yamlDefaults.setDiagnosticsOptions(options);
+export function setDiagnosticsOptions(options: DiagnosticsOptions = {}): void {
+  yamlDefaults.setDiagnosticsOptions(options);
 }
