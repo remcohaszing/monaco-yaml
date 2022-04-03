@@ -1,4 +1,5 @@
 import { languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { createWorkerManager } from 'monaco-worker-manager';
 
 import { languageId } from './constants';
 import {
@@ -12,7 +13,7 @@ import {
   createLinkProvider,
 } from './languageFeatures';
 import { LanguageServiceDefaults } from './types';
-import { createWorkerManager } from './workerManager';
+import { CreateData, YAMLWorker } from './yaml.worker';
 
 const richEditConfiguration: languages.LanguageConfiguration = {
   comments: {
@@ -47,18 +48,38 @@ const richEditConfiguration: languages.LanguageConfiguration = {
 };
 
 export function setupMode(defaults: LanguageServiceDefaults): void {
-  const worker = createWorkerManager(defaults);
+  const worker = createWorkerManager<YAMLWorker, CreateData>({
+    label: 'yaml',
+    moduleId: 'monaco-yaml/yaml.worker',
+    createData: {
+      languageSettings: defaults.diagnosticsOptions,
+      enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
+    },
+  });
 
-  languages.registerCompletionItemProvider(languageId, createCompletionItemProvider(worker));
-  languages.registerHoverProvider(languageId, createHoverProvider(worker));
-  languages.registerDefinitionProvider(languageId, createDefinitionProvider(worker));
-  languages.registerDocumentSymbolProvider(languageId, createDocumentSymbolProvider(worker));
+  defaults.onDidChange(() => {
+    worker.updateCreateData({
+      languageSettings: defaults.diagnosticsOptions,
+      enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
+    });
+  });
+
+  languages.registerCompletionItemProvider(
+    languageId,
+    createCompletionItemProvider(worker.getWorker),
+  );
+  languages.registerHoverProvider(languageId, createHoverProvider(worker.getWorker));
+  languages.registerDefinitionProvider(languageId, createDefinitionProvider(worker.getWorker));
+  languages.registerDocumentSymbolProvider(
+    languageId,
+    createDocumentSymbolProvider(worker.getWorker),
+  );
   languages.registerDocumentFormattingEditProvider(
     languageId,
-    createDocumentFormattingEditProvider(worker),
+    createDocumentFormattingEditProvider(worker.getWorker),
   );
-  languages.registerLinkProvider(languageId, createLinkProvider(worker));
-  languages.registerCodeActionProvider(languageId, createCodeActionProvider(worker));
-  createDiagnosticsAdapter(worker, defaults);
+  languages.registerLinkProvider(languageId, createLinkProvider(worker.getWorker));
+  languages.registerCodeActionProvider(languageId, createCodeActionProvider(worker.getWorker));
+  createDiagnosticsAdapter(worker.getWorker, defaults);
   languages.setLanguageConfiguration(languageId, richEditConfiguration);
 }
