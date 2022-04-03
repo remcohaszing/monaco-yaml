@@ -171,6 +171,42 @@ Yes, but you’ll have to eject. See
 [#92 (comment)](https://github.com/remcohaszing/monaco-yaml/issues/92#issuecomment-905836058) for
 details.
 
+### Why doesn’t it work with Vite?
+
+Some users have experienced the following error when using Vite:
+
+```
+Uncaught (in promise) Error: Unexpected usage
+  at EditorSimpleWorker.loadForeignModule (editorSimpleWorker.js)
+  at webWorker.js
+```
+
+As a workaround, create a file named `yaml.worker.js` in your own project with the following
+contents:
+
+```js
+import 'monaco-yaml/yaml.worker.js';
+```
+
+Then in your Monaco environment `getWorker` function, reference this file instead of referencing
+`monaco-yaml/yaml.worker.js` directly:
+
+```js
+import YamlWorker from './yaml.worker.js?worker';
+
+window.MonacoEnvironment = {
+  getWorker(moduleId, label) {
+    switch (label) {
+      // Handle other cases
+      case 'yaml':
+        return new YamlWorker();
+      default:
+        throw new Error(`Unknown label ${label}`);
+    }
+  },
+};
+```
+
 ### Why isn’t `monaco-yaml` working? Official Monaco language extensions do work.
 
 This is most likely due to the fact that `monaco-yaml` is using a different instance of the
