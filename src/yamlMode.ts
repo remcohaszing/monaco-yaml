@@ -1,4 +1,4 @@
-import { languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { createWorkerManager } from 'monaco-worker-manager';
 
 import { languageId } from './constants';
@@ -48,14 +48,17 @@ const richEditConfiguration: languages.LanguageConfiguration = {
 };
 
 export function setupMode(defaults: LanguageServiceDefaults): void {
-  const worker = createWorkerManager<YAMLWorker, CreateData>({
-    label: 'yaml',
-    moduleId: 'monaco-yaml/yaml.worker',
-    createData: {
-      languageSettings: defaults.diagnosticsOptions,
-      enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
+  const worker = createWorkerManager<YAMLWorker, CreateData>(
+    { editor },
+    {
+      label: 'yaml',
+      moduleId: 'monaco-yaml/yaml.worker',
+      createData: {
+        languageSettings: defaults.diagnosticsOptions,
+        enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
+      },
     },
-  });
+  );
 
   defaults.onDidChange(() => {
     worker.updateCreateData({
