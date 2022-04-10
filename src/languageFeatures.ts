@@ -9,14 +9,15 @@ import {
   Range,
   Uri,
 } from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { WorkerGetter } from 'monaco-worker-manager';
 import * as ls from 'vscode-languageserver-types';
 import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
 import { languageId } from './constants';
 import { LanguageServiceDefaults } from './types';
-import { YAMLWorker } from './yamlWorker';
+import { YAMLWorker } from './yaml.worker';
 
-export type WorkerAccessor = (...more: Uri[]) => PromiseLike<YAMLWorker>;
+export type WorkerAccessor = WorkerGetter<YAMLWorker>;
 
 // --- diagnostics --- ---
 
