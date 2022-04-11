@@ -1,8 +1,8 @@
 import './index.css';
 
 import { JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schema-catalog';
-import { CancellationToken } from 'monaco-editor/esm/vs/base/common/cancellation';
-import { getDocumentSymbols } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/documentSymbols';
+import { ILanguageFeaturesService } from 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js';
+import { OutlineModel } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js';
 import {
   editor,
   Environment,
@@ -11,7 +11,8 @@ import {
   Position,
   Range,
   Uri,
-} from 'monaco-editor/esm/vs/editor/editor.api';
+} from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js';
 import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
 // NOTE: This will give you all editor featues. If you would prefer to limit to only the editor
@@ -173,14 +174,18 @@ function* iterateSymbols(
   for (const symbol of symbols) {
     if (Range.containsPosition(symbol.range, position)) {
       yield symbol;
-      yield* iterateSymbols(symbol.children, position);
+      if (symbol.children) {
+        yield* iterateSymbols(symbol.children, position);
+      }
     }
   }
 }
 
 ed.onDidChangeCursorPosition(async (event) => {
   const breadcrumbs = document.getElementById('breadcrumbs');
-  const symbols = await getDocumentSymbols(ed.getModel(), false, CancellationToken.None);
+  const { documentSymbolProvider } = StandaloneServices.get(ILanguageFeaturesService);
+  const outline = await OutlineModel.create(documentSymbolProvider, ed.getModel());
+  const symbols = outline.asListOfDocumentSymbols();
   while (breadcrumbs.lastChild) {
     breadcrumbs.lastChild.remove();
   }
