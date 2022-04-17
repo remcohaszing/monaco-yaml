@@ -285,6 +285,15 @@ export function createCompletionItemProvider(
 
 // --- definition ------
 
+function toLocationLink(locationLink: ls.LocationLink): languages.LocationLink {
+  return {
+    originSelectionRange: toRange(locationLink.originSelectionRange),
+    range: toRange(locationLink.targetRange),
+    targetSelectionRange: toRange(locationLink.targetSelectionRange),
+    uri: Uri.parse(locationLink.targetUri),
+  };
+}
+
 export function createDefinitionProvider(getWorker: WorkerAccessor): languages.DefinitionProvider {
   return {
     async provideDefinition(model, position) {
@@ -293,12 +302,7 @@ export function createDefinitionProvider(getWorker: WorkerAccessor): languages.D
       const worker = await getWorker(resource);
       const definitions = await worker.doDefinition(String(resource), fromPosition(position));
 
-      return definitions?.map((definition) => ({
-        originSelectionRange: definition.originSelectionRange,
-        range: toRange(definition.targetRange),
-        targetSelectionRange: definition.targetSelectionRange,
-        uri: Uri.parse(definition.targetUri),
-      }));
+      return definitions?.map(toLocationLink);
     },
   };
 }
