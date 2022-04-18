@@ -44,7 +44,6 @@
     "jsonc-parser": "^3.0.0",
     "monaco-worker-manager": "^2.0.0",
     "path-browserify": "^1.0.0",
-    "prettier": "2.0.5",
     "vscode-languageserver-textdocument": "^1.0.0",
     "vscode-languageserver-types": "^3.0.0",
     "vscode-uri": "^3.0.0",
@@ -61,6 +60,7 @@
     "husky": "^7.0.0",
     "lint-staged": "^12.0.0",
     "monaco-editor": "^0.31.0",
+    "prettier": "2.0.5",
     "typescript": "^4.0.0",
     "yaml-language-server": "^1.0.0"
   },
