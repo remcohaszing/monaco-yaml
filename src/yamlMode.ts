@@ -1,4 +1,5 @@
 import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { registerMarkerDataProvider } from 'monaco-marker-data-provider';
 import { createWorkerManager } from 'monaco-worker-manager';
 
 import { languageId } from './constants';
@@ -6,11 +7,11 @@ import {
   createCodeActionProvider,
   createCompletionItemProvider,
   createDefinitionProvider,
-  createDiagnosticsAdapter,
   createDocumentFormattingEditProvider,
   createDocumentSymbolProvider,
   createHoverProvider,
   createLinkProvider,
+  createMarkerDataProvider,
 } from './languageFeatures';
 import { LanguageServiceDefaults } from './types';
 import { CreateData, YAMLWorker } from './yaml.worker';
@@ -83,6 +84,19 @@ export function setupMode(defaults: LanguageServiceDefaults): void {
   );
   languages.registerLinkProvider(languageId, createLinkProvider(worker.getWorker));
   languages.registerCodeActionProvider(languageId, createCodeActionProvider(worker.getWorker));
-  createDiagnosticsAdapter(worker.getWorker, defaults);
   languages.setLanguageConfiguration(languageId, richEditConfiguration);
+
+  let markerDataProvider = registerMarkerDataProvider(
+    { editor },
+    languageId,
+    createMarkerDataProvider(worker.getWorker),
+  );
+  defaults.onDidChange(() => {
+    markerDataProvider.dispose();
+    markerDataProvider = registerMarkerDataProvider(
+      { editor },
+      languageId,
+      createMarkerDataProvider(worker.getWorker),
+    );
+  });
 }
