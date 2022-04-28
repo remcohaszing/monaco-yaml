@@ -1,3 +1,5 @@
 dist/
 /index.js
 /yaml.worker.js
+test/out/
+playwright-report/
