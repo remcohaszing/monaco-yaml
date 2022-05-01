@@ -1,26 +1,21 @@
-declare module 'monaco-editor/esm/vs/base/common/cancellation' {
-  export enum CancellationToken {
-    None,
+declare module 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js' {
+  export const ILanguageFeaturesService: { documentSymbolProvider: unknown };
+}
+
+declare module 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js' {
+  import { editor, languages } from 'monaco-editor';
+
+  export abstract class OutlineModel {
+    static create(registry: unknown, model: editor.ITextModel): Promise<OutlineModel>;
+
+    asListOfDocumentSymbols(): languages.DocumentSymbol[];
   }
 }
 
-declare module 'monaco-editor/esm/vs/editor/contrib/documentSymbols/documentSymbols' {
-  import { ITextModel, languages } from 'monaco-editor';
-  import { CancellationToken } from 'monaco-editor/esm/vs/base/common/cancellation';
-
-  export function getDocumentSymbols(
-    model: ITextModel,
-    flat: boolean,
-    token: CancellationToken,
-  ): Promise<languages.DocumentSymbol[]>;
-}
-
-declare module 'monaco-editor/esm/vs/editor/editor.worker.js' {
-  import { worker } from 'monaco-editor/esm/vs/editor/editor.api';
-
-  export function initialize(
-    fn: (ctx: worker.IWorkerContext, createData: unknown) => unknown,
-  ): void;
+declare module 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js' {
+  export const StandaloneServices: {
+    get: (id: unknown) => { documentSymbolProvider: unknown };
+  };
 }
 
 declare module '*.json' {
