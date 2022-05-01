@@ -1,6 +1,5 @@
 import {
   editor,
-  IDisposable,
   IRange,
   languages,
   MarkerSeverity,
@@ -9,12 +8,12 @@ import {
   Range,
   Uri,
 } from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { MarkerDataProvider } from 'monaco-marker-data-provider';
 import { WorkerGetter } from 'monaco-worker-manager';
 import * as ls from 'vscode-languageserver-types';
 import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
 import { languageId } from './constants';
-import { LanguageServiceDefaults } from './types';
 import { YAMLWorker } from './yaml.worker';
 
 export type WorkerAccessor = WorkerGetter<YAMLWorker>;
@@ -60,78 +59,21 @@ function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
   };
 }
 
-export function createDiagnosticsAdapter(
-  getWorker: WorkerAccessor,
-  defaults: LanguageServiceDefaults,
-): void {
-  const listeners = new Map<string, IDisposable>();
+export function createMarkerDataProvider(getWorker: WorkerAccessor): MarkerDataProvider {
+  return {
+    owner: languageId,
+    async provideMarkerData(model) {
+      const worker = await getWorker(model.uri);
+      const diagnostics = await worker.doValidation(String(model.uri));
 
-  const resetSchema = async (resource: Uri): Promise<void> => {
-    const worker = await getWorker();
-    worker.resetSchema(String(resource));
+      return diagnostics.map(toDiagnostics);
+    },
+
+    async doReset(model) {
+      const worker = await getWorker(model.uri);
+      await worker.resetSchema(String(model.uri));
+    },
   };
-
-  const doValidate = async (resource: Uri): Promise<void> => {
-    const worker = await getWorker(resource);
-    const diagnostics = await worker.doValidation(String(resource));
-    const markers = diagnostics.map(toDiagnostics);
-    const model = editor.getModel(resource);
-    // Return value from getModel can be null if model not found
-    // (e.g. if user navigates away from editor)
-    if (model && model.getLanguageId() === languageId) {
-      editor.setModelMarkers(model, languageId, markers);
-    }
-  };
-
-  const onModelAdd = (model: editor.IModel): void => {
-    if (model.getLanguageId() !== languageId) {
-      return;
-    }
-
-    let handle: ReturnType<typeof setTimeout>;
-    listeners.set(
-      String(model.uri),
-      model.onDidChangeContent(() => {
-        clearTimeout(handle);
-        handle = setTimeout(() => doValidate(model.uri), 500);
-      }),
-    );
-
-    doValidate(model.uri);
-  };
-
-  const onModelRemoved = (model: editor.IModel): void => {
-    editor.setModelMarkers(model, languageId, []);
-    const uriStr = String(model.uri);
-    const listener = listeners.get(uriStr);
-    if (listener) {
-      listener.dispose();
-      listeners.delete(uriStr);
-    }
-  };
-
-  editor.onDidCreateModel(onModelAdd);
-  editor.onWillDisposeModel((model) => {
-    onModelRemoved(model);
-    resetSchema(model.uri);
-  });
-  editor.onDidChangeModelLanguage((event) => {
-    onModelRemoved(event.model);
-    onModelAdd(event.model);
-    resetSchema(event.model.uri);
-  });
-  defaults.onDidChange(() => {
-    for (const model of editor.getModels()) {
-      if (model.getLanguageId() === languageId) {
-        onModelRemoved(model);
-        onModelAdd(model);
-      }
-    }
-  });
-
-  for (const model of editor.getModels()) {
-    onModelAdd(model);
-  }
 }
 
 // --- completion ------
