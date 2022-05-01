@@ -5,7 +5,8 @@
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
     "prepack": "node build.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "playwright test"
   },
   "type": "module",
   "typings": "./index.d.ts",
@@ -54,6 +55,7 @@
     "monaco-editor": ">=0.30"
   },
   "devDependencies": {
+    "@playwright/test": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "esbuild": "^0.14.0",
     "eslint": "^8.0.0",

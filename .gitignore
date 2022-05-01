@@ -1,5 +1,7 @@
 dist/
 node_modules/
+test/out/
+playwright-report/
 /index.js
 /yaml.worker.js
 *.log
