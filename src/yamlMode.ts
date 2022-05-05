@@ -1,6 +1,7 @@
 import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { registerMarkerDataProvider } from 'monaco-marker-data-provider';
 import { createWorkerManager } from 'monaco-worker-manager';
+import { LanguageServiceDefaults } from 'monaco-yaml';
 
 import { languageId } from './constants';
 import {
@@ -13,7 +14,6 @@ import {
   createLinkProvider,
   createMarkerDataProvider,
 } from './languageFeatures';
-import { LanguageServiceDefaults } from './types';
 import { CreateData, YAMLWorker } from './yaml.worker';
 
 const richEditConfiguration: languages.LanguageConfiguration = {
