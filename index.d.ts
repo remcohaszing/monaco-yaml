@@ -1,4 +1,5 @@
 import { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema';
+import { IEvent } from 'monaco-editor';
 
 export interface SchemasSettings {
   /**
@@ -89,6 +90,18 @@ export interface DiagnosticsOptions {
    */
   readonly yamlVersion?: '1.1' | '1.2';
 }
+
+export interface LanguageServiceDefaults {
+  readonly onDidChange: IEvent<LanguageServiceDefaults>;
+  readonly diagnosticsOptions: DiagnosticsOptions;
+  setDiagnosticsOptions: (options: DiagnosticsOptions) => void;
+}
+
+export function createLanguageServiceDefaults(
+  initialDiagnosticsOptions: DiagnosticsOptions,
+): LanguageServiceDefaults;
+
+export const yamlDefaults: LanguageServiceDefaults;
 
 /**
  * Configure `monaco-yaml` diagnostics options.
