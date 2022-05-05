@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with: { node-version: 16 }
+        with: { node-version: 18 }
       - run: npm ci
       - run: npx eslint .
 
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with: { node-version: 16 }
+        with: { node-version: 18 }
       - run: npm ci
       - run: npm run prepack
       - run: npm run build --workspaces
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with: { node-version: 16 }
+        with: { node-version: 18 }
       - run: npm ci
       - run: npm pack
 
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with: { node-version: 16 }
+        with: { node-version: 18 }
       - run: npm ci
       - run: npx prettier --check .
 
@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with: { node-version: 16 }
+        with: { node-version: 18 }
       - run: npm ci
       - run: npx tsc
 
@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with: { node-version: 16 }
+        with: { node-version: 18 }
       - run: npm ci
       - run: npx playwright install --with-deps
       - run: npm run prepack
@@ -76,7 +76,7 @@ jobs:
   #   steps:
   #     - uses: actions/checkout@v2
   #     - uses: actions/setup-node@v2
-  #       with: { node-version: 16 }
+  #       with: { node-version: 18 }
   #     - run: npm ci
   #     - run: npm publish
   #       env:
