@@ -124,6 +124,51 @@ window.MonacoEnvironment = {
 };
 ```
 
+### Using Monaco webpack loader plugin
+
+If you're using [monaco webpack plugin](https://github.com/microsoft/monaco-editor/tree/main/webpack-plugin), then instead of the above code, you can extend the plugin's configuration. Extend your `webpack.config.js` file with the following:
+
+```js
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const path = require('path');
+
+module.exports = {
+	entry: './index.js',
+	output: {
+		path: path.resolve(__dirname, 'dist'),
+		filename: 'app.js'
+	},
+	module: {
+		rules: [
+			{
+				test: /\.css$/,
+				use: ['style-loader', 'css-loader']
+			},
+			{
+				test: /\.ttf$/,
+				type: 'asset/resource'
+			}
+		]
+	},
+	plugins: [
+  new MonacoWebpackPlugin({
+    languages: ["yaml"],
+    customLanguages: [
+      {
+        label: "yaml",
+        entry: "monaco-yaml",
+        worker: {
+          id: "monaco-yaml/yamlWorker",
+          entry: "monaco-yaml/yaml.worker",
+        },
+      },
+    ],
+  })]
+};
+```
+
+You can also refer to the [example](https://github.com/remcohaszing/monaco-yaml/tree/main/examples/monaco-editor-webpack-plugin) of a complete project.
+
 ## Examples
 
 A demo is available on [monaco-yaml.js.org](https://monaco-yaml.js.org).
