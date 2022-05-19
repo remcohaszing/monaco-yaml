@@ -229,6 +229,40 @@ likely caused by one of the following issues:
   You may be able to solve this by deleting your `node_modules` folder and `package-lock.json` or
   `yarn.lock`, then running `npm install` or `yarn install` respectively.
 
+### Using Monaco webpack loader plugin
+
+If you're using
+[monaco webpack plugin](https://github.com/microsoft/monaco-editor/tree/main/webpack-plugin), then
+instead of the above code, you can extend the plugin's configuration. Extend your
+`webpack.config.js` file with the following:
+
+```js
+import { MonacoWebpackPlugin } from 'monaco-editor-webpack-plugin';
+
+export default {
+  // ...the rest of your webpack configuration...
+  plugins: [
+    new MonacoWebpackPlugin({
+      languages: ['yaml'],
+      customLanguages: [
+        {
+          label: 'yaml',
+          entry: 'monaco-yaml',
+          worker: {
+            id: 'monaco-yaml/yamlWorker',
+            entry: 'monaco-yaml/yaml.worker',
+          },
+        },
+      ],
+    }),
+  ],
+};
+```
+
+You can also refer to the
+[example](https://github.com/remcohaszing/monaco-yaml/tree/main/examples/monaco-editor-webpack-plugin)
+of a complete project.
+
 ## Contributing
 
 Please see our [contributing guidelines](CONTRIBUTING.md)
