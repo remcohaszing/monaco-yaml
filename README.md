@@ -269,11 +269,11 @@ You may have provided a schema configured like this:
 
 ```Javascript
 {
-  uri: "http://placeholder",
+  uri: "http://example.com",
   fileMatch: ["file_name.yml"],
   schema: {
     $schema: "http://json-schema.org/draft-07/schema#",
-    $id: "http://placeholder",
+    $id: "http://example.com",
     title: "placeholder title",
     description: "placeholder description",
     type: "object",
@@ -290,11 +290,11 @@ You may have provided a schema configured like this:
 
 And would be surprised to see the error:
 
-> Unable to load schema from 'http://placeholder': Failed to fetch.
+> Unable to load schema from 'http://example.com': Failed to fetch.
 
 It happens because plugin uses schema URI not only as the URL to download the schema from, but also
 to determine the schema name. To fix this, change the `uri` parameter to
-`http://placeholder/schema-name.json`.
+`http://example.com/schema-name.json`.
 
 ## Contributing
 
