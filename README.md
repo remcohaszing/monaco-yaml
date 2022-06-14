@@ -263,6 +263,39 @@ You can also refer to the
 [example](https://github.com/remcohaszing/monaco-yaml/tree/main/examples/monaco-editor-webpack-plugin)
 of a complete project.
 
+### Why does it try to download my schema even when I provided one as an object?
+
+You may have provided a schema configured like this:
+
+```Javascript
+{
+  uri: "http://example.com",
+  fileMatch: ["file_name.yml"],
+  schema: {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    $id: "http://example.com",
+    title: "placeholder title",
+    description: "placeholder description",
+    type: "object",
+    properties: {
+      name: {
+        description: "name property description",
+        type: "string",
+      },
+    },
+    required: ["name"],
+  },
+}
+```
+
+And would be surprised to see the error:
+
+> Unable to load schema from 'http://example.com': Failed to fetch.
+
+It happens because plugin uses schema URI not only as the URL to download the schema from, but also
+to determine the schema name. To fix this, change the `uri` parameter to
+`http://example.com/schema-name.json`.
+
 ## Contributing
 
 Please see our [contributing guidelines](CONTRIBUTING.md)
