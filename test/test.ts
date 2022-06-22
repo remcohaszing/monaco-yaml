@@ -1,6 +1,5 @@
-import { expect, test } from '@playwright/test';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-import type { Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 let page: Page;
 
