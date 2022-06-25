@@ -13,6 +13,7 @@ import {
   createHoverProvider,
   createLinkProvider,
   createMarkerDataProvider,
+  mkHooks,
 } from './languageFeatures';
 import { CreateData, YAMLWorker } from './yaml.worker';
 
@@ -65,11 +66,11 @@ export function setupMode(defaults: LanguageServiceDefaults): void {
     });
   });
 
+  const hooks = mkHooks(defaults.diagnosticsOptions.showSchemaUrls);
   monaco.languages.registerCompletionItemProvider(
     languageId,
     createCompletionItemProvider(worker.getWorker),
   );
-  const hooks = defaults.diagnosticsOptions.hooks ?? {};
   let hoverProvider = monaco.languages.registerHoverProvider(
     languageId,
     createHoverProvider(hooks, worker.getWorker),
@@ -99,13 +100,12 @@ export function setupMode(defaults: LanguageServiceDefaults): void {
     createMarkerDataProvider(hooks, worker.getWorker),
   );
   defaults.onDidChange(() => {
-    const hooks = defaults.diagnosticsOptions.hooks ?? {};
+    const hooks = mkHooks(defaults.diagnosticsOptions.showSchemaUrls);
     hoverProvider.dispose();
     hoverProvider = monaco.languages.registerHoverProvider(
       languageId,
       createHoverProvider(hooks, worker.getWorker),
     );
-
     codeActionProvider.dispose();
     codeActionProvider = monaco.languages.registerCodeActionProvider(
       languageId,

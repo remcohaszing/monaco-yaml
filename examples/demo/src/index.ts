@@ -13,7 +13,7 @@ import {
   Uri,
 } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js';
-import { Hooks, SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
+import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
 // NOTE: This will give you all editor featues. If you would prefer to limit to only the editor
 // features you want to use, import them each individually. See this example: (https://github.com/microsoft/monaco-editor-samples/blob/main/browser-esm-webpack-small/index.js#L1-L91)
@@ -40,24 +40,13 @@ window.MonacoEnvironment = {
   },
 };
 
-const hooks: Hooks = {
-  onHoverInfo(c) {
-    console.log('onHoverInfo', c);
-    return c;
-  },
-  overDiagnostic(c) {
-    console.log('overDiagnostic', c);
-    return c;
-  },
-};
-
 const defaultSchema: SchemasSettings = {
   uri: defaultSchemaUri,
   fileMatch: ['monaco-yaml.yaml'],
 };
 
 setDiagnosticsOptions({
-  hooks,
+  showSchemaUrls: false,
   schemas: [defaultSchema],
 });
 
@@ -163,7 +152,7 @@ fetch('https://www.schemastore.org/api/json/catalog.json').then(async (response)
   }
 
   setDiagnosticsOptions({
-    hooks,
+    showSchemaUrls: false,
     validate: true,
     enableSchemaRequest: true,
     format: true,

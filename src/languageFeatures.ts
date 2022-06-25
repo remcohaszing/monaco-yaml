@@ -17,9 +17,43 @@ import { languageId } from './constants';
 import { YAMLWorker } from './yaml.worker';
 
 export interface Hooks {
-  overDiagnostic?: (diag: ls.Diagnostic) => ls.Diagnostic;
-  onHoverInfo?: (hover: ls.Hover) => ls.Hover;
+  overDiagnostic: (diag: ls.Diagnostic) => ls.Diagnostic;
+  overHoverInfo: (hover: ls.Hover) => ls.Hover;
 }
+
+const removeSource = (s: string): string => s.replace(/\s*Source: \[[^\]]*]\([^)]*\)\s*$/, '');
+
+export const mkHooks = (showSchemaUrls = true): Hooks =>
+  showSchemaUrls
+    ? {
+        overHoverInfo(hover) {
+          return hover;
+        },
+        overDiagnostic(diagnostic) {
+          return diagnostic;
+        },
+      }
+    : {
+        overHoverInfo(hover) {
+          if (
+            typeof hover.contents !== 'string' &&
+            'kind' in hover.contents &&
+            hover.contents.kind === 'markdown'
+          ) {
+            return {
+              ...hover,
+              contents: { ...hover.contents, value: removeSource(hover.contents.value) },
+            };
+          }
+          return hover;
+        },
+        overDiagnostic(diagnostic) {
+          if (diagnostic.source?.startsWith('yaml-schema:')) {
+            return { ...diagnostic, source: 'YAML' };
+          }
+          return diagnostic;
+        },
+      };
 
 export type WorkerAccessor = WorkerGetter<YAMLWorker>;
 
@@ -51,7 +85,7 @@ function toMarkerDataTag(tag: ls.DiagnosticTag): MarkerTag {
 }
 
 function toDiagnostics(hooks: Hooks, diagInput: ls.Diagnostic): editor.IMarkerData {
-  const diag = hooks.overDiagnostic?.(diagInput) ?? diagInput;
+  const diag = hooks.overDiagnostic(diagInput);
   return {
     severity: toSeverity(diag.severity),
     startLineNumber: diag.range.start.line + 1,
@@ -75,7 +109,7 @@ export function createMarkerDataProvider(
       const worker = await getWorker(model.uri);
       const diagnostics = await worker.doValidation(String(model.uri));
 
-      return diagnostics.map((d) => toDiagnostics(hooks, d));
+      return diagnostics.map((diagnostics) => toDiagnostics(hooks, diagnostics));
     },
 
     async doReset(model) {
@@ -273,7 +307,7 @@ export function createHoverProvider(
       if (!infoInput) {
         return;
       }
-      const info = hooks.onHoverInfo?.(infoInput) ?? infoInput;
+      const info = hooks.overHoverInfo(infoInput);
       return {
         range: toRange(info.range),
         contents: [{ value: (info.contents as ls.MarkupContent).value }],
@@ -431,7 +465,7 @@ function toWorkspaceEdit(edit: ls.WorkspaceEdit): languages.WorkspaceEdit {
 function toCodeAction(hooks: Hooks, codeAction: ls.CodeAction): languages.CodeAction {
   return {
     title: codeAction.title,
-    diagnostics: codeAction.diagnostics.map((diag) => toDiagnostics(hooks, diag)),
+    diagnostics: codeAction.diagnostics.map((diagnostics) => toDiagnostics(hooks, diagnostics)),
     disabled: codeAction.disabled?.reason,
     edit: toWorkspaceEdit(codeAction.edit),
     kind: codeAction.kind,
@@ -454,7 +488,7 @@ export function createCodeActionProvider(
         context.markers.map(fromMarkerData),
       );
       return {
-        actions: codeActions.map((c) => toCodeAction(hooks, c)),
+        actions: codeActions.map((code) => toCodeAction(hooks, code)),
         dispose() {
           // This is required by the TypeScript interface, but it’s not implemented.
         },
