@@ -1,6 +1,11 @@
 import { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema';
 import { IEvent } from 'monaco-editor';
 
+export interface Hooks {
+  readonly overDiagnostic?: (diag: ls.Diagnostic) => ls.Diagnostic;
+  readonly onHoverInfo?: (hover: ls.Hover) => ls.Hover;
+}
+
 export interface SchemasSettings {
   /**
    * A `Uri` file match which will trigger the schema validation. This may be a glob or an exact
@@ -25,6 +30,7 @@ export interface SchemasSettings {
 }
 
 export interface DiagnosticsOptions {
+  readonly hooks?: Hooks;
   /**
    * If set, enable schema based autocompletion.
    *

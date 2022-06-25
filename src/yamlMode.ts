@@ -69,7 +69,11 @@ export function setupMode(defaults: LanguageServiceDefaults): void {
     languageId,
     createCompletionItemProvider(worker.getWorker),
   );
-  monaco.languages.registerHoverProvider(languageId, createHoverProvider(worker.getWorker));
+  const hooks = defaults.diagnosticsOptions.hooks ?? {};
+  let hoverProvider = monaco.languages.registerHoverProvider(
+    languageId,
+    createHoverProvider(hooks, worker.getWorker),
+  );
   monaco.languages.registerDefinitionProvider(
     languageId,
     createDefinitionProvider(worker.getWorker),
@@ -83,23 +87,36 @@ export function setupMode(defaults: LanguageServiceDefaults): void {
     createDocumentFormattingEditProvider(worker.getWorker),
   );
   monaco.languages.registerLinkProvider(languageId, createLinkProvider(worker.getWorker));
-  monaco.languages.registerCodeActionProvider(
+  let codeActionProvider = monaco.languages.registerCodeActionProvider(
     languageId,
-    createCodeActionProvider(worker.getWorker),
+    createCodeActionProvider(hooks, worker.getWorker),
   );
   monaco.languages.setLanguageConfiguration(languageId, richEditConfiguration);
 
   let markerDataProvider = registerMarkerDataProvider(
     monaco,
     languageId,
-    createMarkerDataProvider(worker.getWorker),
+    createMarkerDataProvider(hooks, worker.getWorker),
   );
   defaults.onDidChange(() => {
+    const hooks = defaults.diagnosticsOptions.hooks ?? {};
+    hoverProvider.dispose();
+    hoverProvider = monaco.languages.registerHoverProvider(
+      languageId,
+      createHoverProvider(hooks, worker.getWorker),
+    );
+
+    codeActionProvider.dispose();
+    codeActionProvider = monaco.languages.registerCodeActionProvider(
+      languageId,
+      createCodeActionProvider(hooks, worker.getWorker),
+    );
+
     markerDataProvider.dispose();
     markerDataProvider = registerMarkerDataProvider(
       monaco,
       languageId,
-      createMarkerDataProvider(worker.getWorker),
+      createMarkerDataProvider(hooks, worker.getWorker),
     );
   });
 }

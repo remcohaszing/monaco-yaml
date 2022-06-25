@@ -16,6 +16,11 @@ import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageser
 import { languageId } from './constants';
 import { YAMLWorker } from './yaml.worker';
 
+export interface Hooks {
+  overDiagnostic?: (diag: ls.Diagnostic) => ls.Diagnostic;
+  onHoverInfo?: (hover: ls.Hover) => ls.Hover;
+}
+
 export type WorkerAccessor = WorkerGetter<YAMLWorker>;
 
 // --- diagnostics --- ---
@@ -45,7 +50,8 @@ function toMarkerDataTag(tag: ls.DiagnosticTag): MarkerTag {
   }
 }
 
-function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
+function toDiagnostics(hooks: Hooks, diagInput: ls.Diagnostic): editor.IMarkerData {
+  const diag = hooks.overDiagnostic?.(diagInput) ?? diagInput;
   return {
     severity: toSeverity(diag.severity),
     startLineNumber: diag.range.start.line + 1,
@@ -59,14 +65,17 @@ function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
   };
 }
 
-export function createMarkerDataProvider(getWorker: WorkerAccessor): MarkerDataProvider {
+export function createMarkerDataProvider(
+  hooks: Hooks,
+  getWorker: WorkerAccessor,
+): MarkerDataProvider {
   return {
     owner: languageId,
     async provideMarkerData(model) {
       const worker = await getWorker(model.uri);
       const diagnostics = await worker.doValidation(String(model.uri));
 
-      return diagnostics.map(toDiagnostics);
+      return diagnostics.map((d) => toDiagnostics(hooks, d));
     },
 
     async doReset(model) {
@@ -251,16 +260,20 @@ export function createDefinitionProvider(getWorker: WorkerAccessor): languages.D
 
 // --- hover ------
 
-export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverProvider {
+export function createHoverProvider(
+  hooks: Hooks,
+  getWorker: WorkerAccessor,
+): languages.HoverProvider {
   return {
     async provideHover(model, position) {
       const resource = model.uri;
 
       const worker = await getWorker(resource);
-      const info = await worker.doHover(String(resource), fromPosition(position));
-      if (!info) {
+      const infoInput = await worker.doHover(String(resource), fromPosition(position));
+      if (!infoInput) {
         return;
       }
+      const info = hooks.onHoverInfo?.(infoInput) ?? infoInput;
       return {
         range: toRange(info.range),
         contents: [{ value: (info.contents as ls.MarkupContent).value }],
@@ -415,10 +428,10 @@ function toWorkspaceEdit(edit: ls.WorkspaceEdit): languages.WorkspaceEdit {
   };
 }
 
-function toCodeAction(codeAction: ls.CodeAction): languages.CodeAction {
+function toCodeAction(hooks: Hooks, codeAction: ls.CodeAction): languages.CodeAction {
   return {
     title: codeAction.title,
-    diagnostics: codeAction.diagnostics.map(toDiagnostics),
+    diagnostics: codeAction.diagnostics.map((diag) => toDiagnostics(hooks, diag)),
     disabled: codeAction.disabled?.reason,
     edit: toWorkspaceEdit(codeAction.edit),
     kind: codeAction.kind,
@@ -426,7 +439,10 @@ function toCodeAction(codeAction: ls.CodeAction): languages.CodeAction {
   };
 }
 
-export function createCodeActionProvider(getWorker: WorkerAccessor): languages.CodeActionProvider {
+export function createCodeActionProvider(
+  hooks: Hooks,
+  getWorker: WorkerAccessor,
+): languages.CodeActionProvider {
   return {
     async provideCodeActions(model, range, context) {
       const resource = model.uri;
@@ -438,7 +454,7 @@ export function createCodeActionProvider(getWorker: WorkerAccessor): languages.C
         context.markers.map(fromMarkerData),
       );
       return {
-        actions: codeActions.map(toCodeAction),
+        actions: codeActions.map((c) => toCodeAction(hooks, c)),
         dispose() {
           // This is required by the TypeScript interface, but it’s not implemented.
         },
