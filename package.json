@@ -6,6 +6,7 @@
   "scripts": {
     "prepack": "node build.js",
     "prepare": "husky install",
+    "start": "npm --workspace demo start",
     "test": "playwright test"
   },
   "type": "module",
