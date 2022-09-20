@@ -3,7 +3,7 @@ import { registerMarkerDataProvider } from 'monaco-marker-data-provider';
 import { createWorkerManager } from 'monaco-worker-manager';
 import { LanguageServiceDefaults } from 'monaco-yaml';
 
-import { languageId } from './constants';
+import { languageId } from './constants.js';
 import {
   createCodeActionProvider,
   createCompletionItemProvider,
@@ -13,8 +13,8 @@ import {
   createHoverProvider,
   createLinkProvider,
   createMarkerDataProvider,
-} from './languageFeatures';
-import { CreateData, YAMLWorker } from './yaml.worker';
+} from './languageFeatures.js';
+import { CreateData, YAMLWorker } from './yaml.worker.js';
 
 const richEditConfiguration: monaco.languages.LanguageConfiguration = {
   comments: {

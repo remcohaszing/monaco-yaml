@@ -2,15 +2,13 @@ extends:
   - remcohaszing
   - remcohaszing/typechecking
 rules:
-  '@typescript-eslint/no-shadow': off
   '@typescript-eslint/no-unnecessary-condition': off
 
-  import/extensions: off
   import/no-extraneous-dependencies: off
-  import/no-unresolved: off
 
   jsdoc/require-jsdoc: off
 
-  node/no-extraneous-import: off
-  node/no-unsupported-features/es-syntax: off
-  node/no-unsupported-features/node-builtins: off
+  n/no-extraneous-import: off
+  n/prefer-global/process: off
+  n/no-unsupported-features/es-syntax: off
+  n/no-unsupported-features/node-builtins: off

@@ -6,6 +6,7 @@
   "scripts": {
     "prepack": "node build.js",
     "prepare": "husky install",
+    "start": "npm --workspace demo start",
     "test": "playwright test"
   },
   "type": "module",
@@ -58,9 +59,9 @@
   "devDependencies": {
     "@playwright/test": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "esbuild": "^0.14.0",
+    "esbuild": "^0.15.0",
     "eslint": "^8.0.0",
-    "eslint-config-remcohaszing": "^4.0.0",
+    "eslint-config-remcohaszing": "^6.0.0",
     "husky": "^8.0.0",
     "lint-staged": "^13.0.0",
     "monaco-editor": "^0.33.0",

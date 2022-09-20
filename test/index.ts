@@ -1,6 +1,5 @@
 import * as monaco from 'monaco-editor';
-
-import { SchemasSettings, setDiagnosticsOptions } from '..';
+import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
 self.MonacoEnvironment = {
   getWorkerUrl(workerId, label) {

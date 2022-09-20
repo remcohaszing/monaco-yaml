@@ -1,19 +1,17 @@
-import esbuild from 'esbuild';
+import { fileURLToPath } from 'url';
 
-const entryPoints = [
-  'monaco-editor/esm/vs/editor/editor.worker.js',
-  './yaml.worker.js',
-  './test/index.ts',
-];
+import { build } from 'esbuild';
 
-for (const entryPoint of entryPoints) {
-  esbuild.build({
-    entryPoints: [entryPoint],
-    bundle: true,
-    format: 'iife',
-    outdir: 'test/out',
-    loader: {
-      '.ttf': 'file',
-    },
-  });
-}
+await build({
+  entryPoints: {
+    'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
+    'yaml.worker': fileURLToPath(new URL('../yaml.worker.js', import.meta.url)),
+    index: fileURLToPath(new URL('index.ts', import.meta.url)),
+  },
+  bundle: true,
+  format: 'iife',
+  outdir: fileURLToPath(new URL('out/', import.meta.url)),
+  loader: {
+    '.ttf': 'file',
+  },
+});

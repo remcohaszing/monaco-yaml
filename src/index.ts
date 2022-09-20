@@ -1,8 +1,8 @@
 import { Emitter, languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { DiagnosticsOptions, LanguageServiceDefaults } from 'monaco-yaml';
 
-import { languageId } from './constants';
-import { setupMode } from './yamlMode';
+import { languageId } from './constants.js';
+import { setupMode } from './yamlMode.js';
 
 // --- YAML configuration and defaults ---------
 
@@ -60,7 +60,7 @@ languages.onLanguage('yaml', () => {
 /**
  * Configure `monaco-yaml` diagnostics options.
  *
- * @param options - The options to set.
+ * @param options The options to set.
  */
 export function setDiagnosticsOptions(options: DiagnosticsOptions = {}): void {
   yamlDefaults.setDiagnosticsOptions(options);

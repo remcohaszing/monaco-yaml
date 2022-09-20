@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import http from 'http';
 import { extname } from 'path';
+
 import './build.js';
 
 const contentTypes = {

@@ -13,8 +13,8 @@ import { WorkerGetter } from 'monaco-worker-manager';
 import * as ls from 'vscode-languageserver-types';
 import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
-import { languageId } from './constants';
-import { YAMLWorker } from './yaml.worker';
+import { languageId } from './constants.js';
+import { YAMLWorker } from './yaml.worker.js';
 
 export type WorkerAccessor = WorkerGetter<YAMLWorker>;
 
