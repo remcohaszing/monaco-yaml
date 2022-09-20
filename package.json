@@ -33,6 +33,7 @@
   "bugs": {
     "url": "https://github.com/remcohaszing/monaco-yaml/issues"
   },
+  "funding": "https://github.com/sponsors/remcohaszing",
   "keywords": [
     "editor",
     "frontend",
