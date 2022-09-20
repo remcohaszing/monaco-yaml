@@ -86,6 +86,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: package
-      - run: npm publish
+      - run: npm publish *.tgz
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
