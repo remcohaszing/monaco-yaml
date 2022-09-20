@@ -30,7 +30,7 @@ await build({
           external: true,
           sideEffects: false,
         }));
-        // The yaml language service uses path. We can stub it using path-browserify.
+        // Ajv would significantly increase bundle size.
         onResolve({ filter: /^ajv$/ }, () => ({
           path: fileURLToPath(new URL('src/fillers/ajv.ts', import.meta.url)),
         }));
