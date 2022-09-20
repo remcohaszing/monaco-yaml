@@ -106,6 +106,6 @@ export const yamlDefaults: LanguageServiceDefaults;
 /**
  * Configure `monaco-yaml` diagnostics options.
  *
- * @param options - The options to set.
+ * @param options The options to set.
  */
 export function setDiagnosticsOptions(options?: DiagnosticsOptions): void;

@@ -31,6 +31,10 @@ await build({
           sideEffects: false,
         }));
         // The yaml language service uses path. We can stub it using path-browserify.
+        onResolve({ filter: /^ajv$/ }, () => ({
+          path: fileURLToPath(new URL('src/fillers/ajv.ts', import.meta.url)),
+        }));
+        // The yaml language service uses path. We can stub it using path-browserify.
         onResolve({ filter: /^path$/ }, () => ({
           path: 'path-browserify',
           external: true,

@@ -18,7 +18,7 @@ import {
   LanguageSettings,
 } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
-import { languageId } from './constants';
+import { languageId } from './constants.js';
 
 async function schemaRequestService(uri: string): Promise<string> {
   const response = await fetch(uri);

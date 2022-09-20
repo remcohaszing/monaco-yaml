@@ -1,8 +1,4 @@
-import './index.css';
-
 import { JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schema-catalog';
-import { ILanguageFeaturesService } from 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js';
-import { OutlineModel } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js';
 import {
   editor,
   Environment,
@@ -11,14 +7,13 @@ import {
   Position,
   Range,
   Uri,
-} from 'monaco-editor/esm/vs/editor/editor.api.js';
+} from 'monaco-editor';
+import { ILanguageFeaturesService } from 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js';
+import { OutlineModel } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js';
 import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js';
 import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
-// NOTE: This will give you all editor featues. If you would prefer to limit to only the editor
-// features you want to use, import them each individually. See this example: (https://github.com/microsoft/monaco-editor-samples/blob/main/browser-esm-webpack-small/index.js#L1-L91)
-import 'monaco-editor';
-
+import './index.css';
 import defaultSchemaUri from './schema.json';
 
 declare global {
