@@ -2,12 +2,7 @@ import * as monaco from 'monaco-editor';
 import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
 self.MonacoEnvironment = {
-  getWorkerUrl(workerId, label) {
-    if (label === 'yaml') {
-      return 'out/yaml.worker.js';
-    }
-    return 'out/editor.worker.js';
-  },
+  getWorkerUrl: (workerId, label) => `${label}.worker.js`,
 };
 
 const schema: SchemasSettings = {

@@ -36,7 +36,7 @@ window.MonacoEnvironment = {
 };
 
 const defaultSchema: SchemasSettings = {
-  uri: defaultSchemaUri,
+  uri: defaultSchemaUri as unknown as string,
   fileMatch: ['monaco-yaml.yaml'],
 };
 
