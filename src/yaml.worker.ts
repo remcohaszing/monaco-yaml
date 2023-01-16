@@ -12,6 +12,7 @@ import {
   Range,
   TextEdit,
 } from 'vscode-languageserver-types';
+import { Telemetry } from 'yaml-language-server/lib/esm/languageservice/telemetry.js';
 import {
   CustomFormatterOptions,
   getLanguageService,
@@ -53,12 +54,23 @@ export interface YAMLWorker {
   getCodeAction: (uri: string, range: Range, diagnostics: Diagnostic[]) => CodeAction[];
 }
 
+const telemetry: Telemetry = {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  send() {},
+  sendError(name, properties) {
+    // eslint-disable-next-line no-console
+    console.error('monaco-yaml', name, properties);
+  },
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  sendTrack() {},
+};
+
 initialize<YAMLWorker, CreateData>((ctx, { enableSchemaRequest, languageSettings }) => {
   const languageService = getLanguageService(
     enableSchemaRequest ? schemaRequestService : null,
     null,
     null,
-    null,
+    telemetry,
     null,
   );
   languageService.configure(languageSettings);
