@@ -1,5 +1,5 @@
-import { readFile } from 'fs/promises';
-import { fileURLToPath } from 'url';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 import { build } from 'esbuild';
 

@@ -55,17 +55,16 @@
     "yaml": "^2.0.0"
   },
   "peerDependencies": {
-    "monaco-editor": ">=0.30"
+    "monaco-editor": ">=0.34"
   },
   "devDependencies": {
     "@playwright/test": "^1.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "esbuild": "^0.15.0",
+    "esbuild": "^0.17.0",
     "eslint": "^8.0.0",
-    "eslint-config-remcohaszing": "^6.0.0",
+    "eslint-config-remcohaszing": "^8.0.0",
     "husky": "^8.0.0",
     "lint-staged": "^13.0.0",
-    "monaco-editor": "^0.33.0",
+    "monaco-editor": "^0.34.0",
     "typescript": "^4.0.0",
     "yaml-language-server": "^1.0.0"
   },

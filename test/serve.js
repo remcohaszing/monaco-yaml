@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import http from 'http';
-import { extname } from 'path';
+import { promises as fs } from 'node:fs';
+import http from 'node:http';
+import { extname } from 'node:path';
 
 import './build.js';
 

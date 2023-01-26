@@ -16,10 +16,9 @@ export type LoadFunc = (file?: string) => LocalizeFunc;
 function format(message: string, args: string[]): string {
   return args.length === 0
     ? message
-    : message.replace(/{(\d+)}/g, (match, rest: number[]) => {
-        const [index] = rest;
-        return typeof args[index] === 'undefined' ? match : args[index];
-      });
+    : message.replace(/{(\d+)}/g, (match, [index]: number[]) =>
+        args[index] == null ? match : args[index],
+      );
 }
 
 function localize(key: LocalizeInfo | string, message: string, ...args: string[]): string {

@@ -1,13 +1,5 @@
 import { JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schema-catalog';
-import {
-  editor,
-  Environment,
-  languages,
-  MarkerSeverity,
-  Position,
-  Range,
-  Uri,
-} from 'monaco-editor';
+import { editor, languages, MarkerSeverity, Position, Range, Uri } from 'monaco-editor';
 import { ILanguageFeaturesService } from 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js';
 import { OutlineModel } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js';
 import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js';
@@ -15,12 +7,6 @@ import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
 import './index.css';
 import defaultSchemaUri from './schema.json';
-
-declare global {
-  interface Window {
-    MonacoEnvironment: Environment;
-  }
-}
 
 window.MonacoEnvironment = {
   getWorker(moduleId, label) {
@@ -121,6 +107,7 @@ const ed = editor.create(document.getElementById('editor'), {
 
 const select = document.getElementById('schema-selection') as HTMLSelectElement;
 
+// eslint-disable-next-line unicorn/prefer-top-level-await
 fetch('https://www.schemastore.org/api/json/catalog.json').then(async (response) => {
   if (!response.ok) {
     return;

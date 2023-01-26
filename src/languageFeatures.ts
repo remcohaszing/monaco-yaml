@@ -396,16 +396,20 @@ export function createLinkProvider(getWorker: WorkerAccessor): languages.LinkPro
 }
 
 function toWorkspaceEdit(edit: ls.WorkspaceEdit): languages.WorkspaceEdit {
-  const edits: languages.WorkspaceTextEdit[] = [];
+  const edits: languages.IWorkspaceTextEdit[] = [];
 
   for (const [uri, textEdits] of Object.entries(edit.changes)) {
     for (const textEdit of textEdits) {
+      const monacoEdit: languages.TextEdit = {
+        text: textEdit.newText,
+        range: toRange(textEdit.range),
+      };
       edits.push({
         resource: Uri.parse(uri),
-        edit: {
-          text: textEdit.newText,
-          range: toRange(textEdit.range),
-        },
+        versionId: undefined,
+        textEdit: monacoEdit,
+        // @ts-expect-error This is for compatibility with monaco-editor<0.34
+        edit: monacoEdit,
       });
     }
   }
