@@ -31,27 +31,27 @@ async function schemaRequestService(uri: string): Promise<string> {
 
 export interface CreateData {
   languageSettings: LanguageSettings;
-  enableSchemaRequest: boolean;
+  enableSchemaRequest?: boolean;
 }
 
 export interface YAMLWorker {
-  doValidation: (uri: string) => Diagnostic[];
+  doValidation: (uri: string) => Diagnostic[] | undefined;
 
-  doComplete: (uri: string, position: Position) => CompletionList;
+  doComplete: (uri: string, position: Position) => CompletionList | undefined;
 
-  doDefinition: (uri: string, position: Position) => LocationLink[];
+  doDefinition: (uri: string, position: Position) => LocationLink[] | undefined;
 
-  doHover: (uri: string, position: Position) => Hover;
+  doHover: (uri: string, position: Position) => Hover | null | undefined;
 
-  format: (uri: string, options: CustomFormatterOptions) => TextEdit[];
+  format: (uri: string, options: CustomFormatterOptions) => TextEdit[] | undefined;
 
-  resetSchema: (uri: string) => boolean;
+  resetSchema: (uri: string) => boolean | undefined;
 
-  findDocumentSymbols: (uri: string) => DocumentSymbol[];
+  findDocumentSymbols: (uri: string) => DocumentSymbol[] | undefined;
 
-  findLinks: (uri: string) => DocumentLink[];
+  findLinks: (uri: string) => DocumentLink[] | undefined;
 
-  getCodeAction: (uri: string, range: Range, diagnostics: Diagnostic[]) => CodeAction[];
+  getCodeAction: (uri: string, range: Range, diagnostics: Diagnostic[]) => CodeAction[] | undefined;
 }
 
 const telemetry: Telemetry = {
@@ -67,6 +67,7 @@ const telemetry: Telemetry = {
 
 initialize<YAMLWorker, CreateData>((ctx, { enableSchemaRequest, languageSettings }) => {
   const languageService = getLanguageService(
+    // @ts-expect-error Type definitions are wrong. This may be null.
     enableSchemaRequest ? schemaRequestService : null,
     null,
     null,
@@ -75,7 +76,7 @@ initialize<YAMLWorker, CreateData>((ctx, { enableSchemaRequest, languageSettings
   );
   languageService.configure(languageSettings);
 
-  const getTextDocument = (uri: string): TextDocument => {
+  const getTextDocument = (uri: string): TextDocument | undefined => {
     const models = ctx.getMirrorModels();
     for (const model of models) {
       if (String(model.uri) === uri) {
@@ -88,29 +89,40 @@ initialize<YAMLWorker, CreateData>((ctx, { enableSchemaRequest, languageSettings
     doValidation(uri) {
       const document = getTextDocument(uri);
       if (document) {
-        return languageService.doValidation(document, languageSettings.isKubernetes);
+        return languageService.doValidation(document, Boolean(languageSettings.isKubernetes));
       }
-      return [];
     },
 
     doComplete(uri, position) {
       const document = getTextDocument(uri);
-      return languageService.doComplete(document, position, languageSettings.isKubernetes);
+      if (document) {
+        return languageService.doComplete(
+          document,
+          position,
+          Boolean(languageSettings.isKubernetes),
+        );
+      }
     },
 
     doDefinition(uri, position) {
       const document = getTextDocument(uri);
-      return languageService.doDefinition(document, { position, textDocument: { uri } });
+      if (document) {
+        return languageService.doDefinition(document, { position, textDocument: { uri } });
+      }
     },
 
     doHover(uri, position) {
       const document = getTextDocument(uri);
-      return languageService.doHover(document, position);
+      if (document) {
+        return languageService.doHover(document, position);
+      }
     },
 
     format(uri, options) {
       const document = getTextDocument(uri);
-      return languageService.doFormat(document, options);
+      if (document) {
+        return languageService.doFormat(document, options);
+      }
     },
 
     resetSchema(uri) {
@@ -119,21 +131,27 @@ initialize<YAMLWorker, CreateData>((ctx, { enableSchemaRequest, languageSettings
 
     findDocumentSymbols(uri) {
       const document = getTextDocument(uri);
-      return languageService.findDocumentSymbols2(document, {});
+      if (document) {
+        return languageService.findDocumentSymbols2(document, {});
+      }
     },
 
     findLinks(uri) {
       const document = getTextDocument(uri);
-      return languageService.findLinks(document);
+      if (document) {
+        return languageService.findLinks(document);
+      }
     },
 
     getCodeAction(uri, range, diagnostics) {
       const document = getTextDocument(uri);
-      return languageService.getCodeAction(document, {
-        range,
-        textDocument: { uri },
-        context: { diagnostics },
-      });
+      if (document) {
+        return languageService.getCodeAction(document, {
+          range,
+          textDocument: { uri },
+          context: { diagnostics },
+        });
+      }
     },
   };
 });

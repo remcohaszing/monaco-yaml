@@ -6,7 +6,7 @@ import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/brows
 import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
 import './index.css';
-import defaultSchemaUri from './schema.json';
+import schema from './schema.json';
 
 window.MonacoEnvironment = {
   getWorker(moduleId, label) {
@@ -22,7 +22,9 @@ window.MonacoEnvironment = {
 };
 
 const defaultSchema: SchemasSettings = {
-  uri: defaultSchemaUri,
+  uri: 'https://github.com/remcohaszing/monaco-yaml/blob/HEAD/examples/demo/src/schema.json',
+  // @ts-expect-error TypeScript can’t narrow down the type of JSON imports
+  schema,
   fileMatch: ['monaco-yaml.yaml'],
 };
 
@@ -99,7 +101,7 @@ formatting:       Formatting is supported too! Under the hood this is powered by
 
 `.replace(/:$/m, ': ');
 
-const ed = editor.create(document.getElementById('editor'), {
+const ed = editor.create(document.getElementById('editor')!, {
   automaticLayout: true,
   model: editor.createModel(value, 'yaml', Uri.parse('monaco-yaml.yaml')),
   theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs-light',
@@ -144,9 +146,9 @@ fetch('https://www.schemastore.org/api/json/catalog.json').then(async (response)
 
 select.addEventListener('change', () => {
   const oldModel = ed.getModel();
-  const newModel = editor.createModel(oldModel.getValue(), 'yaml', Uri.parse(select.value));
+  const newModel = editor.createModel(oldModel?.getValue() ?? '', 'yaml', Uri.parse(select.value));
   ed.setModel(newModel);
-  oldModel.dispose();
+  oldModel?.dispose();
 });
 
 function* iterateSymbols(
@@ -164,9 +166,9 @@ function* iterateSymbols(
 }
 
 ed.onDidChangeCursorPosition(async (event) => {
-  const breadcrumbs = document.getElementById('breadcrumbs');
+  const breadcrumbs = document.getElementById('breadcrumbs')!;
   const { documentSymbolProvider } = StandaloneServices.get(ILanguageFeaturesService);
-  const outline = await OutlineModel.create(documentSymbolProvider, ed.getModel());
+  const outline = await OutlineModel.create(documentSymbolProvider, ed.getModel()!);
   const symbols = outline.asListOfDocumentSymbols();
   while (breadcrumbs.lastChild) {
     breadcrumbs.lastChild.remove();
@@ -194,7 +196,7 @@ ed.onDidChangeCursorPosition(async (event) => {
 });
 
 editor.onDidChangeMarkers(([resource]) => {
-  const problems = document.getElementById('problems');
+  const problems = document.getElementById('problems')!;
   const markers = editor.getModelMarkers({ resource });
   while (problems.lastChild) {
     problems.lastChild.remove();

@@ -32,7 +32,7 @@ setDiagnosticsOptions({
 });
 const value = 'p1: \np2: \n';
 
-monaco.editor.create(document.querySelector('#editor'), {
+monaco.editor.create(document.querySelector('#editor')!, {
   language: 'yaml',
   tabSize: 2,
   value,

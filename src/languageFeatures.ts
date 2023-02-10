@@ -11,7 +11,6 @@ import {
 import { MarkerDataProvider } from 'monaco-marker-data-provider';
 import { WorkerGetter } from 'monaco-worker-manager';
 import * as ls from 'vscode-languageserver-types';
-import { CustomFormatterOptions } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
 import { languageId } from './constants.js';
 import { YAMLWorker } from './yaml.worker.js';
@@ -20,14 +19,12 @@ export type WorkerAccessor = WorkerGetter<YAMLWorker>;
 
 // --- diagnostics --- ---
 
-function toSeverity(lsSeverity: ls.DiagnosticSeverity): MarkerSeverity {
+function toSeverity(lsSeverity: ls.DiagnosticSeverity | undefined): MarkerSeverity {
   switch (lsSeverity) {
     case ls.DiagnosticSeverity.Error:
       return MarkerSeverity.Error;
     case ls.DiagnosticSeverity.Warning:
       return MarkerSeverity.Warning;
-    case ls.DiagnosticSeverity.Information:
-      return MarkerSeverity.Info;
     case ls.DiagnosticSeverity.Hint:
       return MarkerSeverity.Hint;
     default:
@@ -36,13 +33,7 @@ function toSeverity(lsSeverity: ls.DiagnosticSeverity): MarkerSeverity {
 }
 
 function toMarkerDataTag(tag: ls.DiagnosticTag): MarkerTag {
-  switch (tag) {
-    case ls.DiagnosticTag.Deprecated:
-      return MarkerTag.Deprecated;
-    case ls.DiagnosticTag.Unnecessary:
-      return MarkerTag.Unnecessary;
-    default:
-  }
+  return tag === ls.DiagnosticTag.Deprecated ? MarkerTag.Deprecated : MarkerTag.Unnecessary;
 }
 
 function toDiagnostics(diag: ls.Diagnostic): editor.IMarkerData {
@@ -66,7 +57,7 @@ export function createMarkerDataProvider(getWorker: WorkerAccessor): MarkerDataP
       const worker = await getWorker(model.uri);
       const diagnostics = await worker.doValidation(String(model.uri));
 
-      return diagnostics.map(toDiagnostics);
+      return diagnostics?.map(toDiagnostics);
     },
 
     async doReset(model) {
@@ -79,16 +70,10 @@ export function createMarkerDataProvider(getWorker: WorkerAccessor): MarkerDataP
 // --- completion ------
 
 function fromPosition(position: Position): ls.Position {
-  if (!position) {
-    return;
-  }
   return { character: position.column - 1, line: position.lineNumber - 1 };
 }
 
 function toRange(range: ls.Range): Range {
-  if (!range) {
-    return;
-  }
   return new Range(
     range.start.line + 1,
     range.start.character + 1,
@@ -113,7 +98,9 @@ function fromMarkerData(marker: editor.IMarkerData): ls.Diagnostic {
   };
 }
 
-function toCompletionItemKind(kind: ls.CompletionItemKind): languages.CompletionItemKind {
+function toCompletionItemKind(
+  kind: ls.CompletionItemKind | undefined,
+): languages.CompletionItemKind {
   const mItemKind = languages.CompletionItemKind;
 
   switch (kind) {
@@ -158,10 +145,7 @@ function toCompletionItemKind(kind: ls.CompletionItemKind): languages.Completion
   }
 }
 
-function toTextEdit(textEdit: ls.TextEdit): editor.ISingleEditOperation {
-  if (!textEdit) {
-    return;
-  }
+function toTextEdit(textEdit: ls.TextEdit): languages.TextEdit {
   return {
     range: toRange(textEdit.range),
     text: textEdit.newText,
@@ -194,7 +178,7 @@ export function createCompletionItemProvider(
       const items = info.items.map((entry) => {
         const item: languages.CompletionItem = {
           label: entry.label,
-          insertText: entry.insertText || entry.label,
+          insertText: entry.insertText ?? entry.label,
           sortText: entry.sortText,
           filterText: entry.filterText,
           documentation: entry.documentation,
@@ -229,7 +213,8 @@ export function createCompletionItemProvider(
 
 function toLocationLink(locationLink: ls.LocationLink): languages.LocationLink {
   return {
-    originSelectionRange: toRange(locationLink.originSelectionRange),
+    originSelectionRange:
+      locationLink.originSelectionRange && toRange(locationLink.originSelectionRange),
     range: toRange(locationLink.targetRange),
     targetSelectionRange: toRange(locationLink.targetSelectionRange),
     uri: Uri.parse(locationLink.targetUri),
@@ -262,7 +247,7 @@ export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverP
         return;
       }
       return {
-        range: toRange(info.range),
+        range: info.range && toRange(info.range),
         contents: [{ value: (info.contents as ls.MarkupContent).value }],
       };
     },
@@ -318,12 +303,12 @@ function toSymbolKind(kind: ls.SymbolKind): languages.SymbolKind {
 
 function toDocumentSymbol(item: ls.DocumentSymbol): languages.DocumentSymbol {
   return {
-    detail: item.detail || '',
+    detail: item.detail ?? '',
     range: toRange(item.range),
     name: item.name,
     kind: toSymbolKind(item.kind),
     selectionRange: toRange(item.selectionRange),
-    children: item.children.map(toDocumentSymbol),
+    children: item.children?.map(toDocumentSymbol),
     tags: [],
   };
 }
@@ -345,25 +330,15 @@ export function createDocumentSymbolProvider(
   };
 }
 
-function fromFormattingOptions(
-  options: languages.FormattingOptions,
-): CustomFormatterOptions & ls.FormattingOptions {
-  return {
-    tabSize: options.tabSize,
-    insertSpaces: options.insertSpaces,
-    ...options,
-  };
-}
-
 export function createDocumentFormattingEditProvider(
   getWorker: WorkerAccessor,
 ): languages.DocumentFormattingEditProvider {
   return {
-    async provideDocumentFormattingEdits(model, options) {
+    async provideDocumentFormattingEdits(model) {
       const resource = model.uri;
 
       const worker = await getWorker(resource);
-      const edits = await worker.format(String(resource), fromFormattingOptions(options));
+      const edits = await worker.format(String(resource), {});
       if (!edits || edits.length === 0) {
         return;
       }
@@ -388,6 +363,10 @@ export function createLinkProvider(getWorker: WorkerAccessor): languages.LinkPro
       const worker = await getWorker(resource);
       const links = await worker.findLinks(String(resource));
 
+      if (!links) {
+        return;
+      }
+
       return {
         links: links.map(toLink),
       };
@@ -398,19 +377,21 @@ export function createLinkProvider(getWorker: WorkerAccessor): languages.LinkPro
 function toWorkspaceEdit(edit: ls.WorkspaceEdit): languages.WorkspaceEdit {
   const edits: languages.IWorkspaceTextEdit[] = [];
 
-  for (const [uri, textEdits] of Object.entries(edit.changes)) {
-    for (const textEdit of textEdits) {
-      const monacoEdit: languages.TextEdit = {
-        text: textEdit.newText,
-        range: toRange(textEdit.range),
-      };
-      edits.push({
-        resource: Uri.parse(uri),
-        versionId: undefined,
-        textEdit: monacoEdit,
-        // @ts-expect-error This is for compatibility with monaco-editor<0.34
-        edit: monacoEdit,
-      });
+  if (edit.changes) {
+    for (const [uri, textEdits] of Object.entries(edit.changes)) {
+      for (const textEdit of textEdits) {
+        const monacoEdit: languages.TextEdit = {
+          text: textEdit.newText,
+          range: toRange(textEdit.range),
+        };
+        edits.push({
+          resource: Uri.parse(uri),
+          versionId: undefined,
+          textEdit: monacoEdit,
+          // @ts-expect-error This is for compatibility with monaco-editor<0.34
+          edit: monacoEdit,
+        });
+      }
     }
   }
 
@@ -422,9 +403,9 @@ function toWorkspaceEdit(edit: ls.WorkspaceEdit): languages.WorkspaceEdit {
 function toCodeAction(codeAction: ls.CodeAction): languages.CodeAction {
   return {
     title: codeAction.title,
-    diagnostics: codeAction.diagnostics.map(toDiagnostics),
+    diagnostics: codeAction.diagnostics?.map(toDiagnostics),
     disabled: codeAction.disabled?.reason,
-    edit: toWorkspaceEdit(codeAction.edit),
+    edit: codeAction.edit ? toWorkspaceEdit(codeAction.edit) : undefined,
     kind: codeAction.kind,
     isPreferred: codeAction.isPreferred,
   };
@@ -441,6 +422,11 @@ export function createCodeActionProvider(getWorker: WorkerAccessor): languages.C
         fromRange(range),
         context.markers.map(fromMarkerData),
       );
+
+      if (!codeActions) {
+        return;
+      }
+
       return {
         actions: codeActions.map(toCodeAction),
         dispose() {
