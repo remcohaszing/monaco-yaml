@@ -22,10 +22,6 @@ export default {
         type: 'asset/resource',
       },
       {
-        test: /schema\.json$/,
-        type: 'asset/resource',
-      },
-      {
         test: /\.ts$/,
         loader: 'ts-loader',
         options: { transpileOnly: true },
