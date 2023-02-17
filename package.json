@@ -5,7 +5,6 @@
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
     "prepack": "node build.js",
-    "prepare": "husky install",
     "start": "npm --workspace demo start",
     "test": "playwright test"
   },
@@ -62,18 +61,8 @@
     "esbuild": "^0.17.0",
     "eslint": "^8.0.0",
     "eslint-config-remcohaszing": "^8.0.0",
-    "husky": "^8.0.0",
-    "lint-staged": "^13.0.0",
     "monaco-editor": "^0.34.0",
     "typescript": "^4.0.0",
     "yaml-language-server": "^1.0.0"
-  },
-  "lint-staged": {
-    "*.{css,json,md,html,yaml}": [
-      "prettier --write"
-    ],
-    "*.{js,ts}": [
-      "eslint"
-    ]
   }
 }
