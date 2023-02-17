@@ -54,7 +54,7 @@
     "yaml": "^2.0.0"
   },
   "peerDependencies": {
-    "monaco-editor": ">=0.34"
+    "monaco-editor": ">=0.30"
   },
   "devDependencies": {
     "@playwright/test": "^1.0.0",
