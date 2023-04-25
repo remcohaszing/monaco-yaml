@@ -52,7 +52,7 @@
     "vscode-languageserver-textdocument": "^1.0.0",
     "vscode-languageserver-types": "^3.0.0",
     "vscode-uri": "^3.0.0",
-    "yaml": "^2.0.0"
+    "yaml": "^2.0.2"
   },
   "peerDependencies": {
     "monaco-editor": ">=0.36"
