@@ -59,6 +59,8 @@
     "eslint": "^8.0.0",
     "eslint-config-remcohaszing": "^9.0.0",
     "monaco-editor": "^0.38.0",
+    "remark-cli": "^11.0.0",
+    "remark-preset-remcohaszing": "^1.0.0",
     "typescript": "^5.0.0",
     "yaml-language-server": "^1.0.0"
   }

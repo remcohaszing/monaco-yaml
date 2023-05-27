@@ -2,6 +2,12 @@
 
 This minimal example shows how `monaco-yaml` can be used with [Vite](https://vitejs.dev).
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Running](#running)
+
 ## Prerequisites
 
 - [NodeJS](https://nodejs.org) 16 or higher
@@ -26,4 +32,4 @@ To start it, simply run:
 npm --workspace vite-example start
 ```
 
-The demo will be available on http://localhost:3000.
+The demo will be available on <http://localhost:3000>.

@@ -8,6 +8,12 @@ based on
 [link](https://github.com/microsoft/monaco-editor/tree/main/samples/browser-esm-webpack-monaco-plugin).
 To start it, simply run:
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Running](#running)
+
 ## Prerequisites
 
 - [NodeJS](https://nodejs.org) 16 or higher

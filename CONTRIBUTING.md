@@ -1,5 +1,12 @@
 # Contributing
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Getting started](#getting-started)
+- [Building](#building)
+- [Running](#running)
+
 ## Prerequisites
 
 The following are required to start working on this project:

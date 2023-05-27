@@ -4,6 +4,12 @@ This demo is deployed to [monaco-yaml.js.org](https://monaco-yaml.js.org). It sh
 `monaco-editor` and `monaco-yaml` can be used with
 [Webpack 5](https://webpack.js.org/concepts/entry-points).
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Running](#running)
+
 ## Prerequisites
 
 - [NodeJS](https://nodejs.org) 16 or higher

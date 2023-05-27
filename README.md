@@ -22,6 +22,27 @@ Schemas can also be provided by configuration. See
 [here](https://github.com/remcohaszing/monaco-yaml/blob/main/index.d.ts) for the API that the plugin
 offers to configure the YAML language support.
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Examples](#examples)
+- [FAQ](#faq)
+  - [Does this work with the Monaco UMD bundle?](#does-this-work-with-the-monaco-umd-bundle)
+  - [Does this work with Monaco Editor from a CDN?](#does-this-work-with-monaco-editor-from-a-cdn)
+  - [Does this work with `@monaco-editor/loader` or `@monaco-editor/react`?](#does-this-work-with-monaco-editorloader-or-monaco-editorreact)
+  - [Is the web worker necessary?](#is-the-web-worker-necessary)
+  - [Does it work without a bundler?](#does-it-work-without-a-bundler)
+  - [How do I integrate `monaco-yaml` with a framework? (Angular, React, Vue, etc.)](#how-do-i-integrate-monaco-yaml-with-a-framework-angular-react-vue-etc)
+  - [Does `monaco-yaml` work with `create-react-app`?](#does-monaco-yaml-work-with-create-react-app)
+  - [Why doesn’t it work with Vite?](#why-doesnt-it-work-with-vite)
+  - [Why isn’t `monaco-yaml` working? Official Monaco language extensions do work.](#why-isnt-monaco-yaml-working-official-monaco-language-extensions-do-work)
+  - [Using Monaco webpack loader plugin](#using-monaco-webpack-loader-plugin)
+  - [Why does it try to download my schema even when I provided one as an object?](#why-does-it-try-to-download-my-schema-even-when-i-provided-one-as-an-object)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
+
 ## Installation
 
 ```sh
@@ -231,9 +252,9 @@ likely caused by one of the following issues:
 
 ### Using Monaco webpack loader plugin
 
-If you're using
+If you’re using
 [monaco webpack plugin](https://github.com/microsoft/monaco-editor/tree/main/webpack-plugin), then
-instead of the above code, you can extend the plugin's configuration. Extend your
+instead of the above code, you can extend the plugin’s configuration. Extend your
 `webpack.config.js` file with the following:
 
 ```js
@@ -290,7 +311,7 @@ You may have provided a schema configured like this:
 
 And would be surprised to see the error:
 
-> Unable to load schema from 'http://example.com': Failed to fetch.
+> `Unable to load schema from '<http://example.com>': Failed to fetch.`
 
 It happens because plugin uses schema URI not only as the URL to download the schema from, but also
 to determine the schema name. To fix this, change the `uri` parameter to
