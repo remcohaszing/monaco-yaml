@@ -3,7 +3,7 @@ declare module 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js'
 }
 
 declare module 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js' {
-  import { editor, languages } from 'monaco-editor';
+  import { type editor, type languages } from 'monaco-editor';
 
   export abstract class OutlineModel {
     static create(registry: unknown, model: editor.ITextModel): Promise<OutlineModel>;

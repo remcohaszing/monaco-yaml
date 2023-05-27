@@ -1,4 +1,4 @@
-import { ValidateFunction } from 'ajv';
+import { type ValidateFunction } from 'ajv';
 
 export default class AJVStub {
   // eslint-disable-next-line class-methods-use-this

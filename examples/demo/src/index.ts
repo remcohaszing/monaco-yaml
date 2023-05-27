@@ -1,9 +1,9 @@
-import { JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schema-catalog';
-import { editor, languages, MarkerSeverity, Position, Range, Uri } from 'monaco-editor';
+import { type JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schema-catalog';
+import { editor, languages, MarkerSeverity, type Position, Range, Uri } from 'monaco-editor';
 import { ILanguageFeaturesService } from 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js';
 import { OutlineModel } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js';
 import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js';
-import { SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
+import { type SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
 
 import './index.css';
 import schema from './schema.json';

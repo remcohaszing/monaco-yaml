@@ -1,5 +1,5 @@
-import { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema';
-import { IEvent } from 'monaco-editor';
+import { type JSONSchema4, type JSONSchema6, type JSONSchema7 } from 'json-schema';
+import { type IEvent } from 'monaco-editor';
 
 export interface SchemasSettings {
   /**

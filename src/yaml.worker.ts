@@ -1,22 +1,23 @@
 import { initialize } from 'monaco-worker-manager/worker';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import {
-  CodeAction,
-  CompletionList,
-  Diagnostic,
-  DocumentLink,
-  DocumentSymbol,
-  Hover,
-  LocationLink,
-  Position,
-  Range,
-  TextEdit,
+  type CodeAction,
+  type CompletionList,
+  type Diagnostic,
+  type DocumentLink,
+  type DocumentSymbol,
+  type Hover,
+  type LocationLink,
+  type Position,
+  type Range,
+  type TextEdit,
 } from 'vscode-languageserver-types';
-import { Telemetry } from 'yaml-language-server/lib/esm/languageservice/telemetry.js';
+import { type Telemetry } from 'yaml-language-server/lib/esm/languageservice/telemetry.js';
 import {
-  CustomFormatterOptions,
+  type CustomFormatterOptions,
   getLanguageService,
-  LanguageSettings,
+  type LanguageSettings,
+  type WorkspaceContextService,
 } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js';
 
 import { languageId } from './constants.js';
@@ -65,15 +66,19 @@ const telemetry: Telemetry = {
   sendTrack() {},
 };
 
+const workspaceContext: WorkspaceContextService = {
+  resolveRelativePath(relativePath, resource) {
+    return String(new URL(relativePath, resource));
+  },
+};
+
 initialize<YAMLWorker, CreateData>((ctx, { enableSchemaRequest, languageSettings }) => {
-  const languageService = getLanguageService(
+  const languageService = getLanguageService({
     // @ts-expect-error Type definitions are wrong. This may be null.
-    enableSchemaRequest ? schemaRequestService : null,
-    null,
-    null,
+    schemaRequestService: enableSchemaRequest ? schemaRequestService : null,
     telemetry,
-    null,
-  );
+    workspaceContext,
+  });
   languageService.configure(languageSettings);
 
   const getTextDocument = (uri: string): TextDocument | undefined => {

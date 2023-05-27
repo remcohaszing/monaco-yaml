@@ -1,4 +1,4 @@
-import { promises as fs } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import http from 'node:http';
 import { extname } from 'node:path';
 
@@ -17,7 +17,7 @@ http
     const url = new URL(file, import.meta.url);
     const ext = extname(url.pathname);
     try {
-      const content = await fs.readFile(url);
+      const content = await readFile(url);
       res.setHeader('Content-type', contentTypes[ext] ?? 'text/plain');
       res.end(content);
     } catch (err) {

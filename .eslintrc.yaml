@@ -7,5 +7,3 @@ rules:
   jsdoc/require-jsdoc: off
 
   n/no-extraneous-import: off
-  n/no-unsupported-features/es-syntax: off
-  n/no-unsupported-features/node-builtins: off

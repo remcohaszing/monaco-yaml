@@ -17,7 +17,7 @@ await build({
   plugins: [
     {
       name: 'alias',
-      setup({ onResolve, resolve }) {
+      setup({ onLoad, onResolve, resolve }) {
         // The file monaco-yaml/lib/esm/schemaSelectionHandlers.js imports code from the language
         // server part that we don’t want.
         onResolve({ filter: /\/schemaSelectionHandlers$/ }, () => ({
@@ -33,6 +33,10 @@ await build({
         // Ajv would significantly increase bundle size.
         onResolve({ filter: /^ajv$/ }, () => ({
           path: fileURLToPath(new URL('src/fillers/ajv.ts', import.meta.url)),
+        }));
+        // We only need cloneDeep from lodash. This can be replaced with structuredClone.
+        onResolve({ filter: /^lodash$/ }, () => ({
+          path: fileURLToPath(new URL('src/fillers/lodash.ts', import.meta.url)),
         }));
         // The yaml language service uses path. We can stub it using path-browserify.
         onResolve({ filter: /^path$/ }, () => ({
@@ -58,6 +62,12 @@ await build({
           resolve(path.replace(/\/umd\//, '/esm/'), options),
         );
         onResolve({ filter: /.*/ }, () => ({ sideEffects: false }));
+        onLoad({ filter: /yamlSchemaService\.js$/ }, async ({ path }) => ({
+          contents: (await readFile(path, 'utf8')).replaceAll(
+            "require('ajv/dist/refs/json-schema-draft-07.json')",
+            'undefined',
+          ),
+        }));
       },
     },
   ],

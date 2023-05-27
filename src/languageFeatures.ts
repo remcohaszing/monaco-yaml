@@ -1,4 +1,4 @@
-import { languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
+import { type languages } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import {
   fromMarkerData,
   fromPosition,
@@ -12,11 +12,11 @@ import {
   toMarkerData,
   toTextEdit,
 } from 'monaco-languageserver-types';
-import { MarkerDataProvider } from 'monaco-marker-data-provider';
-import { WorkerGetter } from 'monaco-worker-manager';
+import { type MarkerDataProvider } from 'monaco-marker-data-provider';
+import { type WorkerGetter } from 'monaco-worker-manager';
 
 import { languageId } from './constants.js';
-import { YAMLWorker } from './yaml.worker.js';
+import { type YAMLWorker } from './yaml.worker.js';
 
 export type WorkerAccessor = WorkerGetter<YAMLWorker>;
 

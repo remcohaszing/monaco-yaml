@@ -1,6 +1,6 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { setMonaco } from 'monaco-languageserver-types';
-import { DiagnosticsOptions, LanguageServiceDefaults } from 'monaco-yaml';
+import { type DiagnosticsOptions, type LanguageServiceDefaults } from 'monaco-yaml';
 
 import { languageId } from './constants.js';
 import { setupMode } from './yamlMode.js';
