@@ -94,6 +94,8 @@ jobs:
       - remark
       - tsc
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      id-token: write
     steps:
       - uses: actions/setup-node@v3
         with:
@@ -102,6 +104,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: package
-      - run: npm publish *.tgz
+      - run: npm publish *.tgz --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
