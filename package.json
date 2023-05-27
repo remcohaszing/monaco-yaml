@@ -9,6 +9,7 @@
     "test": "playwright test"
   },
   "type": "module",
+  "main": "./index.js",
   "typings": "./index.d.ts",
   "files": [
     "index.js",
