@@ -1,1 +1,1 @@
-export const languageId = 'yaml';
+export const languageId = 'yaml'

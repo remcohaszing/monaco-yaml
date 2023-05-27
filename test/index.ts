@@ -1,14 +1,14 @@
-import * as monaco from 'monaco-editor';
-import { type SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml';
+import * as monaco from 'monaco-editor'
+import { type SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml'
 
 self.MonacoEnvironment = {
   getWorkerUrl(workerId, label) {
     if (label === 'yaml') {
-      return 'out/yaml.worker.js';
+      return 'out/yaml.worker.js'
     }
-    return 'out/editor.worker.js';
-  },
-};
+    return 'out/editor.worker.js'
+  }
+}
 
 const schema: SchemasSettings = {
   fileMatch: ['*'],
@@ -18,22 +18,22 @@ const schema: SchemasSettings = {
     properties: {
       p1: {
         description: 'number property',
-        type: 'number',
+        type: 'number'
       },
       p2: {
-        type: 'boolean',
-      },
-    },
-  },
-};
+        type: 'boolean'
+      }
+    }
+  }
+}
 
 setDiagnosticsOptions({
-  schemas: [schema],
-});
-const value = 'p1: \np2: \n';
+  schemas: [schema]
+})
+const value = 'p1: \np2: \n'
 
 monaco.editor.create(document.querySelector('#editor')!, {
   language: 'yaml',
   tabSize: 2,
-  value,
-});
+  value
+})

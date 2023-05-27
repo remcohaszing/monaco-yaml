@@ -1,5 +1,5 @@
-import { type JSONSchema4, type JSONSchema6, type JSONSchema7 } from 'json-schema';
-import { type IEvent } from 'monaco-editor';
+import { type JSONSchema4, type JSONSchema6, type JSONSchema7 } from 'json-schema'
+import { type IEvent } from 'monaco-editor'
 
 export interface SchemasSettings {
   /**
@@ -9,19 +9,19 @@ export interface SchemasSettings {
    * @example '.gitlab-ci.yml'
    * @example 'file://**\/.github/actions/*.yaml'
    */
-  fileMatch: string[];
+  fileMatch: string[]
 
   /**
    * The JSON schema which will be used for validation. If not specified, it will be downloaded from
    * `uri`.
    */
-  schema?: JSONSchema4 | JSONSchema6 | JSONSchema7;
+  schema?: JSONSchema4 | JSONSchema6 | JSONSchema7
 
   /**
    * The source URI of the JSON schema. The JSON schema will be downloaded from here if no schema
    * was supplied. It will also be displayed as the source in hover tooltips.
    */
-  uri: string;
+  uri: string
 }
 
 export interface DiagnosticsOptions {
@@ -30,21 +30,21 @@ export interface DiagnosticsOptions {
    *
    * @default true
    */
-  readonly completion?: boolean;
+  readonly completion?: boolean
 
   /**
    * A list of custom tags.
    *
    * @default []
    */
-  readonly customTags?: string[];
+  readonly customTags?: string[]
 
   /**
    * If set, the schema service would load schema content on-demand with 'fetch' if available
    *
    * @default false
    */
-  readonly enableSchemaRequest?: boolean;
+  readonly enableSchemaRequest?: boolean
 
   /**
    * If true, formatting using Prettier is enabled. Setting this to `false` does **not** exclude
@@ -52,28 +52,28 @@ export interface DiagnosticsOptions {
    *
    * @default true
    */
-  readonly format?: boolean;
+  readonly format?: boolean
 
   /**
    * If set, enable hover typs based the JSON schema.
    *
    * @default true
    */
-  readonly hover?: boolean;
+  readonly hover?: boolean
 
   /**
    * If true, a different diffing algorithm is used to generate error messages.
    *
    * @default false
    */
-  readonly isKubernetes?: boolean;
+  readonly isKubernetes?: boolean
 
   /**
    * A list of known schemas and/or associations of schemas to file names.
    *
    * @default []
    */
-  readonly schemas?: SchemasSettings[];
+  readonly schemas?: SchemasSettings[]
 
   /**
    * If set, the validator will be enabled and perform syntax validation as well as schema
@@ -81,31 +81,31 @@ export interface DiagnosticsOptions {
    *
    * @default true
    */
-  readonly validate?: boolean;
+  readonly validate?: boolean
 
   /**
    * The YAML version to use for parsing.
    *
    * @default '1.2'
    */
-  readonly yamlVersion?: '1.1' | '1.2';
+  readonly yamlVersion?: '1.1' | '1.2'
 }
 
 export interface LanguageServiceDefaults {
-  readonly onDidChange: IEvent<LanguageServiceDefaults>;
-  readonly diagnosticsOptions: DiagnosticsOptions;
-  setDiagnosticsOptions: (options: DiagnosticsOptions) => void;
+  readonly onDidChange: IEvent<LanguageServiceDefaults>
+  readonly diagnosticsOptions: DiagnosticsOptions
+  setDiagnosticsOptions: (options: DiagnosticsOptions) => void
 }
 
 export function createLanguageServiceDefaults(
-  initialDiagnosticsOptions: DiagnosticsOptions,
-): LanguageServiceDefaults;
+  initialDiagnosticsOptions: DiagnosticsOptions
+): LanguageServiceDefaults
 
-export const yamlDefaults: LanguageServiceDefaults;
+export const yamlDefaults: LanguageServiceDefaults
 
 /**
  * Configure `monaco-yaml` diagnostics options.
  *
  * @param options The options to set.
  */
-export function setDiagnosticsOptions(options?: DiagnosticsOptions): void;
+export function setDiagnosticsOptions(options?: DiagnosticsOptions): void

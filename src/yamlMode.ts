@@ -1,9 +1,9 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
-import { registerMarkerDataProvider } from 'monaco-marker-data-provider';
-import { createWorkerManager } from 'monaco-worker-manager';
-import { type LanguageServiceDefaults } from 'monaco-yaml';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import { registerMarkerDataProvider } from 'monaco-marker-data-provider'
+import { createWorkerManager } from 'monaco-worker-manager'
+import { type LanguageServiceDefaults } from 'monaco-yaml'
 
-import { languageId } from './constants.js';
+import { languageId } from './constants.js'
 import {
   createCodeActionProvider,
   createCompletionItemProvider,
@@ -12,41 +12,41 @@ import {
   createDocumentSymbolProvider,
   createHoverProvider,
   createLinkProvider,
-  createMarkerDataProvider,
-} from './languageFeatures.js';
-import { type CreateData, type YAMLWorker } from './yaml.worker.js';
+  createMarkerDataProvider
+} from './languageFeatures.js'
+import { type CreateData, type YAMLWorker } from './yaml.worker.js'
 
 const richEditConfiguration: monaco.languages.LanguageConfiguration = {
   comments: {
-    lineComment: '#',
+    lineComment: '#'
   },
   brackets: [
     ['{', '}'],
     ['[', ']'],
-    ['(', ')'],
+    ['(', ')']
   ],
   autoClosingPairs: [
     { open: '{', close: '}' },
     { open: '[', close: ']' },
     { open: '(', close: ')' },
     { open: '"', close: '"' },
-    { open: "'", close: "'" },
+    { open: "'", close: "'" }
   ],
   surroundingPairs: [
     { open: '{', close: '}' },
     { open: '[', close: ']' },
     { open: '(', close: ')' },
     { open: '"', close: '"' },
-    { open: "'", close: "'" },
+    { open: "'", close: "'" }
   ],
 
   onEnterRules: [
     {
       beforeText: /:\s*$/,
-      action: { indentAction: monaco.languages.IndentAction.Indent },
-    },
-  ],
-};
+      action: { indentAction: monaco.languages.IndentAction.Indent }
+    }
+  ]
+}
 
 export function setupMode(defaults: LanguageServiceDefaults): void {
   const worker = createWorkerManager<YAMLWorker, CreateData>(monaco, {
@@ -54,52 +54,52 @@ export function setupMode(defaults: LanguageServiceDefaults): void {
     moduleId: 'monaco-yaml/yaml.worker',
     createData: {
       languageSettings: defaults.diagnosticsOptions,
-      enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
-    },
-  });
+      enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest
+    }
+  })
 
   defaults.onDidChange(() => {
     worker.updateCreateData({
       languageSettings: defaults.diagnosticsOptions,
-      enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest,
-    });
-  });
+      enableSchemaRequest: defaults.diagnosticsOptions.enableSchemaRequest
+    })
+  })
 
   monaco.languages.registerCompletionItemProvider(
     languageId,
-    createCompletionItemProvider(worker.getWorker),
-  );
-  monaco.languages.registerHoverProvider(languageId, createHoverProvider(worker.getWorker));
+    createCompletionItemProvider(worker.getWorker)
+  )
+  monaco.languages.registerHoverProvider(languageId, createHoverProvider(worker.getWorker))
   monaco.languages.registerDefinitionProvider(
     languageId,
-    createDefinitionProvider(worker.getWorker),
-  );
+    createDefinitionProvider(worker.getWorker)
+  )
   monaco.languages.registerDocumentSymbolProvider(
     languageId,
-    createDocumentSymbolProvider(worker.getWorker),
-  );
+    createDocumentSymbolProvider(worker.getWorker)
+  )
   monaco.languages.registerDocumentFormattingEditProvider(
     languageId,
-    createDocumentFormattingEditProvider(worker.getWorker),
-  );
-  monaco.languages.registerLinkProvider(languageId, createLinkProvider(worker.getWorker));
+    createDocumentFormattingEditProvider(worker.getWorker)
+  )
+  monaco.languages.registerLinkProvider(languageId, createLinkProvider(worker.getWorker))
   monaco.languages.registerCodeActionProvider(
     languageId,
-    createCodeActionProvider(worker.getWorker),
-  );
-  monaco.languages.setLanguageConfiguration(languageId, richEditConfiguration);
+    createCodeActionProvider(worker.getWorker)
+  )
+  monaco.languages.setLanguageConfiguration(languageId, richEditConfiguration)
 
   let markerDataProvider = registerMarkerDataProvider(
     monaco,
     languageId,
-    createMarkerDataProvider(worker.getWorker),
-  );
+    createMarkerDataProvider(worker.getWorker)
+  )
   defaults.onDidChange(() => {
-    markerDataProvider.dispose();
+    markerDataProvider.dispose()
     markerDataProvider = registerMarkerDataProvider(
       monaco,
       languageId,
-      createMarkerDataProvider(worker.getWorker),
-    );
-  });
+      createMarkerDataProvider(worker.getWorker)
+    )
+  })
 }

@@ -1,9 +1,9 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
-import { setMonaco } from 'monaco-languageserver-types';
-import { type DiagnosticsOptions, type LanguageServiceDefaults } from 'monaco-yaml';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import { setMonaco } from 'monaco-languageserver-types'
+import { type DiagnosticsOptions, type LanguageServiceDefaults } from 'monaco-yaml'
 
-import { languageId } from './constants.js';
-import { setupMode } from './yamlMode.js';
+import { languageId } from './constants.js'
+import { setupMode } from './yamlMode.js'
 
 // --- YAML configuration and defaults ---------
 
@@ -16,36 +16,36 @@ const diagnosticDefault: DiagnosticsOptions = {
   hover: true,
   schemas: [],
   validate: true,
-  yamlVersion: '1.2',
-};
+  yamlVersion: '1.2'
+}
 
-setMonaco(monaco);
+setMonaco(monaco)
 
 export function createLanguageServiceDefaults(
-  initialDiagnosticsOptions: DiagnosticsOptions,
+  initialDiagnosticsOptions: DiagnosticsOptions
 ): LanguageServiceDefaults {
-  const onDidChange = new monaco.Emitter<LanguageServiceDefaults>();
-  let diagnosticsOptions = initialDiagnosticsOptions;
+  const onDidChange = new monaco.Emitter<LanguageServiceDefaults>()
+  let diagnosticsOptions = initialDiagnosticsOptions
 
   const languageServiceDefaults: LanguageServiceDefaults = {
     get onDidChange() {
-      return onDidChange.event;
+      return onDidChange.event
     },
 
     get diagnosticsOptions() {
-      return diagnosticsOptions;
+      return diagnosticsOptions
     },
 
     setDiagnosticsOptions(options) {
-      diagnosticsOptions = { ...diagnosticDefault, ...options };
-      onDidChange.fire(languageServiceDefaults);
-    },
-  };
+      diagnosticsOptions = { ...diagnosticDefault, ...options }
+      onDidChange.fire(languageServiceDefaults)
+    }
+  }
 
-  return languageServiceDefaults;
+  return languageServiceDefaults
 }
 
-export const yamlDefaults = createLanguageServiceDefaults(diagnosticDefault);
+export const yamlDefaults = createLanguageServiceDefaults(diagnosticDefault)
 
 // --- Registration to monaco editor ---
 
@@ -53,12 +53,12 @@ monaco.languages.register({
   id: languageId,
   extensions: ['.yaml', '.yml'],
   aliases: ['YAML', 'yaml', 'YML', 'yml'],
-  mimetypes: ['application/x-yaml'],
-});
+  mimetypes: ['application/x-yaml']
+})
 
 monaco.languages.onLanguage('yaml', () => {
-  setupMode(yamlDefaults);
-});
+  setupMode(yamlDefaults)
+})
 
 /**
  * Configure `monaco-yaml` diagnostics options.
@@ -66,5 +66,5 @@ monaco.languages.onLanguage('yaml', () => {
  * @param options The options to set.
  */
 export function setDiagnosticsOptions(options: DiagnosticsOptions = {}): void {
-  yamlDefaults.setDiagnosticsOptions(options);
+  yamlDefaults.setDiagnosticsOptions(options)
 }

@@ -1,18 +1,18 @@
-import HtmlWebPackPlugin from 'html-webpack-plugin';
-import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
+import HtmlWebPackPlugin from 'html-webpack-plugin'
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin'
 
 export default {
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.ttf$/,
-        type: 'asset',
-      },
-    ],
+        type: 'asset'
+      }
+    ]
   },
   plugins: [
     new HtmlWebPackPlugin(),
@@ -24,10 +24,10 @@ export default {
           entry: 'monaco-yaml',
           worker: {
             id: 'monaco-yaml/yamlWorker',
-            entry: 'monaco-yaml/yaml.worker',
-          },
-        },
-      ],
-    }),
-  ],
-};
+            entry: 'monaco-yaml/yaml.worker'
+          }
+        }
+      ]
+    })
+  ]
+}

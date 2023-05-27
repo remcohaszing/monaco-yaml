@@ -1,1 +1,1 @@
-export const cloneDeep = structuredClone;
+export const cloneDeep = structuredClone

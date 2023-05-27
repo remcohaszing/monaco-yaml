@@ -1,4 +1,4 @@
-import { type PlaywrightTestConfig } from '@playwright/test';
+import { type PlaywrightTestConfig } from '@playwright/test'
 
 const config: PlaywrightTestConfig = {
   reporter: 'html',
@@ -6,7 +6,7 @@ const config: PlaywrightTestConfig = {
   webServer: {
     command: 'node test/serve.js',
     port: 3000,
-    reuseExistingServer: !process.env.CI,
-  },
-};
-export default config;
+    reuseExistingServer: !process.env.CI
+  }
+}
+export default config

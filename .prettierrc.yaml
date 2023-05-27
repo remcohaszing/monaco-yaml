@@ -1,3 +1,4 @@
 proseWrap: always
+semi: false
 singleQuote: true
-trailingComma: all
+trailingComma: none
