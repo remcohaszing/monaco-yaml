@@ -26,13 +26,8 @@
     "Remco Haszing <remcohaszing@gmail.com> (https://github.com/remcohaszing)"
   ],
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/remcohaszing/monaco-yaml"
-  },
-  "bugs": {
-    "url": "https://github.com/remcohaszing/monaco-yaml/issues"
-  },
+  "repository": "remcohaszing/monaco-yaml",
+  "bugs": "https://github.com/remcohaszing/monaco-yaml/issues",
   "funding": "https://github.com/sponsors/remcohaszing",
   "keywords": [
     "editor",
