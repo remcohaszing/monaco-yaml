@@ -149,8 +149,6 @@ window.MonacoEnvironment = {
 
 A demo is available on [monaco-yaml.js.org](https://monaco-yaml.js.org).
 
-A running example: ![demo-image](test-demo.png)
-
 Some usage examples can be found in the
 [examples](https://github.com/remcohaszing/monaco-yaml/tree/main/examples) directory.
 
