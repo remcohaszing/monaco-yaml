@@ -180,9 +180,8 @@ is decreased. This comes at the cost of not being able to use it without a bundl
 
 `monaco-yaml` only uses the Monaco Editor. It’s not tied to a framework, all that’s needed is a DOM
 node to attach the Monaco Editor to. See the
-[Monaco Editor examples](https://github.com/microsoft/monaco-editor/tree/main/samples)
-for examples on how to integrate Monaco Editor in your project, then configure `monaco-yaml` as
-described above.
+[Monaco Editor examples](https://github.com/microsoft/monaco-editor/tree/main/samples) for examples
+on how to integrate Monaco Editor in your project, then configure `monaco-yaml` as described above.
 
 ### Does `monaco-yaml` work with `create-react-app`?
 
