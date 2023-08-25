@@ -1,12 +1,14 @@
-import { type PlaywrightTestConfig } from '@playwright/test'
+import { defineConfig } from '@playwright/test'
+import { createServer } from 'playwright-monaco'
 
-const config: PlaywrightTestConfig = {
-  reporter: 'html',
-  timeout: 120_000,
-  webServer: {
-    command: 'node test/serve.js',
-    port: 3000,
-    reuseExistingServer: !process.env.CI
+export default defineConfig({
+  expect: { timeout: 10_000 },
+  timeout: 60_000,
+  use: {
+    baseURL: await createServer({
+      setup: './test/setup',
+      yaml: './yaml.worker'
+    }),
+    colorScheme: 'dark'
   }
-}
-export default config
+})
