@@ -1,20 +1,5 @@
 import * as monaco from 'monaco-editor'
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import { configureMonacoYaml } from 'monaco-yaml'
-import YamlWorker from 'monaco-yaml/yaml.worker?worker'
-
-window.MonacoEnvironment = {
-  getWorker(moduleId, label) {
-    switch (label) {
-      case 'editorWorkerService':
-        return new EditorWorker()
-      case 'yaml':
-        return new YamlWorker()
-      default:
-        throw new Error(`Unknown label ${label}`)
-    }
-  }
-}
 
 configureMonacoYaml(monaco, {
   enableSchemaRequest: true,
