@@ -27,6 +27,11 @@ offers to configure the YAML language support.
 - [Installation](#installation)
 - [Usage](#usage)
 - [Examples](#examples)
+- [API](#api)
+  - [`configureMonacoYaml(monaco, options?)`](#configuremonacoyamlmonaco-options)
+    - [Arguments](#arguments)
+    - [Options](#options)
+    - [Returns](#returns)
 - [FAQ](#faq)
   - [Does this work with the Monaco UMD bundle?](#does-this-work-with-the-monaco-umd-bundle)
   - [Does this work with Monaco Editor from a CDN?](#does-this-work-with-monaco-editor-from-a-cdn)
@@ -51,59 +56,65 @@ npm install monaco-yaml
 
 ## Usage
 
-Call `configureMonacoYaml(monaco[, options])` to configure `monaco-yaml`
+Before implementing `monaco-yaml`, or even Monaco editor, it’s recommended to learn the
+[basic concepts](https://github.com/microsoft/monaco-editor#concepts) of Monaco editor.
+
+To configure `monaco-yaml`, call [`configureMonacoYaml`](#configuremonacoyamlmonaco-options).
 
 ```typescript
 import * as monaco from 'monaco-editor'
 import { configureMonacoYaml } from 'monaco-yaml'
 
-// The uri is used for the schema file match.
-const modelUri = monaco.Uri.parse('a://b/foo.yaml')
-
 configureMonacoYaml(monaco, {
   enableSchemaRequest: true,
-  hover: true,
-  completion: true,
-  validate: true,
-  format: true,
   schemas: [
     {
-      // Id of the first schema
-      uri: 'http://myserver/foo-schema.json',
-      // Associate with our model
-      fileMatch: [String(modelUri)],
-      schema: {
-        type: 'object',
-        properties: {
-          p1: {
-            enum: ['v1', 'v2']
-          },
-          p2: {
-            // Reference the second schema
-            $ref: 'http://myserver/bar-schema.json'
-          }
-        }
-      }
+      // If YAML file is opened matching this glob
+      fileMatch: ['**/.prettierrc.*'],
+      // Then this schema will be downloaded from the internet and used.
+      uri: 'https://json.schemastore.org/prettierrc.json'
     },
     {
-      // Id of the first schema
-      uri: 'http://myserver/bar-schema.json',
+      // If YAML file is opened matching this glob
+      fileMatch: ['**/person.yaml'],
+      // The following schema will be applied
       schema: {
         type: 'object',
         properties: {
-          q1: {
-            enum: ['x1', 'x2']
+          name: {
+            type: 'string',
+            description: 'The person’s display name'
+          },
+          age: {
+            type: 'integer',
+            description: 'How old is the person in years?'
+          },
+          occupation: {
+            enum: ['Delivery person', 'Software engineer', 'Astronaut']
           }
         }
-      }
+      },
+      // And the URI will be linked to as the source.
+      uri: 'https://github.com/remcohaszing/monaco-yaml#usage'
     }
   ]
 })
 
-monaco.editor.create(document.createElement('editor'), {
-  // Monaco-yaml features should just work if the editor language is set to 'yaml'.
-  language: 'yaml',
-  model: monaco.editor.createModel('p1: \n', 'yaml', modelUri)
+const prettierc = monaco.editor.createModel(
+  'singleQuote: true\nproseWrap: always\nsemi: yes\n',
+  undefined,
+  monaco.Uri.parse('file:///.prettierrc.yaml')
+)
+
+monaco.editor.createModel(
+  'name: John Doe\nage: 42\noccupation: Pirate\n',
+  undefined,
+  monaco.Uri.parse('file:///person.yaml')
+)
+
+monaco.editor.create(document.getElementById('editor'), {
+  automaticLayout: true,
+  model: prettierc
 })
 ```
 
@@ -151,6 +162,41 @@ A demo is available on [monaco-yaml.js.org](https://monaco-yaml.js.org).
 
 Some usage examples can be found in the
 [examples](https://github.com/remcohaszing/monaco-yaml/tree/main/examples) directory.
+
+## API
+
+`monaco-yaml` has the following exports:
+
+### `configureMonacoYaml(monaco, options?)`
+
+Configure `monaco-yaml`.
+
+> **Note**: There may only be one configured instance of `monaco-yaml` at a time.
+
+#### Arguments
+
+- `monaco` (`object`): The Monaco editor module. Typically you get this by importing
+  `monaco-editor`. Third party integrations often expose it as the global `monaco` variable instead.
+- `options` (`object`): Options to configure `monaco-yaml`.
+
+#### Options
+
+- `completion` (`boolean`): If set, enable schema based autocompletion. (Default: `true`)
+- `customTags` (`string[]`): A list of custom tags. (Default: `[]`)
+- `enableSchemaRequest` (`boolean`): If set, the schema service will load schema content on-demand.
+  (Default: `false`)
+- `format` (`boolean`): Prettier from the bundle. (Default: `true`)
+- `hover` (`boolean`): If set, enable hover typs based the JSON schema. (Default: `true`)
+- `isKubernetes` (`boolean`): If true, a different diffing algorithm is used to generate error
+  messages. (Default: `false`)
+- `schemas` (`object[]`): A list of known schemas and/or associations of schemas to file names.
+  (Default: `[]`)
+- `validate` (`boolean`): based validation. (Default: `true`)
+- `yamlVersion` (`'1.1' | '1.2'`): The YAML version to use for parsing. (Default: `1,2`)
+
+#### Returns
+
+An object that can be used to dispose or update `monaco-yaml`.
 
 ## FAQ
 

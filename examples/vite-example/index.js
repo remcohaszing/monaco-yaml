@@ -16,52 +16,59 @@ window.MonacoEnvironment = {
   }
 }
 
-// The uri is used for the schema file match.
-const modelUri = monaco.Uri.parse('a://b/foo.yaml')
-
 configureMonacoYaml(monaco, {
   enableSchemaRequest: true,
-  hover: true,
-  completion: true,
-  validate: true,
-  format: true,
   schemas: [
     {
-      // Id of the first schema
-      uri: 'http://myserver/foo-schema.json',
-      // Associate with our model
-      fileMatch: [String(modelUri)],
-      schema: {
-        type: 'object',
-        properties: {
-          p1: {
-            enum: ['v1', 'v2']
-          },
-          p2: {
-            // Reference the second schema
-            $ref: 'http://myserver/bar-schema.json'
-          }
-        }
-      }
+      // If YAML file is opened matching this glob
+      fileMatch: ['**/.prettierrc.*'],
+      // Then this schema will be downloaded from the internet and used.
+      uri: 'https://json.schemastore.org/prettierrc.json'
     },
     {
-      // Id of the first schema
-      uri: 'http://myserver/bar-schema.json',
+      // If YAML file is opened matching this glob
+      fileMatch: ['**/person.yaml'],
+      // The following schema will be applied
       schema: {
         type: 'object',
         properties: {
-          q1: {
-            enum: ['x1', 'x2']
+          name: {
+            type: 'string',
+            description: 'The person’s display name'
+          },
+          age: {
+            type: 'integer',
+            description: 'How old is the person in years?'
+          },
+          occupation: {
+            enum: ['Delivery person', 'Software engineer', 'Astronaut']
           }
         }
-      }
+      },
+      // And the following URI will be linked to as the source.
+      uri: 'https://github.com/remcohaszing/monaco-yaml#usage'
     }
   ]
 })
 
-const value = 'p1: \np2: \n'
+const prettierc = monaco.editor.createModel(
+  'singleQuote: true\nproseWrap: always\nsemi: yes\n',
+  undefined,
+  monaco.Uri.parse('file:///.prettierrc.yaml')
+)
 
-monaco.editor.create(document.getElementById('editor'), {
+monaco.editor.createModel(
+  'name: John Doe\nage: 42\noccupation: Pirate\n',
+  undefined,
+  monaco.Uri.parse('file:///person.yaml')
+)
+
+const editor = monaco.editor.create(document.getElementById('editor'), {
   automaticLayout: true,
-  model: monaco.editor.createModel(value, 'yaml', modelUri)
+  model: prettierc
+})
+
+const select = document.getElementById('model')
+select.addEventListener('change', () => {
+  editor.setModel(monaco.editor.getModel(monaco.Uri.parse(select.value)))
 })

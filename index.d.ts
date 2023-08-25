@@ -40,7 +40,7 @@ export interface MonacoYamlOptions {
   readonly customTags?: string[]
 
   /**
-   * If set, the schema service would load schema content on-demand with 'fetch' if available
+   * If set, the schema service will load schema content on-demand.
    *
    * @default false
    */
@@ -92,7 +92,23 @@ export interface MonacoYamlOptions {
 }
 
 export interface MonacoYaml extends IDisposable {
+  /**
+   * Recondigure `monaco-yaml`.
+   */
   update: (options: MonacoYamlOptions) => undefined
 }
 
+/**
+ * Configure `monaco-yaml`.
+ *
+ * > **Note**: There may only be one configured instance of `monaco-yaml` at a time.
+ *
+ * @param monaco
+ *   The Monaco editor module. Typically you get this by importing `monaco-editor`. Third party
+ *   integrations often expose it as the global `monaco` variable instead.
+ * @param options
+ *   Options to configure `monaco-yaml`
+ * @returns
+ *   A disposable object that can be used to update `monaco-yaml`
+ */
 export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOptions): MonacoYaml
