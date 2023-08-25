@@ -2,7 +2,7 @@
 
 [![ci workflow](https://github.com/remcohaszing/monaco-yaml/actions/workflows/ci.yaml/badge.svg)](https://github.com/remcohaszing/monaco-yaml/actions/workflows/ci.yaml)
 [![npm version](https://img.shields.io/npm/v/monaco-yaml)](https://www.npmjs.com/package/monaco-yaml)
-[![prettier code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
+[![npm downloads](https://img.shields.io/npm/dm/monaco-yaml)](https://www.npmjs.com/package/monaco-yaml)
 [![demo](https://img.shields.io/badge/demo-monaco--yaml.js.org-61ffcf.svg)](https://monaco-yaml.js.org)
 [![netlify status](https://api.netlify.com/api/v1/badges/20b08937-99d0-4882-b9a3-d5f09ddd29b7/deploy-status)](https://app.netlify.com/sites/monaco-yaml/deploys)
 
