@@ -10,7 +10,7 @@
   "dependencies": {
     "css-loader": "^6.0.0",
     "html-webpack-plugin": "^5.0.0",
-    "monaco-editor": "^0.38.0",
+    "monaco-editor": "^0.41.0",
     "monaco-editor-webpack-plugin": "^7.0.0",
     "monaco-yaml": "file:../..",
     "style-loader": "^3.0.0",
