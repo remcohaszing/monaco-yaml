@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
     "module": "nodenext",
     "noEmit": true,
     "resolveJsonModule": true,
