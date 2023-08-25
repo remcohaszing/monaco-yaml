@@ -123,7 +123,6 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
       }
     },
 
-    // @ts-expect-error https://github.com/microsoft/TypeScript/issues/42709
     update(newOptions) {
       worker.updateCreateData(Object.assign(createData, newOptions))
       markerDataProvider.dispose()
