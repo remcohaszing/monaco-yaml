@@ -51,16 +51,16 @@ npm install monaco-yaml
 
 ## Usage
 
-Import `monaco-yaml` and configure it before an editor instance is created.
+Call `configureMonacoYaml(monaco[, options])` to configure `monaco-yaml`
 
 ```typescript
-import { editor, Uri } from 'monaco-editor'
-import { setDiagnosticsOptions } from 'monaco-yaml'
+import * as monaco from 'monaco-editor'
+import { configureMonacoYaml } from 'monaco-yaml'
 
 // The uri is used for the schema file match.
-const modelUri = Uri.parse('a://b/foo.yaml')
+const modelUri = monaco.Uri.parse('a://b/foo.yaml')
 
-setDiagnosticsOptions({
+configureMonacoYaml(monaco, {
   enableSchemaRequest: true,
   hover: true,
   completion: true,
@@ -100,10 +100,10 @@ setDiagnosticsOptions({
   ]
 })
 
-editor.create(document.createElement('editor'), {
+monaco.editor.create(document.createElement('editor'), {
   // Monaco-yaml features should just work if the editor language is set to 'yaml'.
   language: 'yaml',
-  model: editor.createModel('p1: \n', 'yaml', modelUri)
+  model: monaco.editor.createModel('p1: \n', 'yaml', modelUri)
 })
 ```
 
@@ -156,16 +156,15 @@ Some usage examples can be found in the
 
 ### Does this work with the Monaco UMD bundle?
 
-No. Only ESM is supported.
+Yes, starting from version 5.0.0
 
 ### Does this work with Monaco Editor from a CDN?
 
-No, because these use a UMD bundle, which isn’t supported.
+Yes, starting from version 5.0.0
 
 ### Does this work with `@monaco-editor/loader` or `@monaco-editor/react`?
 
-No. These packages pull in the Monaco UMD bundle from a CDN. Because UMD isn’t supported, neither
-are these packages.
+Yes, starting from version 5.0.0
 
 ### Is the web worker necessary?
 

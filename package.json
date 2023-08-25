@@ -42,6 +42,7 @@
     "jsonc-parser": "^3.0.0",
     "monaco-languageserver-types": "^0.2.0",
     "monaco-marker-data-provider": "^1.0.0",
+    "monaco-types": "^0.1.0",
     "monaco-worker-manager": "^2.0.0",
     "path-browserify": "^1.0.0",
     "prettier": "^2.0.0",

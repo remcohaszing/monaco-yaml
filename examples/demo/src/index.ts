@@ -1,9 +1,10 @@
 import { type JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schema-catalog'
 import { editor, languages, MarkerSeverity, type Position, Range, Uri } from 'monaco-editor'
+import * as monaco from 'monaco-editor'
 import { ILanguageFeaturesService } from 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js'
 import { OutlineModel } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js'
 import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js'
-import { type SchemasSettings, setDiagnosticsOptions } from 'monaco-yaml'
+import { configureMonacoYaml, type SchemasSettings } from 'monaco-yaml'
 
 import './index.css'
 import schema from './schema.json'
@@ -28,7 +29,8 @@ const defaultSchema: SchemasSettings = {
   fileMatch: ['monaco-yaml.yaml']
 }
 
-setDiagnosticsOptions({
+const monacoYaml = configureMonacoYaml(monaco, {
+  enableSchemaRequest: true,
   schemas: [defaultSchema]
 })
 
@@ -134,14 +136,7 @@ fetch('https://www.schemastore.org/api/json/catalog.json').then(async (response)
     })
   }
 
-  setDiagnosticsOptions({
-    validate: true,
-    enableSchemaRequest: true,
-    format: true,
-    hover: true,
-    completion: true,
-    schemas
-  })
+  monacoYaml.update({ schemas })
 })
 
 select.addEventListener('change', () => {

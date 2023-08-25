@@ -1,4 +1,5 @@
 import { initialize } from 'monaco-worker-manager/worker'
+import { type MonacoYamlOptions } from 'monaco-yaml'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import {
   type CodeAction,
@@ -16,7 +17,6 @@ import { type Telemetry } from 'yaml-language-server/lib/esm/languageservice/tel
 import {
   type CustomFormatterOptions,
   getLanguageService,
-  type LanguageSettings,
   type WorkspaceContextService
 } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
 
@@ -28,11 +28,6 @@ async function schemaRequestService(uri: string): Promise<string> {
     return response.text()
   }
   throw new Error(`Schema request failed for ${uri}`)
-}
-
-export interface CreateData {
-  languageSettings: LanguageSettings
-  enableSchemaRequest?: boolean
 }
 
 export interface YAMLWorker {
@@ -72,7 +67,7 @@ const workspaceContext: WorkspaceContextService = {
   }
 }
 
-initialize<YAMLWorker, CreateData>((ctx, { enableSchemaRequest, languageSettings }) => {
+initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...languageSettings }) => {
   const languageService = getLanguageService({
     // @ts-expect-error Type definitions are wrong. This may be null.
     schemaRequestService: enableSchemaRequest ? schemaRequestService : null,

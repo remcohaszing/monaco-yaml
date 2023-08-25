@@ -1,10 +1,10 @@
-import { editor, Uri } from 'monaco-editor'
-import { setDiagnosticsOptions } from 'monaco-yaml'
+import * as monaco from 'monaco-editor'
+import { configureMonacoYaml } from 'monaco-yaml'
 
 // The uri is used for the schema file match.
-const modelUri = Uri.parse('a://b/foo.yaml')
+const modelUri = monaco.Uri.parse('a://b/foo.yaml')
 
-setDiagnosticsOptions({
+configureMonacoYaml(monaco, {
   enableSchemaRequest: true,
   hover: true,
   completion: true,
@@ -46,7 +46,7 @@ setDiagnosticsOptions({
 
 const value = 'p1: \np2: \n'
 
-editor.create(document.getElementById('editor'), {
+monaco.editor.create(document.getElementById('editor'), {
   automaticLayout: true,
-  model: editor.createModel(value, 'yaml', modelUri)
+  model: monaco.editor.createModel(value, 'yaml', modelUri)
 })

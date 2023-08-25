@@ -1,5 +1,5 @@
 import { type JSONSchema4, type JSONSchema6, type JSONSchema7 } from 'json-schema'
-import { type IEvent } from 'monaco-editor'
+import { type IDisposable, type MonacoEditor } from 'monaco-types'
 
 export interface SchemasSettings {
   /**
@@ -24,7 +24,7 @@ export interface SchemasSettings {
   uri: string
 }
 
-export interface DiagnosticsOptions {
+export interface MonacoYamlOptions {
   /**
    * If set, enable schema based autocompletion.
    *
@@ -91,21 +91,8 @@ export interface DiagnosticsOptions {
   readonly yamlVersion?: '1.1' | '1.2'
 }
 
-export interface LanguageServiceDefaults {
-  readonly onDidChange: IEvent<LanguageServiceDefaults>
-  readonly diagnosticsOptions: DiagnosticsOptions
-  setDiagnosticsOptions: (options: DiagnosticsOptions) => void
+export interface MonacoYaml extends IDisposable {
+  update: (options: MonacoYamlOptions) => undefined
 }
 
-export function createLanguageServiceDefaults(
-  initialDiagnosticsOptions: DiagnosticsOptions
-): LanguageServiceDefaults
-
-export const yamlDefaults: LanguageServiceDefaults
-
-/**
- * Configure `monaco-yaml` diagnostics options.
- *
- * @param options The options to set.
- */
-export function setDiagnosticsOptions(options?: DiagnosticsOptions): void
+export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOptions): MonacoYaml
