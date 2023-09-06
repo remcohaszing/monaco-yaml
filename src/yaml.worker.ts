@@ -7,6 +7,7 @@ import {
   type Diagnostic,
   type DocumentLink,
   type DocumentSymbol,
+  type FoldingRange,
   type Hover,
   type LocationLink,
   type Position,
@@ -45,6 +46,8 @@ export interface YAMLWorker {
   findLinks: (uri: string) => DocumentLink[] | undefined
 
   getCodeAction: (uri: string, range: Range, diagnostics: Diagnostic[]) => CodeAction[] | undefined
+
+  getFoldingRanges: (uri: string) => FoldingRange[] | null | undefined
 }
 
 const telemetry: Telemetry = {
@@ -116,6 +119,10 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
         textDocument: document,
         context: { diagnostics }
       })
+    ),
+
+    getFoldingRanges: withDocument((document) =>
+      ls.getFoldingRanges(document, { lineFoldingOnly: true })
     )
   }
 })

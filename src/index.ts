@@ -10,6 +10,7 @@ import {
   createDefinitionProvider,
   createDocumentFormattingEditProvider,
   createDocumentSymbolProvider,
+  createFoldingRangeProvider,
   createHoverProvider,
   createLinkProvider,
   createMarkerDataProvider
@@ -75,6 +76,11 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
     monaco.languages.registerLinkProvider('yaml', createLinkProvider(worker.getWorker)),
 
     monaco.languages.registerCodeActionProvider('yaml', createCodeActionProvider(worker.getWorker)),
+
+    monaco.languages.registerFoldingRangeProvider(
+      'yaml',
+      createFoldingRangeProvider(worker.getWorker)
+    ),
 
     monaco.languages.setLanguageConfiguration('yaml', {
       comments: {

@@ -1,11 +1,13 @@
 import { type languages } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import {
+  fromFoldingRangeContext,
   fromMarkerData,
   fromPosition,
   fromRange,
   toCodeAction,
   toCompletionList,
   toDocumentSymbol,
+  toFoldingRange,
   toHover,
   toLink,
   toLocationLink,
@@ -165,6 +167,22 @@ export function createCodeActionProvider(getWorker: WorkerAccessor): languages.C
           // This is required by the TypeScript interface, but it’s not implemented.
         }
       }
+    }
+  }
+}
+
+export function createFoldingRangeProvider(
+  getWorker: WorkerAccessor
+): languages.FoldingRangeProvider {
+  return {
+    async provideFoldingRanges(model) {
+      const resource = model.uri
+
+      const worker = await getWorker(resource)
+      const foldingRanges = await worker.getFoldingRanges(String(resource))
+      console.log(foldingRanges)
+
+      return foldingRanges?.map(toFoldingRange)
     }
   }
 }
