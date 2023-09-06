@@ -48,14 +48,16 @@ export interface YAMLWorker {
 }
 
 const telemetry: Telemetry = {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  send() {},
+  send() {
+    // Do nothing
+  },
   sendError(name, properties) {
     // eslint-disable-next-line no-console
     console.error('monaco-yaml', name, properties)
   },
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  sendTrack() {}
+  sendTrack() {
+    // Do nothing
+  }
 }
 
 const workspaceContext: WorkspaceContextService = {
