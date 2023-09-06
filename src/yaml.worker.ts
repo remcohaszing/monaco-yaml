@@ -38,7 +38,7 @@ export interface YAMLWorker {
 
   format: (uri: string) => TextEdit[] | undefined
 
-  resetSchema: (uri: string) => boolean | undefined
+  resetSchema: (uri: string) => boolean
 
   findDocumentSymbols: (uri: string) => DocumentSymbol[] | undefined
 
@@ -72,80 +72,48 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
     workspaceContext
   })
 
-  const getTextDocument = (uri: string): TextDocument | undefined => {
-    const models = ctx.getMirrorModels()
-    for (const model of models) {
-      if (String(model.uri) === uri) {
-        return TextDocument.create(uri, 'yaml', model.version, model.getValue())
+  const withDocument =
+    <A extends unknown[], R>(fn: (document: TextDocument, ...args: A) => R) =>
+    (uri: string, ...args: A) => {
+      const models = ctx.getMirrorModels()
+      for (const model of models) {
+        if (String(model.uri) === uri) {
+          return fn(TextDocument.create(uri, 'yaml', model.version, model.getValue()), ...args)
+        }
       }
     }
-  }
 
   ls.configure(languageSettings)
 
   return {
-    doValidation(uri) {
-      const document = getTextDocument(uri)
-      if (document) {
-        return ls.doValidation(document, Boolean(languageSettings.isKubernetes))
-      }
-    },
+    doValidation: withDocument((document) =>
+      ls.doValidation(document, Boolean(languageSettings.isKubernetes))
+    ),
 
-    doComplete(uri, position) {
-      const document = getTextDocument(uri)
-      if (document) {
-        return ls.doComplete(document, position, Boolean(languageSettings.isKubernetes))
-      }
-    },
+    doComplete: withDocument((document, position) =>
+      ls.doComplete(document, position, Boolean(languageSettings.isKubernetes))
+    ),
 
-    doDefinition(uri, position) {
-      const document = getTextDocument(uri)
-      if (document) {
-        return ls.doDefinition(document, { position, textDocument: { uri } })
-      }
-    },
+    doDefinition: withDocument((document, position) =>
+      ls.doDefinition(document, { position, textDocument: document })
+    ),
 
-    doHover(uri, position) {
-      const document = getTextDocument(uri)
-      if (document) {
-        return ls.doHover(document, position)
-      }
-    },
+    doHover: withDocument((document, position) => ls.doHover(document, position)),
 
-    format(uri) {
-      const document = getTextDocument(uri)
-      if (document) {
-        return ls.doFormat(document, {})
-      }
-    },
+    format: withDocument((document) => ls.doFormat(document, {})),
 
-    resetSchema(uri) {
-      return ls.resetSchema(uri)
-    },
+    resetSchema: (uri) => ls.resetSchema(uri),
 
-    findDocumentSymbols(uri) {
-      const document = getTextDocument(uri)
-      if (document) {
-        return ls.findDocumentSymbols2(document, {})
-      }
-    },
+    findDocumentSymbols: withDocument((document) => ls.findDocumentSymbols2(document, {})),
 
-    findLinks(uri) {
-      const document = getTextDocument(uri)
-      if (document) {
-        return ls.findLinks(document)
-      }
-    },
+    findLinks: withDocument((document) => ls.findLinks(document)),
 
-    getCodeAction(uri, range, diagnostics) {
-      const document = getTextDocument(uri)
-      if (document) {
-        return ls.getCodeAction(document, {
-          range,
-          textDocument: { uri },
-          context: { diagnostics }
-        })
-      }
-    }
+    getCodeAction: withDocument((document, range, diagnostics) =>
+      ls.getCodeAction(document, {
+        range,
+        textDocument: document,
+        context: { diagnostics }
+      })
+    )
   }
 })
