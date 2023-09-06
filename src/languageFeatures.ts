@@ -117,7 +117,7 @@ export function createDocumentFormattingEditProvider(
       const resource = model.uri
 
       const worker = await getWorker(resource)
-      const edits = await worker.format(String(resource), {})
+      const edits = await worker.format(String(resource))
 
       return edits?.map(toTextEdit)
     }

@@ -15,7 +15,6 @@ import {
 } from 'vscode-languageserver-types'
 import { type Telemetry } from 'yaml-language-server/lib/esm/languageservice/telemetry.js'
 import {
-  type CustomFormatterOptions,
   getLanguageService,
   type WorkspaceContextService
 } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
@@ -37,7 +36,7 @@ export interface YAMLWorker {
 
   doHover: (uri: string, position: Position) => Hover | null | undefined
 
-  format: (uri: string, options: CustomFormatterOptions) => TextEdit[] | undefined
+  format: (uri: string) => TextEdit[] | undefined
 
   resetSchema: (uri: string) => boolean | undefined
 
@@ -113,10 +112,10 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
       }
     },
 
-    format(uri, options) {
+    format(uri) {
       const document = getTextDocument(uri)
       if (document) {
-        return ls.doFormat(document, options)
+        return ls.doFormat(document, {})
       }
     },
 
