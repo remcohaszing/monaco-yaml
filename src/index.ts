@@ -4,7 +4,6 @@ import { type MonacoEditor } from 'monaco-types'
 import { createWorkerManager } from 'monaco-worker-manager'
 import { type MonacoYaml, type MonacoYamlOptions } from 'monaco-yaml'
 
-import { languageId } from './constants.js'
 import {
   createCodeActionProvider,
   createCompletionItemProvider,
@@ -34,7 +33,7 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
   setMonaco(monaco)
 
   monaco.languages.register({
-    id: languageId,
+    id: 'yaml',
     extensions: ['.yaml', '.yml'],
     aliases: ['YAML', 'yaml', 'YML', 'yml'],
     mimetypes: ['application/x-yaml']
@@ -48,42 +47,36 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
 
   let markerDataProvider = registerMarkerDataProvider(
     monaco,
-    languageId,
+    'yaml',
     createMarkerDataProvider(worker.getWorker)
   )
   const disposables = [
     worker,
 
     monaco.languages.registerCompletionItemProvider(
-      languageId,
+      'yaml',
       createCompletionItemProvider(worker.getWorker)
     ),
 
-    monaco.languages.registerHoverProvider(languageId, createHoverProvider(worker.getWorker)),
+    monaco.languages.registerHoverProvider('yaml', createHoverProvider(worker.getWorker)),
 
-    monaco.languages.registerDefinitionProvider(
-      languageId,
-      createDefinitionProvider(worker.getWorker)
-    ),
+    monaco.languages.registerDefinitionProvider('yaml', createDefinitionProvider(worker.getWorker)),
 
     monaco.languages.registerDocumentSymbolProvider(
-      languageId,
+      'yaml',
       createDocumentSymbolProvider(worker.getWorker)
     ),
 
     monaco.languages.registerDocumentFormattingEditProvider(
-      languageId,
+      'yaml',
       createDocumentFormattingEditProvider(worker.getWorker)
     ),
 
-    monaco.languages.registerLinkProvider(languageId, createLinkProvider(worker.getWorker)),
+    monaco.languages.registerLinkProvider('yaml', createLinkProvider(worker.getWorker)),
 
-    monaco.languages.registerCodeActionProvider(
-      languageId,
-      createCodeActionProvider(worker.getWorker)
-    ),
+    monaco.languages.registerCodeActionProvider('yaml', createCodeActionProvider(worker.getWorker)),
 
-    monaco.languages.setLanguageConfiguration(languageId, {
+    monaco.languages.setLanguageConfiguration('yaml', {
       comments: {
         lineComment: '#'
       },
@@ -128,7 +121,7 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
       markerDataProvider.dispose()
       markerDataProvider = registerMarkerDataProvider(
         monaco,
-        languageId,
+        'yaml',
         createMarkerDataProvider(worker.getWorker)
       )
     }

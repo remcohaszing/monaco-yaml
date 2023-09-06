@@ -15,14 +15,13 @@ import {
 import { type MarkerDataProvider } from 'monaco-marker-data-provider'
 import { type WorkerGetter } from 'monaco-worker-manager'
 
-import { languageId } from './constants.js'
 import { type YAMLWorker } from './yaml.worker.js'
 
 export type WorkerAccessor = WorkerGetter<YAMLWorker>
 
 export function createMarkerDataProvider(getWorker: WorkerAccessor): MarkerDataProvider {
   return {
-    owner: languageId,
+    owner: 'yaml',
     async provideMarkerData(model) {
       const worker = await getWorker(model.uri)
       const diagnostics = await worker.doValidation(String(model.uri))

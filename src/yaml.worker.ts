@@ -20,8 +20,6 @@ import {
   type WorkspaceContextService
 } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
 
-import { languageId } from './constants.js'
-
 async function schemaRequestService(uri: string): Promise<string> {
   const response = await fetch(uri)
   if (response.ok) {
@@ -79,7 +77,7 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
     const models = ctx.getMirrorModels()
     for (const model of models) {
       if (String(model.uri) === uri) {
-        return TextDocument.create(uri, languageId, model.version, model.getValue())
+        return TextDocument.create(uri, 'yaml', model.version, model.getValue())
       }
     }
   }
