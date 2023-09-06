@@ -1,6 +1,5 @@
 import { type languages } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import {
-  fromFoldingRangeContext,
   fromMarkerData,
   fromPosition,
   fromRange,
@@ -47,22 +46,20 @@ export function createCompletionItemProvider(
     async provideCompletionItems(model, position) {
       const resource = model.uri
 
+      const wordInfo = model.getWordUntilPosition(position)
       const worker = await getWorker(resource)
       const info = await worker.doComplete(String(resource), fromPosition(position))
-      if (!info) {
-        return
+
+      if (info) {
+        return toCompletionList(info, {
+          range: {
+            startLineNumber: position.lineNumber,
+            startColumn: wordInfo.startColumn,
+            endLineNumber: position.lineNumber,
+            endColumn: wordInfo.endColumn
+          }
+        })
       }
-
-      const wordInfo = model.getWordUntilPosition(position)
-
-      return toCompletionList(info, {
-        range: {
-          startLineNumber: position.lineNumber,
-          startColumn: wordInfo.startColumn,
-          endLineNumber: position.lineNumber,
-          endColumn: wordInfo.endColumn
-        }
-      })
     }
   }
 }
@@ -87,11 +84,10 @@ export function createHoverProvider(getWorker: WorkerAccessor): languages.HoverP
 
       const worker = await getWorker(resource)
       const info = await worker.doHover(String(resource), fromPosition(position))
-      if (!info) {
-        return
-      }
 
-      return toHover(info)
+      if (info) {
+        return toHover(info)
+      }
     }
   }
 }
@@ -134,12 +130,10 @@ export function createLinkProvider(getWorker: WorkerAccessor): languages.LinkPro
       const worker = await getWorker(resource)
       const links = await worker.findLinks(String(resource))
 
-      if (!links) {
-        return
-      }
-
-      return {
-        links: links.map(toLink)
+      if (links) {
+        return {
+          links: links.map(toLink)
+        }
       }
     }
   }
@@ -157,14 +151,12 @@ export function createCodeActionProvider(getWorker: WorkerAccessor): languages.C
         context.markers.map(fromMarkerData)
       )
 
-      if (!codeActions) {
-        return
-      }
-
-      return {
-        actions: codeActions.map((codeAction) => toCodeAction(codeAction)),
-        dispose() {
-          // This is required by the TypeScript interface, but it’s not implemented.
+      if (codeActions) {
+        return {
+          actions: codeActions.map((codeAction) => toCodeAction(codeAction)),
+          dispose() {
+            // This is required by the TypeScript interface, but it’s not implemented.
+          }
         }
       }
     }
@@ -180,7 +172,6 @@ export function createFoldingRangeProvider(
 
       const worker = await getWorker(resource)
       const foldingRanges = await worker.getFoldingRanges(String(resource))
-      console.log(foldingRanges)
 
       return foldingRanges?.map(toFoldingRange)
     }
