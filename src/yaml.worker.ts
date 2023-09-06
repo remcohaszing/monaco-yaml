@@ -3,6 +3,7 @@ import { type MonacoYamlOptions } from 'monaco-yaml'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import {
   type CodeAction,
+  type CodeActionContext,
   type CompletionList,
   type Diagnostic,
   type DocumentLink,
@@ -45,7 +46,7 @@ export interface YAMLWorker {
 
   findLinks: (uri: string) => DocumentLink[] | undefined
 
-  getCodeAction: (uri: string, range: Range, diagnostics: Diagnostic[]) => CodeAction[] | undefined
+  getCodeAction: (uri: string, range: Range, context: CodeActionContext) => CodeAction[] | undefined
 
   getFoldingRanges: (uri: string) => FoldingRange[] | null | undefined
 }
@@ -113,12 +114,8 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
 
     findLinks: withDocument((document) => ls.findLinks(document)),
 
-    getCodeAction: withDocument((document, range, diagnostics) =>
-      ls.getCodeAction(document, {
-        range,
-        textDocument: document,
-        context: { diagnostics }
-      })
+    getCodeAction: withDocument((document, range, context) =>
+      ls.getCodeAction(document, { range, textDocument: document, context })
     ),
 
     getFoldingRanges: withDocument((document) =>

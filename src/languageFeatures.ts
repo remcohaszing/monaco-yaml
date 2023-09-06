@@ -1,6 +1,6 @@
 import { type languages } from 'monaco-editor/esm/vs/editor/editor.api.js'
 import {
-  fromMarkerData,
+  fromCodeActionContext,
   fromPosition,
   fromRange,
   toCodeAction,
@@ -148,7 +148,7 @@ export function createCodeActionProvider(getWorker: WorkerAccessor): languages.C
       const codeActions = await worker.getCodeAction(
         String(resource),
         fromRange(range),
-        context.markers.map(fromMarkerData)
+        fromCodeActionContext(context)
       )
 
       if (codeActions) {
