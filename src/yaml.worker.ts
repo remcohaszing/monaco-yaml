@@ -68,13 +68,12 @@ const workspaceContext: WorkspaceContextService = {
 }
 
 initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...languageSettings }) => {
-  const languageService = getLanguageService({
+  const ls = getLanguageService({
     // @ts-expect-error Type definitions are wrong. This may be null.
     schemaRequestService: enableSchemaRequest ? schemaRequestService : null,
     telemetry,
     workspaceContext
   })
-  languageService.configure(languageSettings)
 
   const getTextDocument = (uri: string): TextDocument | undefined => {
     const models = ctx.getMirrorModels()
@@ -85,68 +84,66 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
     }
   }
 
+  ls.configure(languageSettings)
+
   return {
     doValidation(uri) {
       const document = getTextDocument(uri)
       if (document) {
-        return languageService.doValidation(document, Boolean(languageSettings.isKubernetes))
+        return ls.doValidation(document, Boolean(languageSettings.isKubernetes))
       }
     },
 
     doComplete(uri, position) {
       const document = getTextDocument(uri)
       if (document) {
-        return languageService.doComplete(
-          document,
-          position,
-          Boolean(languageSettings.isKubernetes)
-        )
+        return ls.doComplete(document, position, Boolean(languageSettings.isKubernetes))
       }
     },
 
     doDefinition(uri, position) {
       const document = getTextDocument(uri)
       if (document) {
-        return languageService.doDefinition(document, { position, textDocument: { uri } })
+        return ls.doDefinition(document, { position, textDocument: { uri } })
       }
     },
 
     doHover(uri, position) {
       const document = getTextDocument(uri)
       if (document) {
-        return languageService.doHover(document, position)
+        return ls.doHover(document, position)
       }
     },
 
     format(uri, options) {
       const document = getTextDocument(uri)
       if (document) {
-        return languageService.doFormat(document, options)
+        return ls.doFormat(document, options)
       }
     },
 
     resetSchema(uri) {
-      return languageService.resetSchema(uri)
+      return ls.resetSchema(uri)
     },
 
     findDocumentSymbols(uri) {
       const document = getTextDocument(uri)
       if (document) {
-        return languageService.findDocumentSymbols2(document, {})
+        return ls.findDocumentSymbols2(document, {})
       }
     },
 
     findLinks(uri) {
       const document = getTextDocument(uri)
       if (document) {
-        return languageService.findLinks(document)
+        return ls.findLinks(document)
       }
     },
 
     getCodeAction(uri, range, diagnostics) {
       const document = getTextDocument(uri)
       if (document) {
-        return languageService.getCodeAction(document, {
+        return ls.getCodeAction(document, {
           range,
           textDocument: { uri },
           context: { diagnostics }
