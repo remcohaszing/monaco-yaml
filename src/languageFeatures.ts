@@ -23,6 +23,7 @@ export type WorkerAccessor = WorkerGetter<YAMLWorker>
 export function createMarkerDataProvider(getWorker: WorkerAccessor): MarkerDataProvider {
   return {
     owner: 'yaml',
+
     async provideMarkerData(model) {
       const worker = await getWorker(model.uri)
       const diagnostics = await worker.doValidation(String(model.uri))
@@ -96,6 +97,8 @@ export function createDocumentSymbolProvider(
   getWorker: WorkerAccessor
 ): languages.DocumentSymbolProvider {
   return {
+    displayName: 'yaml',
+
     async provideDocumentSymbols(model) {
       const resource = model.uri
 
@@ -111,6 +114,8 @@ export function createDocumentFormattingEditProvider(
   getWorker: WorkerAccessor
 ): languages.DocumentFormattingEditProvider {
   return {
+    displayName: 'yaml',
+
     async provideDocumentFormattingEdits(model) {
       const resource = model.uri
 
