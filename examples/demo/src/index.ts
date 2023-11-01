@@ -106,7 +106,12 @@ formatting:       Formatting is supported too! Under the hood this is powered by
 const ed = editor.create(document.getElementById('editor')!, {
   automaticLayout: true,
   model: editor.createModel(value, 'yaml', Uri.parse('monaco-yaml.yaml')),
-  theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs-light'
+  theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs-light',
+  quickSuggestions: {
+    other: true,
+    comments: false,
+    strings: true
+  }
 })
 
 const select = document.getElementById('schema-selection') as HTMLSelectElement
