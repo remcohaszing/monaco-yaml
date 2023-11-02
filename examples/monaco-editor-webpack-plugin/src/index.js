@@ -50,7 +50,12 @@ monaco.editor.createModel(
 
 const editor = monaco.editor.create(document.getElementById('editor'), {
   automaticLayout: true,
-  model: prettierc
+  model: prettierc,
+  quickSuggestions: {
+    other: true,
+    comments: false,
+    strings: true
+  }
 })
 
 const select = document.getElementById('model')
