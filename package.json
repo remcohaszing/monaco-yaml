@@ -59,7 +59,7 @@
     "esbuild": "^0.19.0",
     "eslint": "^8.0.0",
     "eslint-config-remcohaszing": "^9.0.0",
-    "monaco-editor": "^0.44.0",
+    "monaco-editor": "^0.41.0",
     "playwright-monaco": "^1.0.0",
     "remark-cli": "^11.0.0",
     "remark-preset-remcohaszing": "^1.0.0",
