@@ -120,6 +120,7 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
       for (const disposable of disposables) {
         disposable.dispose()
       }
+      markerDataProvider.dispose()
     },
 
     update(newOptions) {
