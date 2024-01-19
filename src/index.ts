@@ -1,4 +1,3 @@
-import { setMonaco } from 'monaco-languageserver-types'
 import { registerMarkerDataProvider } from 'monaco-marker-data-provider'
 import { type MonacoEditor } from 'monaco-types'
 import { createWorkerManager } from 'monaco-worker-manager'
@@ -30,8 +29,6 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
     yamlVersion: '1.2',
     ...options
   }
-
-  setMonaco(monaco)
 
   monaco.languages.register({
     id: 'yaml',
