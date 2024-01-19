@@ -27,7 +27,6 @@ To run the project locally, clone the repository and set it up:
 git clone https://github.com/remcohaszing/monaco-yaml
 cd monaco-yaml
 npm ci
-npm run prepack
 ```
 
 ## Running

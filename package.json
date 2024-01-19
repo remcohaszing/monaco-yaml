@@ -5,6 +5,8 @@
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
     "prepack": "node build.js",
+    "prestart": "node build.js",
+    "pretest": "node build.js",
     "start": "npm --workspace demo start",
     "test": "playwright test"
   },
