@@ -95,7 +95,7 @@ export interface MonacoYaml extends IDisposable {
   /**
    * Recondigure `monaco-yaml`.
    */
-  update: (options: MonacoYamlOptions) => undefined
+  update: (options: MonacoYamlOptions) => Promise<undefined>
 }
 
 /**

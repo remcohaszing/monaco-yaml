@@ -120,14 +120,9 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
       markerDataProvider.dispose()
     },
 
-    update(newOptions) {
+    async update(newOptions) {
       worker.updateCreateData(Object.assign(createData, newOptions))
-      markerDataProvider.dispose()
-      markerDataProvider = registerMarkerDataProvider(
-        monaco,
-        'yaml',
-        createMarkerDataProvider(worker.getWorker)
-      )
+      await markerDataProvider.revalidate()
     }
   }
 }
