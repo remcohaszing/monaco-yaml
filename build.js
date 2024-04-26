@@ -21,7 +21,7 @@ await build({
         // The file monaco-yaml/lib/esm/schemaSelectionHandlers.js imports code from the language
         // server part that we don’t want.
         onResolve({ filter: /\/schemaSelectionHandlers$/ }, () => ({
-          path: fileURLToPath(new URL('src/fillers/schemaSelectionHandlers.ts', import.meta.url))
+          path: fileURLToPath(new URL('fillers/schemaSelectionHandlers.ts', import.meta.url))
         }))
         // The yaml language service only imports re-exports of vscode-languageserver-types from
         // vscode-languageserver.
@@ -32,11 +32,11 @@ await build({
         }))
         // Ajv would significantly increase bundle size.
         onResolve({ filter: /^ajv$/ }, () => ({
-          path: fileURLToPath(new URL('src/fillers/ajv.ts', import.meta.url))
+          path: fileURLToPath(new URL('fillers/ajv.ts', import.meta.url))
         }))
         // We only need cloneDeep from lodash. This can be replaced with structuredClone.
         onResolve({ filter: /^lodash$/ }, () => ({
-          path: fileURLToPath(new URL('src/fillers/lodash.ts', import.meta.url))
+          path: fileURLToPath(new URL('fillers/lodash.ts', import.meta.url))
         }))
         // The yaml language service uses path. We can stub it using path-browserify.
         onResolve({ filter: /^path$/ }, () => ({
@@ -53,7 +53,7 @@ await build({
         }))
         // This tiny filler implementation serves all our needs.
         onResolve({ filter: /vscode-nls/ }, () => ({
-          path: fileURLToPath(new URL('src/fillers/vscode-nls.ts', import.meta.url)),
+          path: fileURLToPath(new URL('fillers/vscode-nls.ts', import.meta.url)),
           sideEffects: false
         }))
         // The language server dependencies tend to write both ESM and UMD output alongside each

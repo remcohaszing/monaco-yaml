@@ -1,12 +1,8 @@
 {
-  "compilerOptions": {
-    "module": "nodenext",
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2017",
-    "types": []
-  }
+  "files": [],
+  "references": [
+    { "path": "./fillers/tsconfig.json" },
+    { "path": "./src/tsconfig.json" },
+    { "path": "./examples/demo/tsconfig.json" }
+  ]
 }
