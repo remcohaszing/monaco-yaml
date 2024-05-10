@@ -3,6 +3,4 @@ extends:
 rules:
   import/no-extraneous-dependencies: off
 
-  jsdoc/require-jsdoc: off
-
   n/no-extraneous-import: off

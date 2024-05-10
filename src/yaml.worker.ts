@@ -22,6 +22,14 @@ import {
 
 import { type MonacoYamlOptions } from './index.js'
 
+/**
+ * Fetch the given URL and return the response body as text.
+ *
+ * @param uri
+ *   The uri to fetch.
+ * @returns
+ *   The response body as text.
+ */
 async function schemaRequestService(uri: string): Promise<string> {
   const response = await fetch(uri)
   if (response.ok) {
@@ -34,24 +42,54 @@ async function schemaRequestService(uri: string): Promise<string> {
  * @internal
  */
 export interface YAMLWorker {
+  /**
+   * Validate a document.
+   */
   doValidation: (uri: string) => Diagnostic[] | undefined
 
+  /**
+   * Get completions in a YAML document.
+   */
   doComplete: (uri: string, position: Position) => CompletionList | undefined
 
+  /**
+   * Get definitions in a YAML document.
+   */
   doDefinition: (uri: string, position: Position) => LocationLink[] | undefined
 
+  /**
+   * Get hover information in a YAML document.
+   */
   doHover: (uri: string, position: Position) => Hover | null | undefined
 
+  /**
+   * Format a YAML document using Prettier.
+   */
   format: (uri: string) => TextEdit[] | undefined
 
+  /**
+   * Reset the schema state for a YAML document.
+   */
   resetSchema: (uri: string) => boolean
 
+  /**
+   * Get document symbols in a YAML document.
+   */
   findDocumentSymbols: (uri: string) => DocumentSymbol[] | undefined
 
+  /**
+   * Get links in a YAML document.
+   */
   findLinks: (uri: string) => DocumentLink[] | undefined
 
+  /**
+   * Get code actions in a YAML document.
+   */
   getCodeAction: (uri: string, range: Range, context: CodeActionContext) => CodeAction[] | undefined
 
+  /**
+   * Get folding ranges in a YAML document.
+   */
   getFoldingRanges: (uri: string) => FoldingRange[] | null | undefined
 }
 

@@ -151,6 +151,16 @@ select.addEventListener('change', () => {
   oldModel?.dispose()
 })
 
+/**
+ * Get the document symbols that contain the given position.
+ *
+ * @param symbols
+ *   The symbols to iterate.
+ * @param position
+ *   The position for which to filter document symbols.
+ * @yields
+ * The document symbols that contain the given position.
+ */
 function* iterateSymbols(
   symbols: languages.DocumentSymbol[],
   position: Position
