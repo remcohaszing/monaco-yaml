@@ -1,19 +1,9 @@
-interface LocalizeInfo {
-  key: string
-  comment: string[]
-}
-type LocalizeFunc = (info: LocalizeInfo | string, message: string, ...args: string[]) => string
-type LoadFunc = (file?: string) => LocalizeFunc
+import { type LoadFunc, type LocalizeFunc } from 'vscode-nls'
 
-function format(message: string, args: string[]): string {
-  return args.length === 0
+const localize: LocalizeFunc = (key, message, ...args) =>
+  args.length === 0
     ? message
-    : message.replace(/{(\d+)}/g, (match, [index]: number[]) =>
-        index in args ? args[index] : match
-      )
-}
-
-const localize: LocalizeFunc = (key, message, ...args) => format(message, args)
+    : message.replace(/{(\d+)}/g, (match, [index]) => (index in args ? String(args[index]) : match))
 
 export function loadMessageBundle(): LocalizeFunc {
   return localize
