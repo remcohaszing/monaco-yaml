@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     { "path": "./fillers/tsconfig.json" },
-    { "path": "./src/tsconfig.json" },
+    { "path": "./tsconfig.build.json" },
     { "path": "./examples/demo/tsconfig.json" }
   ]
 }

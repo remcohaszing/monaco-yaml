@@ -4,9 +4,9 @@
   "description": "YAML plugin for the Monaco Editor",
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
-    "prepack": "node build.js",
+    "prepack": "tsc -b && node build.js",
     "prestart": "node build.js",
-    "pretest": "node build.js",
+    "pretest": "tsc -b && node build.js",
     "start": "npm --workspace demo start",
     "test": "playwright test"
   },
@@ -14,11 +14,10 @@
   "main": "./index.js",
   "typings": "./index.d.ts",
   "files": [
-    "index.js",
-    "index.js.map",
-    "index.d.ts",
-    "yaml.worker.js",
-    "yaml.worker.js.map"
+    "index.*",
+    "fillers/*.ts",
+    "src",
+    "yaml.worker.*"
   ],
   "workspaces": [
     "examples/*"

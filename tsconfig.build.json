@@ -1,0 +1,18 @@
+{
+  "include": ["src/**/*.ts"],
+  "exclude": [],
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "module": "nodenext",
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": ".",
+    "skipLibCheck": true,
+    "strict": true,
+    "stripInternal": true,
+    "tsBuildInfoFile": "./tsconfig.build.tsbuildinfo"
+  }
+}

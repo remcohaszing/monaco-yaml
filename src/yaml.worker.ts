@@ -1,5 +1,4 @@
 import { initialize } from 'monaco-worker-manager/worker'
-import { type MonacoYamlOptions } from 'monaco-yaml'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import {
   type CodeAction,
@@ -21,6 +20,8 @@ import {
   type WorkspaceContextService
 } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
 
+import { type MonacoYamlOptions } from './index.js'
+
 async function schemaRequestService(uri: string): Promise<string> {
   const response = await fetch(uri)
   if (response.ok) {
@@ -29,6 +30,9 @@ async function schemaRequestService(uri: string): Promise<string> {
   throw new Error(`Schema request failed for ${uri}`)
 }
 
+/**
+ * @internal
+ */
 export interface YAMLWorker {
   doValidation: (uri: string) => Diagnostic[] | undefined
 

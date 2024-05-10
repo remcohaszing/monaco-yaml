@@ -1,3 +1,11 @@
 {
-  "extends": "../../tsconfig.base.json"
+  "references": [{ "path": "../../tsconfig.build.json" }],
+  "compilerOptions": {
+    "composite": true,
+    "module": "preserve",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext"
+  }
 }
