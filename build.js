@@ -61,7 +61,10 @@ await build({
         onResolve({ filter: /\/umd\// }, ({ path, ...options }) =>
           resolve(path.replace(/\/umd\//, '/esm/'), options)
         )
-        onResolve({ filter: /.*/ }, () => ({ sideEffects: false }))
+        onResolve({ filter: /.*/, namespace: 'file' }, async ({ path, ...options }) => ({
+          ...(await resolve(path, { ...options, namespace: 'side-effect-free' })),
+          sideEffects: false
+        }))
         onLoad({ filter: /yamlSchemaService\.js$/ }, async ({ path }) => ({
           contents: (await readFile(path, 'utf8')).replaceAll(
             "require('ajv/dist/refs/json-schema-draft-07.json')",
