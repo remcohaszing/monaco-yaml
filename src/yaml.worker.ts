@@ -12,6 +12,7 @@ import {
   type LocationLink,
   type Position,
   type Range,
+  type SelectionRange,
   type TextEdit
 } from 'vscode-languageserver-types'
 import { type Telemetry } from 'yaml-language-server/lib/esm/languageservice/telemetry.js'
@@ -91,6 +92,11 @@ export interface YAMLWorker {
    * Get folding ranges in a YAML document.
    */
   getFoldingRanges: (uri: string) => FoldingRange[] | null | undefined
+
+  /**
+   * Get selection ranges in a YAML document
+   */
+  getSelectionRanges: (uri: string, positions: Position[]) => SelectionRange[] | undefined
 }
 
 const telemetry: Telemetry = {
@@ -162,6 +168,8 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
 
     getFoldingRanges: withDocument((document) =>
       ls.getFoldingRanges(document, { lineFoldingOnly: true })
-    )
+    ),
+
+    getSelectionRanges: withDocument(ls.getSelectionRanges)
   }
 })

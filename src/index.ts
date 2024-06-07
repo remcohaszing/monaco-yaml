@@ -11,6 +11,7 @@ import {
   toLink,
   toLocationLink,
   toMarkerData,
+  toSelectionRanges,
   toTextEdit
 } from 'monaco-languageserver-types'
 import { registerMarkerDataProvider } from 'monaco-marker-data-provider'
@@ -311,6 +312,18 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
           action: { indentAction: monaco.languages.IndentAction.Indent }
         }
       ]
+    }),
+
+    monaco.languages.registerSelectionRangeProvider('yaml', {
+      async provideSelectionRanges(model, positions) {
+        const worker = await workerManager.getWorker(model.uri)
+        const selectionRanges = await worker.getSelectionRanges(
+          String(model.uri),
+          positions.map(fromPosition)
+        )
+
+        return selectionRanges?.map(toSelectionRanges)
+      }
     })
   ]
 
