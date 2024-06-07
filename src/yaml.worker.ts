@@ -8,6 +8,7 @@ import {
   type DocumentLink,
   type DocumentSymbol,
   type FoldingRange,
+  type FormattingOptions,
   type Hover,
   type LocationLink,
   type Position,
@@ -62,6 +63,16 @@ export interface YAMLWorker {
    * Get hover information in a YAML document.
    */
   doHover: (uri: string, position: Position) => Hover | null | undefined
+
+  /**
+   * Get formatting edits when the user types in a YAML document.
+   */
+  doDocumentOnTypeFormatting: (
+    uri: string,
+    position: Position,
+    ch: string,
+    options: FormattingOptions
+  ) => TextEdit[] | undefined
 
   /**
    * Format a YAML document using Prettier.
@@ -150,6 +161,10 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
 
     doDefinition: withDocument((document, position) =>
       ls.doDefinition(document, { position, textDocument: document })
+    ),
+
+    doDocumentOnTypeFormatting: withDocument((document, position, ch, options) =>
+      ls.doDocumentOnTypeFormatting(document, { ch, options, position, textDocument: document })
     ),
 
     doHover: withDocument(ls.doHover),

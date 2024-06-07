@@ -111,7 +111,8 @@ const ed = editor.create(document.getElementById('editor')!, {
     other: true,
     comments: false,
     strings: true
-  }
+  },
+  formatOnType: true
 })
 
 const select = document.getElementById('schema-selection') as HTMLSelectElement

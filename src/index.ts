@@ -1,6 +1,7 @@
 import { type JSONSchema4, type JSONSchema6, type JSONSchema7 } from 'json-schema'
 import {
   fromCodeActionContext,
+  fromFormattingOptions,
   fromPosition,
   fromRange,
   toCodeAction,
@@ -304,14 +305,23 @@ export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOpt
         { open: '(', close: ')' },
         { open: '"', close: '"' },
         { open: "'", close: "'" }
-      ],
-
-      onEnterRules: [
-        {
-          beforeText: /:\s*$/,
-          action: { indentAction: monaco.languages.IndentAction.Indent }
-        }
       ]
+    }),
+
+    monaco.languages.registerOnTypeFormattingEditProvider('yaml', {
+      autoFormatTriggerCharacters: ['\n'],
+
+      async provideOnTypeFormattingEdits(model, position, ch, formattingOptions) {
+        const worker = await workerManager.getWorker(model.uri)
+        const edits = await worker.doDocumentOnTypeFormatting(
+          String(model.uri),
+          fromPosition(position),
+          ch,
+          fromFormattingOptions(formattingOptions)
+        )
+
+        return edits?.map(toTextEdit)
+      }
     }),
 
     monaco.languages.registerSelectionRangeProvider('yaml', {
