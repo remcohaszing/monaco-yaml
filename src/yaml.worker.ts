@@ -146,15 +146,15 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
       ls.doDefinition(document, { position, textDocument: document })
     ),
 
-    doHover: withDocument((document, position) => ls.doHover(document, position)),
+    doHover: withDocument(ls.doHover),
 
-    format: withDocument((document) => ls.doFormat(document, {})),
+    format: withDocument(ls.doFormat),
 
-    resetSchema: (uri) => ls.resetSchema(uri),
+    resetSchema: ls.resetSchema,
 
-    findDocumentSymbols: withDocument((document) => ls.findDocumentSymbols2(document, {})),
+    findDocumentSymbols: withDocument(ls.findDocumentSymbols2),
 
-    findLinks: withDocument((document) => ls.findLinks(document)),
+    findLinks: withDocument(ls.findLinks),
 
     getCodeAction: withDocument((document, range, context) =>
       ls.getCodeAction(document, { range, textDocument: document, context })
