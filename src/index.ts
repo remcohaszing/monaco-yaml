@@ -1,4 +1,3 @@
-import { type JSONSchema4, type JSONSchema6, type JSONSchema7 } from 'json-schema'
 import {
   fromCodeActionContext,
   fromFormattingOptions,
@@ -18,8 +17,80 @@ import {
 import { registerMarkerDataProvider } from 'monaco-marker-data-provider'
 import { type IDisposable, type MonacoEditor } from 'monaco-types'
 import { createWorkerManager } from 'monaco-worker-manager'
+import { type CompletionItemKind } from 'vscode-languageserver-types'
 
 import { type YAMLWorker } from './yaml.worker.js'
+
+/* eslint-disable jsdoc/require-jsdoc */
+export interface JSONSchema {
+  id?: string
+  $id?: string
+  $schema?: string
+  url?: string
+  type?: string[] | string
+  title?: string
+  closestTitle?: string
+  versions?: Record<string, string>
+  default?: unknown
+  definitions?: Record<string, JSONSchema>
+  description?: string
+  properties?: Record<string, JSONSchema | boolean>
+  patternProperties?: Record<string, JSONSchema | boolean>
+  additionalProperties?: JSONSchema | boolean
+  minProperties?: number
+  maxProperties?: number
+  dependencies?: Record<string, JSONSchema | string[] | boolean>
+  items?: (JSONSchema | boolean)[] | JSONSchema | boolean
+  minItems?: number
+  maxItems?: number
+  uniqueItems?: boolean
+  additionalItems?: JSONSchema | boolean
+  pattern?: string
+  minLength?: number
+  maxLength?: number
+  minimum?: number
+  maximum?: number
+  exclusiveMinimum?: boolean | number
+  exclusiveMaximum?: boolean | number
+  multipleOf?: number
+  required?: string[]
+  $ref?: string
+  anyOf?: (JSONSchema | boolean)[]
+  allOf?: (JSONSchema | boolean)[]
+  oneOf?: (JSONSchema | boolean)[]
+  not?: JSONSchema | boolean
+  enum?: unknown[]
+  format?: string
+  const?: unknown
+  contains?: JSONSchema | boolean
+  propertyNames?: JSONSchema | boolean
+  examples?: unknown[]
+  $comment?: string
+  if?: JSONSchema | boolean
+  then?: JSONSchema | boolean
+  else?: JSONSchema | boolean
+  defaultSnippets?: {
+    label?: string
+    description?: string
+    markdownDescription?: string
+    type?: string
+    suggestionKind?: CompletionItemKind
+    sortText?: string
+    body?: unknown
+    bodyText?: string
+  }[]
+  errorMessage?: string
+  patternErrorMessage?: string
+  deprecationMessage?: string
+  enumDescriptions?: string[]
+  markdownEnumDescriptions?: string[]
+  markdownDescription?: string
+  doNotSuggest?: boolean
+  allowComments?: boolean
+  schemaSequence?: JSONSchema[]
+  filePatternAssociation?: string
+}
+/* eslint-enable jsdoc/require-jsdoc */
 
 export interface SchemasSettings {
   /**
@@ -35,7 +106,7 @@ export interface SchemasSettings {
    * The JSON schema which will be used for validation. If not specified, it will be downloaded from
    * `uri`.
    */
-  schema?: JSONSchema4 | JSONSchema6 | JSONSchema7
+  schema?: JSONSchema
 
   /**
    * The source URI of the JSON schema. The JSON schema will be downloaded from here if no schema

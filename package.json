@@ -39,7 +39,6 @@
     "yaml"
   ],
   "dependencies": {
-    "@types/json-schema": "^7.0.0",
     "jsonc-parser": "^3.0.0",
     "monaco-languageserver-types": "^0.3.0",
     "monaco-marker-data-provider": "^1.0.0",

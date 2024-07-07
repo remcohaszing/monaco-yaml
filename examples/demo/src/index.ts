@@ -24,7 +24,6 @@ window.MonacoEnvironment = {
 
 const defaultSchema: SchemasSettings = {
   uri: 'https://github.com/remcohaszing/monaco-yaml/blob/HEAD/examples/demo/src/schema.json',
-  // @ts-expect-error TypeScript can’t narrow down the type of JSON imports
   schema,
   fileMatch: ['monaco-yaml.yaml']
 }
