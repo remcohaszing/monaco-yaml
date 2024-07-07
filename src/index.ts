@@ -131,7 +131,7 @@ export interface MonacoYaml extends IDisposable {
  * @returns
  *   A disposable object that can be used to update `monaco-yaml`
  */
-export function configureMonacoYaml(monaco: MonacoEditor, options: MonacoYamlOptions): MonacoYaml {
+export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOptions): MonacoYaml {
   const createData: MonacoYamlOptions = {
     completion: true,
     customTags: [],
