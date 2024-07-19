@@ -40,7 +40,7 @@
   ],
   "dependencies": {
     "jsonc-parser": "^3.0.0",
-    "monaco-languageserver-types": "^0.3.0",
+    "monaco-languageserver-types": "^0.4.0",
     "monaco-marker-data-provider": "^1.0.0",
     "monaco-types": "^0.1.0",
     "monaco-worker-manager": "^2.0.0",

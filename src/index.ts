@@ -236,7 +236,7 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
       const worker = await workerManager.getWorker(model.uri)
       const diagnostics = await worker.doValidation(String(model.uri))
 
-      return diagnostics?.map((diagnostic) => toMarkerData(diagnostic))
+      return diagnostics?.map(toMarkerData)
     },
 
     async doReset(model) {
@@ -336,7 +336,7 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
 
         if (codeActions) {
           return {
-            actions: codeActions.map((codeAction) => toCodeAction(codeAction)),
+            actions: codeActions.map(toCodeAction),
             dispose() {
               // This is required by the TypeScript interface, but it’s not implemented.
             }
