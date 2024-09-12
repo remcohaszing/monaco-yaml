@@ -44,6 +44,7 @@ offers to configure the YAML language support.
   - [Why doesn’t it work with Vite?](#why-doesnt-it-work-with-vite)
   - [Why isn’t `monaco-yaml` working? Official Monaco language extensions do work.](#why-isnt-monaco-yaml-working-official-monaco-language-extensions-do-work)
   - [Using Monaco webpack loader plugin](#using-monaco-webpack-loader-plugin)
+  - [Why is syntax highlighting not working?](#why-is-syntax-highlighting-not-working)
   - [Why does it try to download my schema even when I provided one as an object?](#why-does-it-try-to-download-my-schema-even-when-i-provided-one-as-an-object)
 - [Contributing](#contributing)
 - [Credits](#credits)
@@ -326,6 +327,14 @@ export default {
 You can also refer to the
 [example](https://github.com/remcohaszing/monaco-yaml/tree/main/examples/monaco-editor-webpack-plugin)
 of a complete project.
+
+### Why is syntax highlighting not working?
+
+Syntax highlighting is provided by Monaco editor itself, not by `monaco-yaml`. If you use a build
+tool to filter languages or features, make sure to include the `yaml` language. If you import Monaco
+editor from `monaco-editor/esm/vs/editor/editor.api.js` and cherry-pick features manually, make sure
+to also import `monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js`. If you use
+`monaco-editor-core`, make sure to import `monaco-languages/release/esm/yaml/yaml.contribution.js`.
 
 ### Why does it try to download my schema even when I provided one as an object?
 
