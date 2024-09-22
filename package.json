@@ -1,6 +1,6 @@
 {
-  "name": "monaco-yaml",
-  "version": "5.2.2",
+  "name": "@kong/monaco-yaml",
+  "version": "5.2.2-patch.1",
   "description": "YAML plugin for the Monaco Editor",
   "homepage": "https://monaco-yaml.js.org",
   "scripts": {
@@ -24,11 +24,12 @@
   ],
   "author": "Kevin Decker <kpdecker@gmail.com> (http://incaseofstairs.com)",
   "maintainers": [
-    "Remco Haszing <remcohaszing@gmail.com> (https://github.com/remcohaszing)"
+    "Remco Haszing <remcohaszing@gmail.com> (https://github.com/remcohaszing)",
+    "Kong Inc. (https://github.com/Kong)"
   ],
   "license": "MIT",
-  "repository": "remcohaszing/monaco-yaml",
-  "bugs": "https://github.com/remcohaszing/monaco-yaml/issues",
+  "repository": "Kong/monaco-yaml",
+  "bugs": "https://github.com/Kong/monaco-yaml/issues",
   "funding": "https://github.com/sponsors/remcohaszing",
   "keywords": [
     "editor",
