@@ -1,4 +1,5 @@
 import { initialize } from 'monaco-worker-manager/worker'
+import { ClientCapabilities } from 'vscode-json-languageservice/lib/esm/jsonLanguageTypes.js'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import {
   type CodeAction,
@@ -134,7 +135,11 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
     // @ts-expect-error Type definitions are wrong. This may be null.
     schemaRequestService: enableSchemaRequest ? schemaRequestService : null,
     telemetry,
-    workspaceContext
+    workspaceContext,
+    // https://github.com/microsoft/vscode-json-languageservice/blob/493010da9dc2cd1cc139d403d4709d97064b17e9/src/jsonLanguageTypes.ts#L325-L335
+    // Usage: https://github.com/microsoft/monaco-editor/blob/f6dc0eb8fce67e57f6036f4769d92c1666cdf546/src/language/json/jsonWorker.ts#L38
+    // @ts-expect-error `moniker` is missing from `ClientCapabilities.LATEST`
+    clientCapabilities: ClientCapabilities.LATEST
   })
 
   const withDocument =
