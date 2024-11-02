@@ -13,7 +13,13 @@
     },
     "enum": {
       "description": "Pick your starter",
-      "enum": ["Bulbasaur", "Squirtle", "Charmander", "Pikachu"]
+      "enum": ["Bulbasaur", "Charmander", "Squirtle", "Pikachu"],
+      "markdownEnumDescriptions": [
+        "For some time after its birth, it uses the nutrients that are packed into the seed on its back in order to grow.\n\n[Pokédex](https://www.pokemon.com/us/pokedex/bulbasaur)",
+        "The flame on its tail shows the strength of its life-force. If Charmander is weak, the flame also burns weakly.\n\n[Pokédex](https://www.pokemon.com/us/pokedex/charmander)",
+        "After birth, its back swells and hardens into a shell. It sprays a potent foam from its mouth.\n\n[Pokédex](https://www.pokemon.com/us/pokedex/squirtle)",
+        "When it is angered, it immediately discharges the energy stored in the pouches in its cheeks.\n\n[Pokédex](https://www.pokemon.com/us/pokedex/pikachu)"
+      ]
     },
     "number": {
       "description": "Numbers work!",
