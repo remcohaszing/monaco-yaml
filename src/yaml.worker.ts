@@ -11,7 +11,6 @@ import {
   type FormattingOptions,
   type Hover,
   type LocationLink,
-  MarkupKind,
   type Position,
   type Range,
   type SelectionRange,
@@ -142,8 +141,8 @@ initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...langua
       textDocument: {
         completion: {
           completionItem: {
-            documentationFormat: [MarkupKind.Markdown, MarkupKind.PlainText],
-            commitCharactersSupport: true
+            commitCharactersSupport: true,
+            documentationFormat: ['markdown', 'plaintext']
           }
         },
         moniker: {}
