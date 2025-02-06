@@ -31,7 +31,7 @@ await build({
           sideEffects: false
         }))
         // Ajv would significantly increase bundle size.
-        onResolve({ filter: /^ajv$/ }, () => ({
+        onResolve({ filter: /^(ajv$|ajv-draft-04$|ajv\/dist\/)/ }, () => ({
           path: fileURLToPath(new URL('fillers/ajv.ts', import.meta.url))
         }))
         // We only need cloneDeep from lodash. This can be replaced with structuredClone.

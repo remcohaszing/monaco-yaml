@@ -114,9 +114,9 @@ const telemetry: Telemetry = {
   send() {
     // Do nothing
   },
-  sendError(name, properties) {
+  sendError(name, error) {
     // eslint-disable-next-line no-console
-    console.error('monaco-yaml', name, properties)
+    console.error('monaco-yaml', name, error)
   },
   sendTrack() {
     // Do nothing

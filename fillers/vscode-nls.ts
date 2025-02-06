@@ -3,7 +3,9 @@ import { type LoadFunc, type LocalizeFunc } from 'vscode-nls'
 const localize: LocalizeFunc = (key, message, ...args) =>
   args.length === 0
     ? message
-    : message.replace(/{(\d+)}/g, (match, [index]) => (index in args ? String(args[index]) : match))
+    : message.replaceAll(/{(\d+)}/g, (match, [index]) =>
+        index in args ? String(args[index]) : match
+      )
 
 /**
  * Get {@link localize}
