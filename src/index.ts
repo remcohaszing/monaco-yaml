@@ -1,5 +1,5 @@
 import {
-  fromCodeActionContext,
+  fromCodeActionTriggerType,
   fromFormattingOptions,
   fromPosition,
   fromRange,
@@ -11,13 +11,14 @@ import {
   toLink,
   toLocationLink,
   toMarkerData,
+  toRange,
   toSelectionRanges,
   toTextEdit
 } from 'monaco-languageserver-types'
 import { registerMarkerDataProvider } from 'monaco-marker-data-provider'
-import { type IDisposable, type MonacoEditor } from 'monaco-types'
+import { type editor, type IDisposable, type MonacoEditor } from 'monaco-types'
 import { createWorkerManager } from 'monaco-worker-manager'
-import { type CompletionItemKind } from 'vscode-languageserver-types'
+import { type CompletionItemKind, type Diagnostic } from 'vscode-languageserver-types'
 
 import { type YAMLWorker } from './yaml.worker.js'
 
@@ -229,12 +230,16 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
     createData
   })
 
+  const diagnosticMap = new WeakMap<editor.ITextModel, Diagnostic[] | undefined>()
+
   const markerDataProvider = registerMarkerDataProvider(monaco, 'yaml', {
     owner: 'yaml',
 
     async provideMarkerData(model) {
       const worker = await workerManager.getWorker(model.uri)
       const diagnostics = await worker.doValidation(String(model.uri))
+
+      diagnosticMap.set(model, diagnostics)
 
       return diagnostics?.map(toMarkerData)
     },
@@ -328,11 +333,14 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
     monaco.languages.registerCodeActionProvider('yaml', {
       async provideCodeActions(model, range, context) {
         const worker = await workerManager.getWorker(model.uri)
-        const codeActions = await worker.getCodeAction(
-          String(model.uri),
-          fromRange(range),
-          fromCodeActionContext(context)
-        )
+        const codeActions = await worker.getCodeAction(String(model.uri), fromRange(range), {
+          diagnostics:
+            diagnosticMap
+              .get(model)
+              ?.filter((diagnostic) => range.intersectRanges(toRange(diagnostic.range))) || [],
+          only: context.only ? [context.only] : undefined,
+          triggerKind: fromCodeActionTriggerType(context.trigger)
+        })
 
         if (codeActions) {
           return {
