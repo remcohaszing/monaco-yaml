@@ -1,23 +1,30 @@
-import { configureMonacoYaml, type SchemasSettings } from 'monaco-yaml'
-import { monaco } from 'playwright-monaco'
+import * as monaco from 'monaco-editor'
+import { afterEach } from 'vitest'
 
-const schema: SchemasSettings = {
-  fileMatch: ['*'],
-  uri: 'http://schemas/my-schema.json',
-  schema: {
-    type: 'object',
-    properties: {
-      p1: {
-        description: 'number property',
-        type: 'number'
-      },
-      p2: {
-        type: 'boolean'
-      }
+window.MonacoEnvironment = {
+  getWorker(workerId, label) {
+    switch (label) {
+      case 'editorWorkerService':
+        return new Worker(
+          new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url),
+          { type: 'module' }
+        )
+      case 'yaml':
+        return new Worker(new URL('monaco-yaml/yaml.worker.js', import.meta.url), {
+          type: 'module'
+        })
+      default:
+        throw new Error(`Unknown label ${label}`)
     }
   }
 }
 
-configureMonacoYaml(monaco, {
-  schemas: [schema]
+afterEach(() => {
+  for (const editor of monaco.editor.getEditors()) {
+    editor.dispose()
+  }
+
+  for (const model of monaco.editor.getModels()) {
+    model.dispose()
+  }
 })

@@ -1,10 +1,41 @@
-import { expect } from '@playwright/test'
-import { test } from 'playwright-monaco'
+import * as monaco from 'monaco-editor'
+import { configureMonacoYaml, type SchemasSettings } from 'monaco-yaml'
+import { expect, test } from 'vitest'
 
-test('schema validation', async ({ editor }) => {
-  await editor.createModel('p1: \np2: \n', 'file:///example.yaml', true)
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  const markers = await editor.waitForMarkers('file:///example.yaml', async () => {})
+const schema: SchemasSettings = {
+  fileMatch: ['*'],
+  uri: 'http://schemas/my-schema.json',
+  schema: {
+    type: 'object',
+    properties: {
+      p1: {
+        description: 'number property',
+        type: 'number'
+      },
+      p2: {
+        type: 'boolean'
+      }
+    }
+  }
+}
+
+configureMonacoYaml(monaco, {
+  schemas: [schema]
+})
+
+test('schema validation', async () => {
+  const resource = monaco.Uri.parse('file:///example.yaml')
+
+  const markers = await new Promise<monaco.editor.IMarker[]>((resolve) => {
+    const disposable = monaco.editor.onDidChangeMarkers(() => {
+      disposable.dispose()
+      resolve(monaco.editor.getModelMarkers({ resource }))
+    })
+
+    const model = monaco.editor.createModel('p1: \np2: \n', undefined, resource)
+    monaco.editor.create(document.createElement('div'), { model })
+  })
+
   expect(markers).toStrictEqual([
     {
       code: '0',
@@ -12,7 +43,8 @@ test('schema validation', async ({ editor }) => {
       endLineNumber: 1,
       message: 'Incorrect type. Expected "number".',
       owner: 'yaml',
-      resource: 'file:///example.yaml',
+      relatedInformation: undefined,
+      resource,
       severity: 4,
       source: 'yaml-schema: http://schemas/my-schema.json',
       startColumn: 5,
@@ -25,7 +57,8 @@ test('schema validation', async ({ editor }) => {
       endLineNumber: 2,
       message: 'Incorrect type. Expected "boolean".',
       owner: 'yaml',
-      resource: 'file:///example.yaml',
+      relatedInformation: undefined,
+      resource,
       severity: 4,
       source: 'yaml-schema: http://schemas/my-schema.json',
       startColumn: 5,

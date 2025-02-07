@@ -6,9 +6,9 @@
   "scripts": {
     "prepack": "tsc -b && node build.js",
     "prestart": "node build.js",
-    "pretest": "tsc -b && node build.js",
+    "pretest": "node build.js",
     "start": "npm --workspace demo start",
-    "test": "playwright test"
+    "test": "vitest run"
   },
   "type": "module",
   "main": "./index.js",
@@ -55,15 +55,16 @@
     "monaco-editor": ">=0.36"
   },
   "devDependencies": {
-    "@playwright/test": "^1.0.0",
+    "@vitest/browser": "^3.0.0",
     "esbuild": "^0.24.0",
     "eslint": "^8.0.0",
     "eslint-config-remcohaszing": "^10.0.0",
     "monaco-editor": "^0.52.0",
-    "playwright-monaco": "^1.0.0",
+    "playwright": "^1.0.0",
     "remark-cli": "^12.0.0",
     "remark-preset-remcohaszing": "^3.0.0",
     "typescript": "^5.0.0",
+    "vitest": "^3.0.0",
     "yaml-language-server": "1.16.0"
   }
 }
