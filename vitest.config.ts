@@ -11,6 +11,11 @@ export default defineConfig({
           browser: 'chromium'
         }
       ]
+    },
+    coverage: {
+      enabled: true,
+      provider: 'v8',
+      include: ['fillers', 'src']
     }
   }
 })
