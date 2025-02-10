@@ -46,8 +46,8 @@ await build({
         }))
         // The main prettier entry point contains all of Prettier.
         // The standalone bundle is smaller and works fine for us.
-        onResolve({ filter: /^prettier/ }, ({ path }) => ({
-          path: path === 'prettier' ? 'prettier/standalone.js' : `${path}.js`,
+        onResolve({ filter: /^prettier$/ }, () => ({
+          path: 'prettier/standalone',
           external: true,
           sideEffects: false
         }))
