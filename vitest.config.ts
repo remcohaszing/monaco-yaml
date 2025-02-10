@@ -15,7 +15,9 @@ export default defineConfig({
     coverage: {
       enabled: true,
       provider: 'v8',
-      include: ['fillers', 'src']
+      include: ['src/**', 'fillers/**', 'index.js', 'yaml.worker.js'],
+      exclude: ['node_modules/**'],
+      excludeAfterRemap: true
     }
   }
 })
