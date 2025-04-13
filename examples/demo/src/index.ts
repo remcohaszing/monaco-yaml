@@ -1,3 +1,5 @@
+import './index.css'
+
 import { type JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schema-catalog'
 import { editor, languages, MarkerSeverity, type Position, Range, Uri } from 'monaco-editor'
 import * as monaco from 'monaco-editor'
@@ -6,7 +8,6 @@ import { OutlineModel } from 'monaco-editor/esm/vs/editor/contrib/documentSymbol
 import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js'
 import { configureMonacoYaml, type SchemasSettings } from 'monaco-yaml'
 
-import './index.css'
 import schema from './schema.json'
 
 window.MonacoEnvironment = {
@@ -163,8 +164,8 @@ select.addEventListener('change', () => {
  *   The symbols to iterate.
  * @param position
  *   The position for which to filter document symbols.
- * @yields
- * The document symbols that contain the given position.
+ * @returns
+ *   The document symbols that contain the given position.
  */
 function* iterateSymbols(
   symbols: languages.DocumentSymbol[],

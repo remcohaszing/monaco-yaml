@@ -22,30 +22,29 @@ import { type CompletionItemKind, type Diagnostic } from 'vscode-languageserver-
 
 import { type YAMLWorker } from './yaml.worker.js'
 
-/* eslint-disable jsdoc/require-jsdoc */
 export interface JSONSchema {
   id?: string
   $id?: string
   $schema?: string
   url?: string
-  type?: string[] | string
+  type?: string | string[]
   title?: string
   closestTitle?: string
   versions?: Record<string, string>
   default?: unknown
   definitions?: Record<string, JSONSchema>
   description?: string
-  properties?: Record<string, JSONSchema | boolean>
-  patternProperties?: Record<string, JSONSchema | boolean>
-  additionalProperties?: JSONSchema | boolean
+  properties?: Record<string, boolean | JSONSchema>
+  patternProperties?: Record<string, boolean | JSONSchema>
+  additionalProperties?: boolean | JSONSchema
   minProperties?: number
   maxProperties?: number
-  dependencies?: Record<string, JSONSchema | string[] | boolean>
-  items?: (JSONSchema | boolean)[] | JSONSchema | boolean
+  dependencies?: Record<string, boolean | JSONSchema | string[]>
+  items?: (boolean | JSONSchema)[] | boolean | JSONSchema
   minItems?: number
   maxItems?: number
   uniqueItems?: boolean
-  additionalItems?: JSONSchema | boolean
+  additionalItems?: boolean | JSONSchema
   pattern?: string
   minLength?: number
   maxLength?: number
@@ -56,20 +55,20 @@ export interface JSONSchema {
   multipleOf?: number
   required?: string[]
   $ref?: string
-  anyOf?: (JSONSchema | boolean)[]
-  allOf?: (JSONSchema | boolean)[]
-  oneOf?: (JSONSchema | boolean)[]
-  not?: JSONSchema | boolean
+  anyOf?: (boolean | JSONSchema)[]
+  allOf?: (boolean | JSONSchema)[]
+  oneOf?: (boolean | JSONSchema)[]
+  not?: boolean | JSONSchema
   enum?: unknown[]
   format?: string
   const?: unknown
-  contains?: JSONSchema | boolean
-  propertyNames?: JSONSchema | boolean
+  contains?: boolean | JSONSchema
+  propertyNames?: boolean | JSONSchema
   examples?: unknown[]
   $comment?: string
-  if?: JSONSchema | boolean
-  then?: JSONSchema | boolean
-  else?: JSONSchema | boolean
+  if?: boolean | JSONSchema
+  then?: boolean | JSONSchema
+  else?: boolean | JSONSchema
   defaultSnippets?: {
     label?: string
     description?: string
@@ -91,7 +90,6 @@ export interface JSONSchema {
   schemaSequence?: JSONSchema[]
   filePatternAssociation?: string
 }
-/* eslint-enable jsdoc/require-jsdoc */
 
 export interface SchemasSettings {
   /**
