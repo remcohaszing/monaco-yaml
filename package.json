@@ -65,6 +65,6 @@
     "remark-preset-remcohaszing": "^3.0.0",
     "typescript": "^5.0.0",
     "vitest": "^3.0.0",
-    "yaml-language-server": "1.16.0"
+    "yaml-language-server": "1.18.0"
   }
 }
