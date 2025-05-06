@@ -44,13 +44,6 @@ await build({
           external: true,
           sideEffects: false
         }))
-        // The main prettier entry point contains all of Prettier.
-        // The standalone bundle is smaller and works fine for us.
-        onResolve({ filter: /^prettier$/ }, () => ({
-          path: 'prettier/standalone',
-          external: true,
-          sideEffects: false
-        }))
         // This tiny filler implementation serves all our needs.
         onResolve({ filter: /vscode-nls/ }, () => ({
           path: fileURLToPath(new URL('fillers/vscode-nls.ts', import.meta.url)),
