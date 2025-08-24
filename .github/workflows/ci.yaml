@@ -87,9 +87,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: package
-      - run: npm publish *.tgz --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish *.tgz
 
   vitest:
     runs-on: ubuntu-latest
