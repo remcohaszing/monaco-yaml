@@ -1,28 +1,27 @@
+import type {
+  CodeAction,
+  CodeActionContext,
+  CompletionList,
+  Diagnostic,
+  DocumentLink,
+  DocumentSymbol,
+  FoldingRange,
+  FormattingOptions,
+  Hover,
+  LocationLink,
+  Position,
+  Range,
+  SelectionRange,
+  TextEdit
+} from 'vscode-languageserver-types'
+import type { Telemetry } from 'yaml-language-server/lib/esm/languageservice/telemetry.js'
+import type { WorkspaceContextService } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
+
+import type { MonacoYamlOptions } from './index.js'
+
 import { initialize } from 'monaco-worker-manager/worker'
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import {
-  type CodeAction,
-  type CodeActionContext,
-  type CompletionList,
-  type Diagnostic,
-  type DocumentLink,
-  type DocumentSymbol,
-  type FoldingRange,
-  type FormattingOptions,
-  type Hover,
-  type LocationLink,
-  type Position,
-  type Range,
-  type SelectionRange,
-  type TextEdit
-} from 'vscode-languageserver-types'
-import { type Telemetry } from 'yaml-language-server/lib/esm/languageservice/telemetry.js'
-import {
-  getLanguageService,
-  type WorkspaceContextService
-} from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
-
-import { type MonacoYamlOptions } from './index.js'
+import { getLanguageService } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
 
 /**
  * Fetch the given URL and return the response body as text.

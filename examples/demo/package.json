@@ -8,7 +8,7 @@
     "build": "webpack --mode production"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.0.0",
+    "@fortawesome/fontawesome-free": "^7.0.0",
     "@schemastore/schema-catalog": "^0.0.6",
     "css-loader": "^7.0.0",
     "css-minimizer-webpack-plugin": "^7.0.0",

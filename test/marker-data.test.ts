@@ -1,5 +1,7 @@
+import type { SchemasSettings } from 'monaco-yaml'
+
 import * as monaco from 'monaco-editor'
-import { configureMonacoYaml, type SchemasSettings } from 'monaco-yaml'
+import { configureMonacoYaml } from 'monaco-yaml'
 import { expect, test } from 'vitest'
 
 const schema: SchemasSettings = {

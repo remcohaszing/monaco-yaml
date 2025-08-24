@@ -1,4 +1,4 @@
-import { type LoadFunc, type LocalizeFunc } from 'vscode-nls'
+import type { LoadFunc, LocalizeFunc } from 'vscode-nls'
 
 const localize: LocalizeFunc = (key, message, ...args) =>
   args.length === 0

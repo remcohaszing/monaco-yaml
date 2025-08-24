@@ -1,3 +1,8 @@
+import type { editor, IDisposable, MonacoEditor } from 'monaco-types'
+import type { CompletionItemKind, Diagnostic } from 'vscode-languageserver-types'
+
+import type { YAMLWorker } from './yaml.worker.js'
+
 import {
   fromCodeActionTriggerType,
   fromFormattingOptions,
@@ -16,11 +21,7 @@ import {
   toTextEdit
 } from 'monaco-languageserver-types'
 import { registerMarkerDataProvider } from 'monaco-marker-data-provider'
-import { type editor, type IDisposable, type MonacoEditor } from 'monaco-types'
 import { createWorkerManager } from 'monaco-worker-manager'
-import { type CompletionItemKind, type Diagnostic } from 'vscode-languageserver-types'
-
-import { type YAMLWorker } from './yaml.worker.js'
 
 export interface JSONSchema {
   id?: string

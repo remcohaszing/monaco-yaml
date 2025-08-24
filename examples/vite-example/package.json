@@ -10,6 +10,6 @@
   "dependencies": {
     "monaco-editor": "^0.52.0",
     "monaco-yaml": "file:../..",
-    "vite": "^6.0.0"
+    "vite": "^7.0.0"
   }
 }
