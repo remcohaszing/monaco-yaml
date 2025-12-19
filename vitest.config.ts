@@ -5,7 +5,7 @@ export default defineConfig({
     include: [
       'jsonc-parser',
       'monaco-worker-manager/worker',
-      'path-browserify',
+      'path-browserify-esm',
       'prettier/plugins/yaml',
       'prettier/standalone',
       'vscode-languageserver-textdocument',

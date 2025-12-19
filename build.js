@@ -38,10 +38,9 @@ await build({
         onResolve({ filter: /^lodash$/ }, () => ({
           path: join(import.meta.dirname, 'fillers/lodash.ts')
         }))
-        // The yaml language service uses path. We can stub it using path-browserify.
+        // The yaml language service uses path. We can stub it using path-browserify-esm.
         onResolve({ filter: /^path$/ }, () => ({
-          path: 'path-browserify',
-          external: true,
+          path: join(import.meta.dirname, 'fillers/path.ts'),
           sideEffects: false
         }))
         // This tiny filler implementation serves all our needs.
