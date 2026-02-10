@@ -187,6 +187,11 @@ export interface MonacoYaml extends IDisposable {
    * Recondigure `monaco-yaml`.
    */
   update: (options: MonacoYamlOptions) => Promise<undefined>
+
+  /**
+   * Get the current configuration of `monaco-yaml`.
+   */
+  getOptions: () => MonacoYamlOptions
 }
 
 /**
@@ -425,6 +430,10 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
     async update(newOptions) {
       workerManager.updateCreateData(Object.assign(createData, newOptions))
       await markerDataProvider.revalidate()
+    },
+
+    getOptions() {
+      return createData
     }
   }
 }
