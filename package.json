@@ -59,7 +59,7 @@
     "@vitest/browser-playwright": "^4.0.0",
     "@vitest/coverage-v8": "^4.0.0",
     "esbuild": "^0.27.0",
-    "monaco-editor": "^0.52.0",
+    "monaco-editor": "^0.55.1",
     "playwright": "^1.0.0",
     "remark-cli": "^12.0.0",
     "remark-preset-remcohaszing": "^3.0.0",
