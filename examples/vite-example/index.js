@@ -8,8 +8,6 @@ window.MonacoEnvironment = {
     switch (label) {
       case 'editorWorkerService':
         return new EditorWorker()
-      case 'yaml':
-        return new YamlWorker()
       default:
         throw new Error(`Unknown label ${label}`)
     }
@@ -18,6 +16,7 @@ window.MonacoEnvironment = {
 
 configureMonacoYaml(monaco, {
   enableSchemaRequest: true,
+  worker: () => new YamlWorker(),
   schemas: [
     {
       // If YAML file is opened matching this glob

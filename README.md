@@ -31,6 +31,7 @@ offers to configure the YAML language support.
 - [API](#api)
   - [`configureMonacoYaml(monaco, options?)`](#configuremonacoyamlmonaco-options)
 - [FAQ](#faq)
+  - [Using with Monaco Editor >= 0.55](#using-with-monaco-editor--055)
   - [Does this work with the Monaco UMD bundle?](#does-this-work-with-the-monaco-umd-bundle)
   - [Does this work with Monaco Editor from a CDN?](#does-this-work-with-monaco-editor-from-a-cdn)
   - [Does this work with `@monaco-editor/loader` or `@monaco-editor/react`?](#does-this-work-with-monaco-editorloader-or-monaco-editorreact)
@@ -191,6 +192,9 @@ Configure `monaco-yaml`.
 - `schemas` (`object[]`): A list of known schemas and/or associations of schemas to file names.
   (Default: `[]`)
 - `validate` (`boolean`): based validation. (Default: `true`)
+- `worker` (`() => Worker`): A factory function that creates a new `Worker` for the YAML language
+  service. Required for Monaco Editor >= 0.55. See
+  [Using with Monaco Editor >= 0.55](#using-with-monaco-editor--055).
 - `yamlVersion` (`'1.1' | '1.2'`): The YAML version to use for parsing. (Default: `1,2`)
 
 #### Returns
@@ -198,6 +202,66 @@ Configure `monaco-yaml`.
 An object that can be used to dispose or update `monaco-yaml`.
 
 ## FAQ
+
+### Using with Monaco Editor >= 0.55
+
+Monaco Editor **0.55** introduced a breaking change to the `createWebWorker` API: the `Worker`
+instance must now be provided directly by the caller. Previous versions created the worker internally
+via `MonacoEnvironment.getWorker` / `MonacoEnvironment.getWorkerUrl`.
+
+To support Monaco Editor >= 0.55, pass the `worker` option — a factory function that creates a new
+`Worker` — to `configureMonacoYaml`. You no longer need to set up `MonacoEnvironment.getWorker` for
+the `yaml` label.
+
+**Using Vite:**
+
+Create a local worker wrapper (required because Vite's dependency pre-bundling can break the worker
+protocol):
+
+```js
+// yaml.worker.js
+import 'monaco-yaml/yaml.worker.js'
+```
+
+Then pass the worker factory:
+
+```typescript
+import * as monaco from 'monaco-editor'
+import { configureMonacoYaml } from 'monaco-yaml'
+import YamlWorker from './yaml.worker?worker'
+
+configureMonacoYaml(monaco, {
+  worker: () => new YamlWorker(),
+  enableSchemaRequest: true,
+  schemas: [
+    {
+      fileMatch: ['**/.prettierrc.*'],
+      uri: 'https://json.schemastore.org/prettierrc.json'
+    }
+  ]
+})
+```
+
+**Using Webpack 5:**
+
+```typescript
+import * as monaco from 'monaco-editor'
+import { configureMonacoYaml } from 'monaco-yaml'
+
+configureMonacoYaml(monaco, {
+  worker: () => new Worker(new URL('monaco-yaml/yaml.worker', import.meta.url)),
+  enableSchemaRequest: true,
+  schemas: [
+    {
+      fileMatch: ['**/.prettierrc.*'],
+      uri: 'https://json.schemastore.org/prettierrc.json'
+    }
+  ]
+})
+```
+
+For Monaco Editor < 0.55, omit the `worker` option and configure `MonacoEnvironment.getWorker` as
+described in the [Usage](#usage) section above.
 
 ### Does this work with the Monaco UMD bundle?
 

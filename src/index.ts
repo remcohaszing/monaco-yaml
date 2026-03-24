@@ -21,7 +21,6 @@ import {
   toTextEdit
 } from 'monaco-languageserver-types'
 import { registerMarkerDataProvider } from 'monaco-marker-data-provider'
-import { createWorkerManager } from 'monaco-worker-manager'
 
 export interface JSONSchema {
   id?: string
@@ -175,6 +174,26 @@ export interface MonacoYamlOptions {
   readonly validate?: boolean
 
   /**
+   * A factory function that creates a new `Worker` for the YAML language service.
+   *
+   * This is required for Monaco Editor **>= 0.55**, which changed the `createWebWorker` API to
+   * require a `Worker` instance. For older versions of Monaco Editor, this option is not needed as
+   * the worker is created automatically via `MonacoEnvironment.getWorker`.
+   *
+   * @example
+   *   Using Vite:
+   *
+   *   ```ts
+   *   import YamlWorker from 'monaco-yaml/yaml.worker?worker'
+   *
+   *   configureMonacoYaml(monaco, {
+   *     worker: () => new YamlWorker()
+   *   })
+   *   ```
+   */
+  readonly worker?: () => Worker
+
+  /**
    * The YAML version to use for parsing.
    *
    * @default '1.2'
@@ -194,6 +213,126 @@ export interface MonacoYaml extends IDisposable {
   getOptions: () => MonacoYamlOptions
 }
 
+interface WorkerManagerOptions {
+  label: string
+  moduleId: string
+  createData: object
+  workerFactory?: () => Worker
+  interval?: number
+  stopWhenIdleFor?: number
+}
+
+/**
+ * Create a worker manager for the YAML language service.
+ *
+ * This is an inline replacement for `monaco-worker-manager`'s `createWorkerManager` that adds
+ * support for Monaco Editor >= 0.55, which requires a `Worker` instance in `createWebWorker`.
+ */
+function createYamlWorkerManager<T>(
+  monaco: MonacoEditor,
+  options: WorkerManagerOptions
+): {
+  dispose: () => void
+  getWorker: (...resources: editor.ITextModel['uri'][]) => Promise<T>
+  updateCreateData: (newCreateData: object) => void
+} {
+  let {
+    createData,
+    interval = 30_000,
+    label,
+    moduleId,
+    stopWhenIdleFor = 120_000,
+    workerFactory
+  } = options
+  let worker: ReturnType<MonacoEditor['editor']['createWebWorker']> | undefined
+  let lastUsedTime = 0
+  let disposed = false
+
+  const stopWorker = (): void => {
+    if (worker) {
+      worker.dispose()
+      worker = undefined
+    }
+  }
+
+  const intervalId = setInterval(() => {
+    if (!worker) {
+      return
+    }
+
+    if (Date.now() - lastUsedTime > stopWhenIdleFor) {
+      stopWorker()
+    }
+  }, interval)
+
+  return {
+    dispose() {
+      disposed = true
+      clearInterval(intervalId)
+      stopWorker()
+    },
+
+    getWorker(...resources) {
+      if (disposed) {
+        throw new Error('Worker manager has been disposed')
+      }
+
+      lastUsedTime = Date.now()
+
+      if (!worker) {
+        if (workerFactory) {
+          // Monaco >= 0.55 path: the consumer provides a Worker factory.
+          //
+          // Monaco 0.55 changed `createWebWorker` to require `opts.worker` (a Worker instance).
+          // Additionally, Monaco no longer sends `createData` through the worker message protocol.
+          //
+          // The yaml worker (via `monaco-worker-manager/worker`'s `initialize`) expects:
+          //   msg1 → triggers `initializeWorker()`, which sets up a new `onmessage`
+          //   msg2 → becomes `createData` (passed to the worker factory function)
+          //   msg3+ → RPC messages handled by `WebWorkerServer`
+          //
+          // Monaco 0.55 sends msg1 = `'-please-ignore-'`, then an INITIALIZE RPC message.
+          // Without intervention, the RPC message is consumed as `createData` — breaking both
+          // the language service initialization and the RPC protocol.
+          //
+          // We intercept the 2nd `postMessage` to inject the real `createData` before the
+          // RPC INITIALIZE message reaches the worker.
+          const rawWorker = workerFactory()
+          const realPostMessage = rawWorker.postMessage.bind(rawWorker)
+          let callCount = 0
+
+          rawWorker.postMessage = function (msg: unknown, transferOrOpts?: unknown) {
+            callCount++
+
+            if (callCount === 2) {
+              realPostMessage(createData)
+              realPostMessage(msg, transferOrOpts as Transferable[])
+              rawWorker.postMessage = realPostMessage
+              return
+            }
+
+            realPostMessage(msg, transferOrOpts as Transferable[])
+          }
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          worker = monaco.editor.createWebWorker({ worker: rawWorker, label } as any)
+        } else {
+          // Legacy path for Monaco < 0.55: worker is created internally via MonacoEnvironment.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          worker = monaco.editor.createWebWorker({ createData, label, moduleId } as any)
+        }
+      }
+
+      return worker.withSyncedResources(resources) as Promise<T>
+    },
+
+    updateCreateData(newCreateData) {
+      createData = newCreateData
+      stopWorker()
+    }
+  }
+}
+
 /**
  * Configure `monaco-yaml`.
  *
@@ -208,7 +347,9 @@ export interface MonacoYaml extends IDisposable {
  *   A disposable object that can be used to update `monaco-yaml`
  */
 export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOptions): MonacoYaml {
-  const createData: MonacoYamlOptions = {
+  const { worker: workerFactory, ...yamlOptions } = options ?? {}
+
+  let createData: Omit<MonacoYamlOptions, 'worker'> = {
     completion: true,
     customTags: [],
     enableSchemaRequest: false,
@@ -218,7 +359,7 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
     schemas: [],
     validate: true,
     yamlVersion: '1.2',
-    ...options
+    ...yamlOptions
   }
 
   monaco.languages.register({
@@ -228,10 +369,11 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
     mimetypes: ['application/x-yaml']
   })
 
-  const workerManager = createWorkerManager<YAMLWorker, MonacoYamlOptions>(monaco, {
+  const workerManager = createYamlWorkerManager<YAMLWorker>(monaco, {
     label: 'yaml',
     moduleId: 'monaco-yaml/yaml.worker',
-    createData
+    createData,
+    workerFactory
   })
 
   const diagnosticMap = new WeakMap<editor.ITextModel, Diagnostic[] | undefined>()
@@ -428,12 +570,13 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
     },
 
     async update(newOptions) {
-      workerManager.updateCreateData(Object.assign(createData, newOptions))
+      const { worker: _, ...newYamlOptions } = newOptions
+      workerManager.updateCreateData(Object.assign(createData, newYamlOptions))
       await markerDataProvider.revalidate()
     },
 
     getOptions() {
-      return createData
+      return createData as MonacoYamlOptions
     }
   }
 }

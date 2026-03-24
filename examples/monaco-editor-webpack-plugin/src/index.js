@@ -3,6 +3,7 @@ import { configureMonacoYaml } from 'monaco-yaml'
 
 configureMonacoYaml(monaco, {
   enableSchemaRequest: true,
+  worker: () => new Worker(new URL('monaco-yaml/yaml.worker', import.meta.url)),
   schemas: [
     {
       // If YAML file is opened matching this glob
