@@ -7,12 +7,9 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "module": "nodenext",
-    "noEmit": false,
     "rootDir": "src",
     "outDir": ".",
     "skipLibCheck": true,
-    "strict": true,
-    "stripInternal": true,
-    "tsBuildInfoFile": "./tsconfig.build.tsbuildinfo"
+    "stripInternal": true
   }
 }

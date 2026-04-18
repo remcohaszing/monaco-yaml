@@ -4,8 +4,6 @@
   "compilerOptions": {
     "composite": true,
     "module": "nodenext",
-    "noEmit": true,
-    "strict": true,
-    "stripInternal": true
+    "noEmit": true
   }
 }
