@@ -7,4 +7,9 @@ export default class AJVStub {
   compile(): () => boolean {
     return getTrue
   }
+
+  // eslint-disable-next-line @typescript-eslint/class-methods-use-this
+  defaultMeta(): undefined {
+    // Do nothing
+  }
 }

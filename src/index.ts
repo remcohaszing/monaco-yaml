@@ -18,7 +18,8 @@ import {
   toMarkerData,
   toRange,
   toSelectionRanges,
-  toTextEdit
+  toTextEdit,
+  toWorkspaceEdit
 } from 'monaco-languageserver-types'
 import { registerMarkerDataProvider } from 'monaco-marker-data-provider'
 import { createWorkerManager } from 'monaco-worker-manager'
@@ -115,6 +116,50 @@ export interface SchemasSettings {
   uri: string
 }
 
+export interface FormatterOptions {
+  /**
+   * Print spaces between brackets in objects.
+   *
+   * @default true
+   */
+  readonly bracketSpacing?: boolean
+
+  /**
+   * Enable/disable default YAML formatter.
+   *
+   * @default true
+   */
+  readonly enable?: boolean
+
+  /**
+   * Specify the line length that the printer will wrap on.
+   *
+   * @default 80
+   */
+  readonly printWidth?: number
+
+  /**
+   * - `always`: wrap prose if it exceeds the print width.
+   * - `never`: never wrap the prose,
+   * - `preserve`: wrap prose as-is.
+   *
+   * @default `'preserve'`
+   */
+  readonly proseWrap?: 'always' | 'never' | 'preserve'
+
+  /**
+   * @default false
+   */
+  readonly singleQuote?: boolean
+
+  /**
+   * Specify if trailing commas should be used in JSON-like segments of the YAML.
+   *
+   * @default true
+   */
+  readonly trailingComma?: boolean
+}
+
 export interface MonacoYamlOptions {
   /**
    * If set, enable schema based autocompletion.
@@ -131,6 +176,21 @@ export interface MonacoYamlOptions {
   readonly customTags?: string[]
 
   /**
+   * Globally set `additionalProperties` to false if `additionalProperties` is not set and if
+   * `schema.type` is `object`. So if is true, no extra properties are allowed inside yaml.
+   *
+   * @default false
+   */
+  readonly disableAdditionalProperties?: boolean
+
+  /**
+   * Disable adding not required properties with default values into completion text.
+   *
+   * @default false
+   */
+  readonly disableDefaultProperties?: boolean
+
+  /**
    * If set, the schema service will load schema content on-demand.
    *
    * @default false
@@ -138,19 +198,44 @@ export interface MonacoYamlOptions {
   readonly enableSchemaRequest?: boolean
 
   /**
-   * If true, formatting using Prettier is enabled. Setting this to `false` does **not** exclude
-   * Prettier from the bundle.
+   * Control the use of flow mappings.
    *
-   * @default true
+   * @default 'allow'
    */
-  readonly format?: boolean
+  readonly flowMapping?: 'allow' | 'forbid'
 
   /**
-   * If set, enable hover typs based the JSON schema.
+   * Control the use of flow sequences.
+   *
+   * @default 'allow'
+   */
+  readonly flowSequence?: 'allow' | 'forbid'
+
+  /**
+   * Formatting options.
+   */
+  readonly format?: FormatterOptions
+
+  /**
+   * If set, enable hover tips based the JSON schema.
    *
    * @default true
    */
   readonly hover?: boolean
+
+  /**
+   * Enable/disable hover feature for anchors
+   *
+   * @default true
+   */
+  readonly hoverAnchor?: boolean
+
+  /**
+   * Default indentation size
+   *
+   * @default '  '
+   */
+  readonly indentation?: string
 
   /**
    * If true, a different diffing algorithm is used to generate error messages.
@@ -158,6 +243,22 @@ export interface MonacoYamlOptions {
    * @default false
    */
   readonly isKubernetes?: boolean
+
+  /**
+   * If set enforce alphabetical ordering of keys in mappings.
+   *
+   * @default false
+   */
+  readonly keyOrdering?: boolean
+
+  /**
+   * If true, the user must select some parent skeleton first before autocompletion starts to
+   * suggest the rest of the properties. When yaml object is not empty, autocompletion ignores
+   * this setting and returns all properties and skeletons.
+   *
+   * @default false
+   */
+  readonly parentSkeletonSelectedFirst?: boolean
 
   /**
    * A list of known schemas and/or associations of schemas to file names.
@@ -175,7 +276,7 @@ export interface MonacoYamlOptions {
   readonly validate?: boolean
 
   /**
-   * The YAML version to use for parsing.
+   * Default yaml lang version.
    *
    * @default '1.2'
    */
@@ -211,10 +312,26 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
   const createData: MonacoYamlOptions = {
     completion: true,
     customTags: [],
+    disableAdditionalProperties: false,
+    disableDefaultProperties: false,
     enableSchemaRequest: false,
-    format: true,
-    isKubernetes: false,
+    flowMapping: 'allow',
+    flowSequence: 'allow',
+    format: {
+      bracketSpacing: true,
+      enable: true,
+      printWidth: 80,
+      proseWrap: 'preserve',
+      singleQuote: false,
+      trailingComma: true,
+      ...options?.format
+    },
     hover: true,
+    hoverAnchor: true,
+    indentation: '  ',
+    isKubernetes: false,
+    keyOrdering: false,
+    parentSkeletonSelectedFirst: false,
     schemas: [],
     validate: true,
     yamlVersion: '1.2',
@@ -404,6 +521,26 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
         )
 
         return edits?.map(toTextEdit)
+      }
+    }),
+
+    monaco.languages.registerRenameProvider('yaml', {
+      async provideRenameEdits(model, position, newName) {
+        const worker = await workerManager.getWorker(model.uri)
+        const edit = await worker.doRename(String(model.uri), fromPosition(position), newName)
+
+        if (edit) {
+          return toWorkspaceEdit(edit)
+        }
+      },
+
+      async resolveRenameLocation(model, position) {
+        const worker = await workerManager.getWorker(model.uri)
+        const range = await worker.prepareRename(String(model.uri), fromPosition(position))
+
+        if (range) {
+          return { range: toRange(range), text: '' }
+        }
       }
     }),
 

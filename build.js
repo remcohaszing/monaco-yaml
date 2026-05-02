@@ -13,7 +13,7 @@ await build({
   outdir: '.',
   sourcemap: true,
   format: 'esm',
-  target: ['es2019'],
+  target: ['es2022'],
   plugins: [
     {
       name: 'alias',
@@ -26,17 +26,15 @@ await build({
         // The yaml language service only imports re-exports of vscode-languageserver-types from
         // vscode-languageserver.
         onResolve({ filter: /^vscode-languageserver(\/node|-protocol)?$/ }, () => ({
-          path: 'vscode-languageserver-types',
-          external: true,
-          sideEffects: false
+          path: join(import.meta.dirname, 'fillers/vscode-languageserver-protocol.ts')
         }))
         // Ajv would significantly increase bundle size.
-        onResolve({ filter: /^ajv$/ }, () => ({
-          path: join(import.meta.dirname, 'fillers/ajv.ts')
+        onResolve({ filter: /^ajv.+\.json$/ }, () => ({
+          path: join(import.meta.dirname, 'fillers/json-schema.json')
         }))
-        // We only need cloneDeep from lodash. This can be replaced with structuredClone.
-        onResolve({ filter: /^lodash$/ }, () => ({
-          path: join(import.meta.dirname, 'fillers/lodash.ts')
+        // Ajv would significantly increase bundle size.
+        onResolve({ filter: /^(ajv|ajv-draft-04|ajv\/dist\/\d+)$/ }, () => ({
+          path: join(import.meta.dirname, 'fillers/ajv.ts')
         }))
         // The yaml language service uses path. We can stub it using path-browserify.
         onResolve({ filter: /^path$/ }, () => ({

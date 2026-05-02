@@ -12,10 +12,10 @@ import type {
   Position,
   Range,
   SelectionRange,
-  TextEdit
+  TextEdit,
+  WorkspaceEdit
 } from 'vscode-languageserver-types'
 import type { Telemetry } from 'yaml-language-server/lib/esm/languageservice/telemetry.js'
-import type { WorkspaceContextService } from 'yaml-language-server/lib/esm/languageservice/yamlLanguageService.js'
 
 import type { MonacoYamlOptions } from './index.js'
 
@@ -74,7 +74,12 @@ export interface YAMLWorker {
   ) => TextEdit[] | undefined
 
   /**
-   * Format a YAML document using Prettier.
+   * Perform a rename in a YAML document.
+   */
+  doRename: (uri: string, position: Position, newName: string) => null | undefined | WorkspaceEdit
+
+  /**
+   * Format a YAML document.
    */
   format: (uri: string) => TextEdit[] | undefined
 
@@ -107,6 +112,11 @@ export interface YAMLWorker {
    * Get selection ranges in a YAML document
    */
   getSelectionRanges: (uri: string, positions: Position[]) => SelectionRange[] | undefined
+
+  /**
+   * Prepare a rename in a YAML document.
+   */
+  prepareRename: (uri: string, position: Position) => null | Range | undefined
 }
 
 const telemetry: Telemetry = {
@@ -122,81 +132,89 @@ const telemetry: Telemetry = {
   }
 }
 
-const workspaceContext: WorkspaceContextService = {
-  resolveRelativePath(relativePath, resource) {
-    return String(new URL(relativePath, resource))
-  }
-}
-
-initialize<YAMLWorker, MonacoYamlOptions>((ctx, { enableSchemaRequest, ...languageSettings }) => {
-  const ls = getLanguageService({
-    // @ts-expect-error Type definitions are wrong. This may be null.
-    schemaRequestService: enableSchemaRequest ? schemaRequestService : null,
-    telemetry,
-    workspaceContext,
-    // Copied from https://github.com/microsoft/vscode-json-languageservice/blob/493010da9dc2cd1cc139d403d4709d97064b17e9/src/jsonLanguageTypes.ts#L325-L335
-    // Usage: https://github.com/microsoft/monaco-editor/blob/f6dc0eb8fce67e57f6036f4769d92c1666cdf546/src/language/json/jsonWorker.ts#L38
-    clientCapabilities: {
-      textDocument: {
-        completion: {
-          completionItem: {
-            commitCharactersSupport: true,
-            documentationFormat: ['markdown', 'plaintext']
+initialize<YAMLWorker, MonacoYamlOptions>(
+  (ctx, { enableSchemaRequest, format, ...languageSettings }) => {
+    const ls = getLanguageService({
+      // @ts-expect-error Type definitions are wrong. This may be null.
+      schemaRequestService: enableSchemaRequest ? schemaRequestService : null,
+      telemetry,
+      workspaceContext: {
+        resolveRelativePath(relativePath, resource) {
+          return String(new URL(relativePath, resource))
+        }
+      },
+      // Copied from https://github.com/microsoft/vscode-json-languageservice/blob/493010da9dc2cd1cc139d403d4709d97064b17e9/src/jsonLanguageTypes.ts#L325-L335
+      // Usage: https://github.com/microsoft/monaco-editor/blob/f6dc0eb8fce67e57f6036f4769d92c1666cdf546/src/language/json/jsonWorker.ts#L38
+      clientCapabilities: {
+        textDocument: {
+          completion: {
+            completionItem: {
+              commitCharactersSupport: true,
+              documentationFormat: ['markdown', 'plaintext'],
+              labelDetailsSupport: true
+            }
           }
-        },
-        moniker: {}
-      }
-    }
-  })
-
-  const withDocument =
-    <A extends unknown[], R>(fn: (document: TextDocument, ...args: A) => R) =>
-    (uri: string, ...args: A) => {
-      const models = ctx.getMirrorModels()
-      for (const model of models) {
-        if (String(model.uri) === uri) {
-          return fn(TextDocument.create(uri, 'yaml', model.version, model.getValue()), ...args)
         }
       }
+    })
+
+    const withDocument =
+      <A extends unknown[], R>(fn: (document: TextDocument, ...args: A) => R) =>
+      (uri: string, ...args: A) => {
+        const models = ctx.getMirrorModels()
+        for (const model of models) {
+          if (String(model.uri) === uri) {
+            return fn(TextDocument.create(uri, 'yaml', model.version, model.getValue()), ...args)
+          }
+        }
+      }
+
+    ls.configure({ ...languageSettings, format: Boolean(format?.enable) })
+
+    return {
+      doValidation: withDocument((document) =>
+        ls.doValidation(document, Boolean(languageSettings.isKubernetes))
+      ),
+
+      doComplete: withDocument((document, position) =>
+        ls.doComplete(document, position, Boolean(languageSettings.isKubernetes))
+      ),
+
+      doDefinition: withDocument((document, position) =>
+        ls.doDefinition(document, { position, textDocument: document })
+      ),
+
+      doDocumentOnTypeFormatting: withDocument((document, position, ch, options) =>
+        ls.doDocumentOnTypeFormatting(document, { ch, options, position, textDocument: document })
+      ),
+
+      doHover: withDocument(ls.doHover),
+
+      doRename: withDocument((document, position, newName) =>
+        ls.doRename(document, { newName, position, textDocument: document })
+      ),
+
+      format: withDocument((document) => ls.doFormat(document, format)),
+
+      resetSchema: ls.resetSchema,
+
+      findDocumentSymbols: withDocument(ls.findDocumentSymbols2),
+
+      findLinks: withDocument(ls.findLinks),
+
+      getCodeAction: withDocument((document, range, context) =>
+        ls.getCodeAction(document, { range, textDocument: document, context })
+      ),
+
+      getFoldingRanges: withDocument((document) =>
+        ls.getFoldingRanges(document, { lineFoldingOnly: true })
+      ),
+
+      getSelectionRanges: withDocument(ls.getSelectionRanges),
+
+      prepareRename: withDocument((document, position) =>
+        ls.prepareRename(document, { position, textDocument: document })
+      )
     }
-
-  ls.configure(languageSettings)
-
-  return {
-    doValidation: withDocument((document) =>
-      ls.doValidation(document, Boolean(languageSettings.isKubernetes))
-    ),
-
-    doComplete: withDocument((document, position) =>
-      ls.doComplete(document, position, Boolean(languageSettings.isKubernetes))
-    ),
-
-    doDefinition: withDocument((document, position) =>
-      ls.doDefinition(document, { position, textDocument: document })
-    ),
-
-    doDocumentOnTypeFormatting: withDocument((document, position, ch, options) =>
-      ls.doDocumentOnTypeFormatting(document, { ch, options, position, textDocument: document })
-    ),
-
-    doHover: withDocument(ls.doHover),
-
-    format: withDocument(ls.doFormat),
-
-    resetSchema: ls.resetSchema,
-
-    findDocumentSymbols: withDocument(ls.findDocumentSymbols2),
-
-    findLinks: withDocument(ls.findLinks),
-
-    getCodeAction: withDocument((document, range, context) =>
-      ls.getCodeAction(document, { range, textDocument: document, context })
-    ),
-
-    getFoldingRanges: withDocument((document) =>
-      ls.getFoldingRanges(document, { lineFoldingOnly: true })
-    ),
-
-    getSelectionRanges: withDocument(ls.getSelectionRanges)
   }
-})
+)
