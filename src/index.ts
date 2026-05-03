@@ -327,6 +327,30 @@ function mergeOptions(
   }
 }
 
+interface Togglable<T> {
+  get: () => T | undefined
+  toggle: (enabled: boolean | undefined) => undefined
+}
+
+function togglable<T extends IDisposable>(create: () => T): Togglable<T> {
+  let disposable: T | undefined
+
+  return {
+    get(): T | undefined {
+      return disposable
+    },
+
+    toggle(enabled) {
+      if (enabled) {
+        disposable ??= create()
+      } else {
+        disposable?.dispose()
+        disposable = undefined
+      }
+    }
+  }
+}
+
 /**
  * Configure `monaco-yaml`.
  *
@@ -387,28 +411,7 @@ export function configureMonacoYaml(
 
   const diagnosticMap = new WeakMap<editor.ITextModel, Diagnostic[] | undefined>()
 
-  const markerDataProvider = registerMarkerDataProvider(monaco, 'yaml', {
-    owner: 'yaml',
-
-    async provideMarkerData(model) {
-      const worker = await workerManager.getWorker(model.uri)
-      const diagnostics = await worker.doValidation(String(model.uri))
-
-      diagnosticMap.set(model, diagnostics)
-
-      return diagnostics?.map(toMarkerData)
-    },
-
-    async doReset(model) {
-      const worker = await workerManager.getWorker(model.uri)
-      await worker.resetSchema(String(model.uri))
-    }
-  })
-
-  const disposables = [
-    workerManager,
-    markerDataProvider,
-
+  const codeLensProvider = togglable(() =>
     monaco.languages.registerCodeLensProvider('yaml', {
       async provideCodeLenses(model) {
         const worker = await workerManager.getWorker(model.uri)
@@ -423,8 +426,10 @@ export function configureMonacoYaml(
           }
         }
       }
-    }),
+    })
+  )
 
+  const completionProvider = togglable(() =>
     monaco.languages.registerCompletionItemProvider('yaml', {
       triggerCharacters: [' ', ':'],
 
@@ -444,8 +449,23 @@ export function configureMonacoYaml(
           })
         }
       }
-    }),
+    })
+  )
 
+  const formatProvider = togglable(() =>
+    monaco.languages.registerDocumentFormattingEditProvider('yaml', {
+      displayName: 'yaml',
+
+      async provideDocumentFormattingEdits(model) {
+        const worker = await workerManager.getWorker(model.uri)
+        const edits = await worker.format(String(model.uri))
+
+        return edits?.map(toTextEdit)
+      }
+    })
+  )
+
+  const hoverProvider = togglable(() =>
     monaco.languages.registerHoverProvider('yaml', {
       async provideHover(model, position) {
         const worker = await workerManager.getWorker(model.uri)
@@ -455,7 +475,41 @@ export function configureMonacoYaml(
           return toHover(info)
         }
       }
-    }),
+    })
+  )
+
+  const validationProvider = togglable(() =>
+    registerMarkerDataProvider(monaco, 'yaml', {
+      owner: 'yaml',
+
+      async provideMarkerData(model) {
+        const worker = await workerManager.getWorker(model.uri)
+        const diagnostics = await worker.doValidation(String(model.uri))
+
+        diagnosticMap.set(model, diagnostics)
+
+        return diagnostics?.map(toMarkerData)
+      },
+
+      async doReset(model) {
+        const worker = await workerManager.getWorker(model.uri)
+        await worker.resetSchema(String(model.uri))
+      }
+    })
+  )
+
+  function toggleAll(): undefined {
+    codeLensProvider.toggle(createData.codeLens)
+    completionProvider.toggle(createData.completion)
+    formatProvider.toggle(createData.format?.enable)
+    hoverProvider.toggle(createData.hover)
+    validationProvider.toggle(createData.validate)
+  }
+
+  toggleAll()
+
+  const disposables = [
+    workerManager,
 
     monaco.languages.registerDefinitionProvider('yaml', {
       async provideDefinition(model, position) {
@@ -474,17 +528,6 @@ export function configureMonacoYaml(
         const items = await worker.findDocumentSymbols(String(model.uri))
 
         return items?.map(toDocumentSymbol)
-      }
-    }),
-
-    monaco.languages.registerDocumentFormattingEditProvider('yaml', {
-      displayName: 'yaml',
-
-      async provideDocumentFormattingEdits(model) {
-        const worker = await workerManager.getWorker(model.uri)
-        const edits = await worker.format(String(model.uri))
-
-        return edits?.map(toTextEdit)
       }
     }),
 
@@ -609,6 +652,11 @@ export function configureMonacoYaml(
 
   return {
     dispose() {
+      codeLensProvider.get()?.dispose()
+      completionProvider.get()?.dispose()
+      formatProvider.get()?.dispose()
+      hoverProvider.get()?.dispose()
+      validationProvider.get()?.dispose()
       for (const disposable of disposables) {
         disposable.dispose()
       }
@@ -617,7 +665,8 @@ export function configureMonacoYaml(
     async update(newOptions) {
       createData = mergeOptions(newOptions, createData)
       workerManager.updateCreateData(createData)
-      await markerDataProvider.revalidate()
+      toggleAll()
+      await validationProvider.get()?.revalidate()
     },
 
     getOptions() {

@@ -3,6 +3,7 @@
   --editor-background: hsl(60, 100%, 100%);
   --error-color: hsl(0, 85%, 62%);
   --foreground-color: hsl(0, 0%, 0%);
+  --header-foreground-color: hsl(0, 0%, 0%);
   --primary-color: hsl(189, 100%, 63%);
   --shadow-color: hsla(0, 0%, 27%, 0.239);
   --scrollbar-color: hsla(0, 0%, 47%, 0.4);
@@ -20,6 +21,7 @@
 
 body {
   background: var(--background-color);
+  color: var(--foreground-color);
   display: flex;
   flex-flow: column;
   font-family: sans-serif;
@@ -34,6 +36,7 @@ h1 {
 nav {
   align-items: center;
   background: var(--primary-color);
+  color: var(--header-foreground-color);
   box-shadow: 0px 5px 5px var(--shadow-color);
   display: flex;
   flex: 0 0 auto;
@@ -63,13 +66,18 @@ main {
   background-color: var(--editor-background);
   border: none;
   border-bottom: 1px solid var(--shadow-color);
-  color: var(--foreground-color);
   width: 100%;
+}
+
+#options {
+  label {
+    display: inline-block;
+    word-break: keep-all;
+  }
 }
 
 #breadcrumbs {
   border-bottom: 1px solid var(--shadow-color);
-  color: var(--foreground-color);
   flex: 0 0 1rem;
 }
 
@@ -98,7 +106,6 @@ main {
 #problems {
   border-top: 1px solid var(--shadow-color);
   flex: 0 0 20vh;
-  color: var(--foreground-color);
   overflow-y: scroll;
 }
 

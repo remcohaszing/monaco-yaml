@@ -168,6 +168,27 @@ select.addEventListener('change', () => {
   oldModel?.dispose()
 })
 
+interface OptionsForm extends HTMLFormElement {
+  codeLens: HTMLInputElement
+  completion: HTMLInputElement
+  format: HTMLInputElement
+  hover: HTMLInputElement
+  validate: HTMLInputElement
+}
+
+const form = document.getElementById('options') as OptionsForm
+form.addEventListener('change', () => {
+  monacoYaml.update({
+    codeLens: form.codeLens.checked,
+    completion: form.completion.checked,
+    format: {
+      enable: form.format.checked
+    },
+    hover: form.hover.checked,
+    validate: form.validate.checked
+  })
+})
+
 /**
  * Get the document symbols that contain the given position.
  *

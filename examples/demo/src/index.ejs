@@ -6,6 +6,7 @@
     <title>Monaco YAML</title>
     <meta name="description" content="YAML support for Monaco editor" />
     <meta name="theme-color" content="#42e3ff" />
+    <meta name="color-scheme" content="light dark" />
   </head>
   <body>
     <nav>
@@ -39,6 +40,13 @@
       <select id="schema-selection">
         <option value="monaco-yaml.yaml">Monaco YAML example</option>
       </select>
+      <form id="options">
+        <label><input type="checkbox" name="codeLens" />Code lens</label>
+        <label><input type="checkbox" name="completion" checked />Completion</label>
+        <label><input type="checkbox" name="format" checked />Format</label>
+        <label><input type="checkbox" name="hover" checked />Hover</label>
+        <label><input type="checkbox" name="validate" checked />Validate</label>
+      </form>
       <div id="breadcrumbs"></div>
       <div id="editor"></div>
       <div id="problems"></div>
