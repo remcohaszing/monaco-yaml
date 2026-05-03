@@ -260,7 +260,11 @@ editor.onDidChangeMarkers(([resource]) => {
     wrapper.classList.add('problem')
     codicon.classList.add(
       'codicon',
-      marker.severity === MarkerSeverity.Warning ? 'codicon-warning' : 'codicon-error'
+      marker.severity === MarkerSeverity.Info
+        ? 'codicon-info'
+        : marker.severity === MarkerSeverity.Warning
+          ? 'codicon-warning'
+          : 'codicon-error'
     )
     text.classList.add('problem-text')
     text.textContent = marker.message

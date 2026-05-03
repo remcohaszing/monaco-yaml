@@ -4,6 +4,7 @@
   --error-color: hsl(0, 85%, 62%);
   --foreground-color: hsl(0, 0%, 0%);
   --header-foreground-color: hsl(0, 0%, 0%);
+  --info-color: hsl(212, 100%, 61%);
   --primary-color: hsl(189, 100%, 63%);
   --shadow-color: hsla(0, 0%, 27%, 0.239);
   --scrollbar-color: hsla(0, 0%, 47%, 0.4);
@@ -122,6 +123,10 @@ main {
 
 .problem-text {
   margin-left: 0.5rem;
+}
+
+.problem .codicon-info {
+  color: var(--info-color);
 }
 
 .problem .codicon-warning {
