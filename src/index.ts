@@ -304,6 +304,30 @@ export interface MonacoYaml extends IDisposable {
 }
 
 /**
+ * Merge two options objects.
+ *
+ * @param newOptions
+ *   The new options to merge into with old options.
+ * @param oldOptions
+ *   The old options to merge the new options with.
+ * @returns
+ *   The options merged with the previous options.
+ */
+function mergeOptions(
+  newOptions: MonacoYamlOptions,
+  oldOptions: MonacoYamlOptions
+): MonacoYamlOptions {
+  return {
+    ...oldOptions,
+    ...newOptions,
+    format: {
+      ...oldOptions.format,
+      ...newOptions.format
+    }
+  }
+}
+
+/**
  * Configure `monaco-yaml`.
  *
  * > **Note**: There may only be one configured instance of `monaco-yaml` at a time.
@@ -316,8 +340,11 @@ export interface MonacoYaml extends IDisposable {
  * @returns
  *   A disposable object that can be used to update `monaco-yaml`
  */
-export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOptions): MonacoYaml {
-  const createData: MonacoYamlOptions = {
+export function configureMonacoYaml(
+  monaco: MonacoEditor,
+  options: MonacoYamlOptions = {}
+): MonacoYaml {
+  let createData = mergeOptions(options, {
     codeLens: false,
     completion: true,
     customTags: [],
@@ -332,8 +359,7 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
       printWidth: 80,
       proseWrap: 'preserve',
       singleQuote: false,
-      trailingComma: true,
-      ...options?.format
+      trailingComma: true
     },
     hover: true,
     hoverAnchor: true,
@@ -343,9 +369,8 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
     parentSkeletonSelectedFirst: false,
     schemas: [],
     validate: true,
-    yamlVersion: '1.2',
-    ...options
-  }
+    yamlVersion: '1.2'
+  })
 
   monaco.languages.register({
     id: 'yaml',
@@ -590,7 +615,8 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
     },
 
     async update(newOptions) {
-      workerManager.updateCreateData(Object.assign(createData, newOptions))
+      createData = mergeOptions(newOptions, createData)
+      workerManager.updateCreateData(createData)
       await markerDataProvider.revalidate()
     },
 
