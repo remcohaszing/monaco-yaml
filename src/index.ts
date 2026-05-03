@@ -9,6 +9,7 @@ import {
   fromPosition,
   fromRange,
   toCodeAction,
+  toCodeLens,
   toCompletionList,
   toDocumentSymbol,
   toFoldingRange,
@@ -162,6 +163,13 @@ export interface FormatterOptions {
 
 export interface MonacoYamlOptions {
   /**
+   * If set, enable code lens.
+   *
+   * @default false
+   */
+  readonly codeLens?: boolean
+
+  /**
    * If set, enable schema based autocompletion.
    *
    * @default true
@@ -310,6 +318,7 @@ export interface MonacoYaml extends IDisposable {
  */
 export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOptions): MonacoYaml {
   const createData: MonacoYamlOptions = {
+    codeLens: false,
     completion: true,
     customTags: [],
     disableAdditionalProperties: false,
@@ -374,6 +383,22 @@ export function configureMonacoYaml(monaco: MonacoEditor, options?: MonacoYamlOp
   const disposables = [
     workerManager,
     markerDataProvider,
+
+    monaco.languages.registerCodeLensProvider('yaml', {
+      async provideCodeLenses(model) {
+        const worker = await workerManager.getWorker(model.uri)
+        const lenses = await worker.getCodeLens(String(model.uri))
+
+        if (lenses) {
+          return {
+            lenses: lenses.map(toCodeLens),
+            dispose() {
+              // This is required by the TypeScript interface, but it’s not implemented.
+            }
+          }
+        }
+      }
+    }),
 
     monaco.languages.registerCompletionItemProvider('yaml', {
       triggerCharacters: [' ', ':'],

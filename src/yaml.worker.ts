@@ -1,6 +1,7 @@
 import type {
   CodeAction,
   CodeActionContext,
+  CodeLens,
   CompletionList,
   Diagnostic,
   DocumentLink,
@@ -104,6 +105,11 @@ export interface YAMLWorker {
   getCodeAction: (uri: string, range: Range, context: CodeActionContext) => CodeAction[] | undefined
 
   /**
+   * Get the code lens of a YAML document.
+   */
+  getCodeLens: (uri: string) => CodeLens[] | undefined
+
+  /**
    * Get folding ranges in a YAML document.
    */
   getFoldingRanges: (uri: string) => FoldingRange[] | null | undefined
@@ -205,6 +211,8 @@ initialize<YAMLWorker, MonacoYamlOptions>(
       getCodeAction: withDocument((document, range, context) =>
         ls.getCodeAction(document, { range, textDocument: document, context })
       ),
+
+      getCodeLens: withDocument(ls.getCodeLens),
 
       getFoldingRanges: withDocument((document) =>
         ls.getFoldingRanges(document, { lineFoldingOnly: true })

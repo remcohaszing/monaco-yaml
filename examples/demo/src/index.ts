@@ -123,6 +123,14 @@ const ed = editor.create(document.getElementById('editor')!, {
   formatOnType: true
 })
 
+editor.addEditorAction({
+  id: 'jumpToSchema',
+  label: 'Jump to schema',
+  run(e, url) {
+    window.open(url, '_blank')
+  }
+})
+
 const select = document.getElementById('schema-selection') as HTMLSelectElement
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
