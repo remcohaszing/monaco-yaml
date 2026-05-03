@@ -4,7 +4,6 @@ import type { JSONSchemaForSchemaStoreOrgCatalogFiles } from '@schemastore/schem
 import type { Position } from 'monaco-editor'
 import type { SchemasSettings } from 'monaco-yaml'
 
-import { editor, languages, MarkerSeverity, Range, Uri } from 'monaco-editor'
 import * as monaco from 'monaco-editor'
 import { ILanguageFeaturesService } from 'monaco-editor/esm/vs/editor/common/services/languageFeatures.js'
 import { OutlineModel } from 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js'
@@ -107,14 +106,14 @@ formatting:       Formatting is supported too! Under the hood this is powered by
 `.replace(/:$/m, ': ')
 
 const dark = matchMedia('(prefers-color-scheme: dark)')
-editor.setTheme(dark.matches ? 'vs-dark' : 'vs-light')
+monaco.editor.setTheme(dark.matches ? 'vs-dark' : 'vs-light')
 dark.addEventListener('change', () => {
-  editor.setTheme(dark.matches ? 'vs-dark' : 'vs-light')
+  monaco.editor.setTheme(dark.matches ? 'vs-dark' : 'vs-light')
 })
 
-const ed = editor.create(document.getElementById('editor')!, {
+const editor = monaco.editor.create(document.getElementById('editor')!, {
   automaticLayout: true,
-  model: editor.createModel(value, 'yaml', Uri.parse('monaco-yaml.yaml')),
+  model: monaco.editor.createModel(value, 'yaml', monaco.Uri.parse('monaco-yaml.yaml')),
   quickSuggestions: {
     other: true,
     comments: false,
@@ -123,10 +122,10 @@ const ed = editor.create(document.getElementById('editor')!, {
   formatOnType: true
 })
 
-editor.addEditorAction({
+monaco.editor.addEditorAction({
   id: 'jumpToSchema',
   label: 'Jump to schema',
-  run(e, url) {
+  run(ed, url) {
     window.open(url, '_blank')
   }
 })
@@ -162,9 +161,13 @@ fetch('https://www.schemastore.org/api/json/catalog.json').then(async (response)
 })
 
 select.addEventListener('change', () => {
-  const oldModel = ed.getModel()
-  const newModel = editor.createModel(oldModel?.getValue() ?? '', 'yaml', Uri.parse(select.value))
-  ed.setModel(newModel)
+  const oldModel = editor.getModel()
+  const newModel = monaco.editor.createModel(
+    oldModel?.getValue() ?? '',
+    'yaml',
+    monaco.Uri.parse(select.value)
+  )
+  editor.setModel(newModel)
   oldModel?.dispose()
 })
 
@@ -200,11 +203,11 @@ form.addEventListener('change', () => {
  *   The document symbols that contain the given position.
  */
 function* iterateSymbols(
-  symbols: languages.DocumentSymbol[],
+  symbols: monaco.languages.DocumentSymbol[],
   position: Position
-): Iterable<languages.DocumentSymbol> {
+): Iterable<monaco.languages.DocumentSymbol> {
   for (const symbol of symbols) {
-    if (Range.containsPosition(symbol.range, position)) {
+    if (monaco.Range.containsPosition(symbol.range, position)) {
       yield symbol
       if (symbol.children) {
         yield* iterateSymbols(symbol.children, position)
@@ -213,10 +216,10 @@ function* iterateSymbols(
   }
 }
 
-ed.onDidChangeCursorPosition(async (event) => {
+editor.onDidChangeCursorPosition(async (event) => {
   const breadcrumbs = document.getElementById('breadcrumbs')!
   const { documentSymbolProvider } = StandaloneServices.get(ILanguageFeaturesService)
-  const outline = await OutlineModel.create(documentSymbolProvider, ed.getModel()!)
+  const outline = await OutlineModel.create(documentSymbolProvider, editor.getModel()!)
   const symbols = outline.asListOfDocumentSymbols()
   while (breadcrumbs.lastChild) {
     breadcrumbs.lastChild.remove()
@@ -227,30 +230,30 @@ ed.onDidChangeCursorPosition(async (event) => {
     breadcrumb.classList.add('breadcrumb')
     breadcrumb.textContent = symbol.name
     breadcrumb.title = symbol.detail
-    if (symbol.kind === languages.SymbolKind.Array) {
+    if (symbol.kind === monaco.languages.SymbolKind.Array) {
       breadcrumb.classList.add('array')
-    } else if (symbol.kind === languages.SymbolKind.Module) {
+    } else if (symbol.kind === monaco.languages.SymbolKind.Module) {
       breadcrumb.classList.add('object')
     }
     breadcrumb.addEventListener('click', () => {
-      ed.setPosition({
+      editor.setPosition({
         lineNumber: symbol.range.startLineNumber,
         column: symbol.range.startColumn
       })
-      ed.focus()
+      editor.focus()
     })
     breadcrumbs.append(breadcrumb)
   }
 })
 
-editor.onDidChangeMarkers(([resource]) => {
+monaco.editor.onDidChangeMarkers(([resource]) => {
   const problems = document.getElementById('problems')!
-  const markers = editor.getModelMarkers({ resource })
+  const markers = monaco.editor.getModelMarkers({ resource })
   while (problems.lastChild) {
     problems.lastChild.remove()
   }
   for (const marker of markers) {
-    if (marker.severity === MarkerSeverity.Hint) {
+    if (marker.severity === monaco.MarkerSeverity.Hint) {
       continue
     }
     const wrapper = document.createElement('div')
@@ -260,9 +263,9 @@ editor.onDidChangeMarkers(([resource]) => {
     wrapper.classList.add('problem')
     codicon.classList.add(
       'codicon',
-      marker.severity === MarkerSeverity.Info
+      marker.severity === monaco.MarkerSeverity.Info
         ? 'codicon-info'
-        : marker.severity === MarkerSeverity.Warning
+        : marker.severity === monaco.MarkerSeverity.Warning
           ? 'codicon-warning'
           : 'codicon-error'
     )
@@ -270,8 +273,8 @@ editor.onDidChangeMarkers(([resource]) => {
     text.textContent = marker.message
     wrapper.append(codicon, text)
     wrapper.addEventListener('click', () => {
-      ed.setPosition({ lineNumber: marker.startLineNumber, column: marker.startColumn })
-      ed.focus()
+      editor.setPosition({ lineNumber: marker.startLineNumber, column: marker.startColumn })
+      editor.focus()
     })
     problems.append(wrapper)
   }
