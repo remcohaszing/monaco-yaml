@@ -29,6 +29,10 @@ await build({
           path: join(import.meta.dirname, 'fillers/vscode-languageserver-protocol.ts')
         }))
         // Ajv would significantly increase bundle size.
+        onResolve({ filter: /^ajv-i18n$/ }, () => ({
+          path: join(import.meta.dirname, 'fillers/json-schema.json')
+        }))
+        // Ajv would significantly increase bundle size.
         onResolve({ filter: /^ajv.+\.json$/ }, () => ({
           path: join(import.meta.dirname, 'fillers/json-schema.json')
         }))
