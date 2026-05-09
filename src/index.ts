@@ -239,6 +239,13 @@ export interface MonacoYamlOptions {
   readonly hoverAnchor?: boolean
 
   /**
+   * Enable/disable showing the schema source in hover tooltips.
+   *
+   * @default true
+   */
+  readonly hoverSchemaSource?: boolean
+
+  /**
    * Default indentation size
    *
    * @default '  '
