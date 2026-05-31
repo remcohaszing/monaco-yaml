@@ -122,7 +122,7 @@ Other bundlers may use a different syntax, but the idea is the same. Languages y
 omitted.
 
 ```js
-window.MonacoEnvironment = {
+globalThis.MonacoEnvironment = {
   getWorker(moduleId, label) {
     switch (label) {
       case 'editorWorkerService':
@@ -256,7 +256,7 @@ Then in your Monaco environment `getWorker` function, reference this file instea
 ```js
 import YamlWorker from './yaml.worker.js?worker'
 
-window.MonacoEnvironment = {
+globalThis.MonacoEnvironment = {
   getWorker(moduleId, label) {
     switch (label) {
       // Handle other cases

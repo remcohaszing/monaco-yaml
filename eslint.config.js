@@ -7,8 +7,7 @@ export default [
     rules: {
       'import-x/no-extraneous-dependencies': 'off',
       'jsdoc/require-jsdoc': 'off',
-      'n/no-extraneous-import': 'off',
-      'unicorn/prefer-global-this': 'off'
+      'n/no-extraneous-import': 'off'
     }
   }
 ]

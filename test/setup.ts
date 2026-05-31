@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor'
 import { afterEach } from 'vitest'
 
-window.MonacoEnvironment = {
+globalThis.MonacoEnvironment = {
   getWorker(workerId, label) {
     switch (label) {
       case 'editorWorkerService':

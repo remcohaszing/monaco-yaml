@@ -12,7 +12,7 @@ import { configureMonacoYaml } from 'monaco-yaml'
 
 import schema from './schema.json'
 
-window.MonacoEnvironment = {
+globalThis.MonacoEnvironment = {
   getWorker(moduleId, label) {
     switch (label) {
       case 'editorWorkerService':

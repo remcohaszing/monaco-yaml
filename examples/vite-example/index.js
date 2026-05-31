@@ -3,7 +3,7 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import { configureMonacoYaml } from 'monaco-yaml'
 import YamlWorker from 'monaco-yaml/yaml.worker?worker'
 
-window.MonacoEnvironment = {
+globalThis.MonacoEnvironment = {
   getWorker(moduleId, label) {
     switch (label) {
       case 'editorWorkerService':
