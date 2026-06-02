@@ -2,7 +2,7 @@ function getTrue(): boolean {
   return true
 }
 
-export default class AJVStub {
+export default class AJV2020Stub {
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this
   compile(): () => boolean {
     return getTrue
@@ -10,6 +10,6 @@ export default class AJVStub {
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this
   defaultMeta(): string {
-    return 'http://json-schema.org/draft-07/schema'
+    return "https://json-schema.org/draft/2020-12/schema"
   }
 }
