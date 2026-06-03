@@ -37,8 +37,8 @@ await build({
           path: join(import.meta.dirname, 'fillers/json-schema.json')
         }))
         // Ajv would significantly increase bundle size.
-        onResolve({ filter: /^(ajv|ajv-draft-04|ajv\/dist\/\d+)$/ }, () => ({
-          path: join(import.meta.dirname, 'fillers/ajv.ts')
+        onResolve({ filter: /^(ajv|ajv-draft-04|ajv\/dist\/\d+)$/ }, ({ path }) => ({
+          path: join(import.meta.dirname, `fillers/${path}.ts`)
         }))
         // The yaml language service uses path. We can stub it using path-browserify.
         onResolve({ filter: /^path$/ }, () => ({

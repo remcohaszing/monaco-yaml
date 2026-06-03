@@ -9,7 +9,7 @@ export default class AJVStub {
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this
-  defaultMeta(): undefined {
-    // Do nothing
+  defaultMeta(): string {
+    return 'http://json-schema.org/draft-07/schema'
   }
 }
