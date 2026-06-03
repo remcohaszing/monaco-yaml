@@ -2,6 +2,7 @@ import type { SchemasSettings } from 'monaco-yaml'
 
 import * as monaco from 'monaco-editor'
 import { configureMonacoYaml } from 'monaco-yaml'
+import { d } from 'proxy-disposable'
 import { expect, test } from 'vitest'
 
 const schema: SchemasSettings = {
@@ -28,17 +29,17 @@ configureMonacoYaml(monaco, {
 test('schema validation', async () => {
   const resource = monaco.Uri.parse('file:///example.yaml')
 
-  const markers = await new Promise<monaco.editor.IMarker[]>((resolve) => {
-    const disposable = monaco.editor.onDidChangeMarkers(() => {
-      disposable.dispose()
-      resolve(monaco.editor.getModelMarkers({ resource }))
-    })
+  const markers = Promise.withResolvers<monaco.editor.IMarker[]>()
+  using onDidChangeMarkers = d(
+    monaco.editor.onDidChangeMarkers(() =>
+      markers.resolve(monaco.editor.getModelMarkers({ resource }))
+    )
+  )
 
-    const model = monaco.editor.createModel('p1: \np2: \n', undefined, resource)
-    monaco.editor.create(document.createElement('div'), { model })
-  })
+  using model = d(monaco.editor.createModel('p1: \np2: \n', undefined, resource))
+  using editor = d(monaco.editor.create(document.createElement('div'), { model }))
 
-  expect(markers).toStrictEqual([
+  expect(await markers.promise).toStrictEqual([
     {
       code: '0',
       endColumn: 5,
