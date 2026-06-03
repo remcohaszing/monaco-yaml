@@ -1,6 +1,5 @@
 coverage/
-dist/
-!/fillers/ajv/dist/
+/dist/
 node_modules/
 playwright-report/
 test-results/
