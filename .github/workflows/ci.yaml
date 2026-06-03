@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: 26
       - run: npm ci
-      - run: npx eslint .
+      - run: npx eslint
 
   examples:
     runs-on: ubuntu-latest
